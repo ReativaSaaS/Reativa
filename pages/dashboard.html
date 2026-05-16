@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | REATIVA</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/dashboard.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">R</div>
+        <span class="sidebar-brand">REATIVA</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Menu</div>
+          <a class="sidebar-link active" data-page="overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+              <rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            Visão Geral
+          </a>
+          <a class="sidebar-link" data-page="clients">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Clientes
+            <span class="badge">24</span>
+          </a>
+          <a class="sidebar-link" data-page="campaigns">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+            Campanhas
+          </a>
+          <a class="sidebar-link" data-page="messages">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Mensagens
+            <span class="badge">5</span>
+          </a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Automação</div>
+          <a class="sidebar-link" data-page="flows">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+            </svg>
+            Fluxos
+          </a>
+          <a class="sidebar-link" data-page="schedule">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Agendamentos
+          </a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Configurações</div>
+          <a class="sidebar-link" data-page="settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Configurações
+          </a>
+          <a class="sidebar-link" data-page="billing">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+              <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            Plano & Cobrança
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="userAvatar">U</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="userName">Usuário</div>
+            <div class="sidebar-user-plan">Plano Starter</div>
+          </div>
+          <button class="sidebar-logout" onclick="window.ReativaAuth.logout()" title="Sair">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="mobile-toggle" onclick="toggleSidebar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <h1 class="topbar-title" id="pageTitle">Visão Geral</h1>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="Buscar clientes...">
+          </div>
+          <button class="topbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notification-dot"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        <!-- Metrics -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                </svg>
+              </div>
+              <span class="metric-trend up">+12%</span>
+            </div>
+            <div class="metric-value">1,247</div>
+            <div class="metric-label">Total de Clientes</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <span class="metric-trend up">+8%</span>
+            </div>
+            <div class="metric-value">384</div>
+            <div class="metric-label">Clientes Reativados</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-icon yellow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <span class="metric-trend down">-3%</span>
+            </div>
+            <div class="metric-value">156</div>
+            <div class="metric-label">Clientes Inativos</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <div class="metric-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <span class="metric-trend up">+24%</span>
+            </div>
+            <div class="metric-value">5,832</div>
+            <div class="metric-label">Mensagens Enviadas</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Reativações por Mês</h3>
+            </div>
+            <div class="chart-placeholder">
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 40%"></div>
+                <span class="chart-label">Jan</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 55%"></div>
+                <span class="chart-label">Fev</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 45%"></div>
+                <span class="chart-label">Mar</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 70%"></div>
+                <span class="chart-label">Abr</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 60%"></div>
+                <span class="chart-label">Mai</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 85%"></div>
+                <span class="chart-label">Jun</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 75%"></div>
+                <span class="chart-label">Jul</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 90%"></div>
+                <span class="chart-label">Ago</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 65%"></div>
+                <span class="chart-label">Set</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 95%"></div>
+                <span class="chart-label">Out</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 80%"></div>
+                <span class="chart-label">Nov</span>
+              </div>
+              <div class="chart-bar-group">
+                <div class="chart-bar" style="height: 88%"></div>
+                <span class="chart-label">Dez</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3 class="chart-title">Status dos Clientes</h3>
+            </div>
+            <div class="donut-placeholder"></div>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <span class="legend-dot" style="background: var(--success)"></span>
+                Ativos (36%)
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: var(--warning)"></span>
+                Inativos (25%)
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #ef4444"></span>
+                Perdidos (17%)
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: var(--accent)"></span>
+                Reativados (22%)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Clients Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Clientes Recentes</h3>
+            <div class="card-actions">
+              <button class="btn btn-secondary btn-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Importar CSV
+              </button>
+              <button class="btn btn-primary btn-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Adicionar Cliente
+              </button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Status</th>
+                  <th>Último Contato</th>
+                  <th>Mensagens</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <div class="client-avatar">MC</div>
+                      <div>
+                        <div class="client-name">Maria Clara</div>
+                        <div class="client-email">maria@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="status-badge active">Ativo</span></td>
+                  <td>Há 2 horas</td>
+                  <td>12</td>
+                  <td><button class="btn btn-secondary btn-sm">Ver</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <div class="client-avatar">RS</div>
+                      <div>
+                        <div class="client-name">Rafael Santos</div>
+                        <div class="client-email">rafael@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="status-badge inactive">Inativo</span></td>
+                  <td>Há 15 dias</td>
+                  <td>3</td>
+                  <td><button class="btn btn-secondary btn-sm">Ver</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <div class="client-avatar">AL</div>
+                      <div>
+                        <div class="client-name">Ana Lima</div>
+                        <div class="client-email">ana@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="status-badge lost">Perdido</span></td>
+                  <td>Há 45 dias</td>
+                  <td>1</td>
+                  <td><button class="btn btn-primary btn-sm">Reativar</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <div class="client-avatar">JO</div>
+                      <div>
+                        <div class="client-name">João Oliveira</div>
+                        <div class="client-email">joao@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="status-badge recovered">Reativado</span></td>
+                  <td>Há 1 dia</td>
+                  <td>8</td>
+                  <td><button class="btn btn-secondary btn-sm">Ver</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <div class="client-avatar">CF</div>
+                      <div>
+                        <div class="client-name">Carla Ferreira</div>
+                        <div class="client-email">carla@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="status-badge active">Ativo</span></td>
+                  <td>Há 5 horas</td>
+                  <td>24</td>
+                  <td><button class="btn btn-secondary btn-sm">Ver</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script>
+    // Auth guard
+    (async () => {
+      const session = await window.ReativaAuth.checkSession();
+      if (!session) {
+        window.location.href = '/pages/login.html';
+        return;
+      }
+
+      // Set user info
+      const user = session.user;
+      const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário';
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    })();
+
+    // Sidebar toggle
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Navigation
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+        document.getElementById('pageTitle').textContent = link.textContent.trim();
+        document.getElementById('sidebar').classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>

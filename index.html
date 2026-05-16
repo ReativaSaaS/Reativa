@@ -282,7 +282,7 @@
               Suporte por email
             </li>
           </ul>
-          <a href="/pages/register.html" class="btn btn-outline">Começar Agora</a>
+          <button onclick="selectPlan('starter')" class="btn btn-outline">Começar Agora</button>
         </div>
 
         <div class="pricing-card featured reveal reveal-delay-1">
@@ -311,7 +311,7 @@
               Suporte prioritário
             </li>
           </ul>
-          <a href="/pages/register.html" class="btn btn-primary">Começar Agora</a>
+          <button onclick="selectPlan('pro')" class="btn btn-primary">Começar Agora</button>
         </div>
 
         <div class="pricing-card reveal reveal-delay-2">
@@ -340,7 +340,7 @@
               Gerente de conta
             </li>
           </ul>
-          <a href="/pages/register.html" class="btn btn-outline">Falar com Vendas</a>
+          <button onclick="selectPlan('business')" class="btn btn-outline">Falar com Vendas</button>
         </div>
       </div>
     </div>
@@ -486,8 +486,11 @@
   <div id="footer"></div>
 
   <!-- Scripts -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://js.stripe.com/v3/"></script>
   <script src="/assets/js/main.js"></script>
   <script src="/assets/js/navbar.js"></script>
   <script src="/assets/js/supabase.js"></script>
+  <script src="/assets/js/stripe.js"></script>
 </body>
 </html>

@@ -1,48 +1,14 @@
 // ===== SUPABASE CONFIGURATION =====
-// Replace with your Supabase credentials
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://rakskzfzmxloqiziwetu.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJha3NremZ6bXhsb3Fpeml3ZXR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NDA4OTQsImV4cCI6MjA5NDUxNjg5NH0.jEzeEnRxTIjcUq6RFXaAjhXVfbB8bhd6lvPHojhGeRw";
 
-// Supabase client placeholder
-// In production, load from: https://unpkg.com/@supabase/supabase-js@2
-const supabase = {
-  auth: {
-    signUp: async ({ email, password }) => {
-      console.log('[Supabase] Sign up:', email);
-      // TODO: Implement with real Supabase client
-      // return await supabaseClient.auth.signUp({ email, password });
-      return { data: null, error: { message: 'Supabase not configured' } };
-    },
-    signInWithPassword: async ({ email, password }) => {
-      console.log('[Supabase] Sign in:', email);
-      // TODO: Implement with real Supabase client
-      // return await supabaseClient.auth.signInWithPassword({ email, password });
-      return { data: null, error: { message: 'Supabase not configured' } };
-    },
-    signOut: async () => {
-      console.log('[Supabase] Sign out');
-      // TODO: Implement with real Supabase client
-      // return await supabaseClient.auth.signOut();
-      return { error: null };
-    },
-    getSession: async () => {
-      console.log('[Supabase] Get session');
-      // TODO: Implement with real Supabase client
-      // return await supabaseClient.auth.getSession();
-      return { data: { session: null }, error: null };
-    },
-    onAuthStateChange: (callback) => {
-      console.log('[Supabase] Auth state listener registered');
-      // TODO: Implement with real Supabase client
-      // return supabaseClient.auth.onAuthStateChange(callback);
-      return { data: { subscription: { unsubscribe: () => {} } } };
-    }
-  }
-};
+// Initialize real Supabase client
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ===== AUTH FUNCTIONS =====
 async function register(email, password, name) {
-  const { data, error } = await supabase.auth.signUp({
+  console.log('[Reativa] Tentando registrar:', email);
+  const { data, error } = await supabaseClient.auth.signUp({
     email,
     password,
     options: {
@@ -50,29 +16,48 @@ async function register(email, password, name) {
     }
   });
 
+  console.log('[Reativa] Resposta cadastro:', { data, error });
   if (error) throw error;
+
+  // Try to create profile manually if trigger fails
+  if (data.user) {
+    try {
+      const { error: profileError } = await supabaseClient
+        .from('profiles')
+        .insert({
+          id: data.user.id,
+          email: email,
+          full_name: name
+        });
+      console.log('[Reativa] Profile creation:', { profileError });
+    } catch (e) {
+      console.warn('[Reativa] Profile might already exist from trigger');
+    }
+  }
+
   return data;
 }
 
 async function login(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  console.log('[Reativa] Tentando logar:', email);
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
     email,
     password
   });
 
+  console.log('[Reativa] Resposta login:', { data, error });
   if (error) throw error;
   return data;
 }
 
 async function logout() {
-  const { error } = await supabase.auth.signOut();
+  const { error } = await supabaseClient.auth.signOut();
   if (error) throw error;
-  localStorage.removeItem('reativa_session');
   window.location.href = '/';
 }
 
 async function checkSession() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   return session;
 }
 

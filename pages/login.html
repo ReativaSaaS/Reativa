@@ -88,6 +88,7 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="/assets/js/main.js"></script>
   <script src="/assets/js/supabase.js"></script>
   <script>
@@ -130,7 +131,7 @@
       try {
         const result = await window.ReativaAuth.login(email.value, password.value);
         showToast('Login realizado com sucesso!', 'success');
-        setTimeout(() => window.location.href = '/', 1000);
+        setTimeout(() => window.location.href = '/pages/dashboard.html', 1000);
       } catch (error) {
         showToast(error.message || 'Erro ao fazer login', 'error');
       } finally {
