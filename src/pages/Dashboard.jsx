@@ -9,6 +9,7 @@ import {
   Tag, Heart, MoreVertical, Edit, Trash2, ExternalLink, Check, Filter,
   Columns, Wallet, Route, Receipt, Calendar, GripVertical, Circle
 } from 'lucide-react'
+import '../../assets/css/dashboard-premium.css'
 import { checkSession, logout, supabase } from '../lib/supabase'
 import { chatWithAI, OPENROUTER_MODELS } from '../lib/ai'
 import { showToast } from '../components/Toast'
@@ -351,57 +352,56 @@ export default function Dashboard() {
   const kpis = metrics?.kpis || {}
 
   return (
-    <div className="flex min-h-screen bg-deep">
+    <div className="dashboard-layout">
       {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 h-screen bg-surface/80 backdrop-blur-xl border-r border-white/5 flex flex-col z-50 transition-all duration-300 ${mobileOpen ? 'w-56 translate-x-0' : 'w-16 hover:w-56 -translate-x-full lg:translate-x-0'}`}
-        onMouseEnter={() => !mobileOpen && setSidebarHover(true)} onMouseLeave={() => !mobileOpen && setSidebarHover(false)}>
-        <div className="px-3 pt-5 mb-6 flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 bg-gradient-to-br from-accent-violet to-accent-cyan rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent-violet/30">
+      <aside className={`dashboard-sidebar ${mobileOpen ? 'open' : ''}`}>
+        <div className="sidebar-logo-section">
+          <div className="sidebar-logo-icon">
             <img src="/logo-icon.png" alt="R" className="w-5 h-5" />
           </div>
-          <span className={`font-display text-lg font-bold whitespace-nowrap transition-opacity duration-200 ${sidebarHover || mobileOpen ? 'opacity-100' : 'opacity-0'}`}>REATIVA</span>
+          <span className="sidebar-logo-text">REATIVA</span>
         </div>
-        <nav className="flex-1 px-2 overflow-y-auto overflow-x-hidden">
+
+        <nav className="sidebar-nav">
           {sidebarSections.map((section, si) => (
-            <div key={si} className="mb-5">
-              <div className={`px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-600 whitespace-nowrap transition-opacity duration-200 ${sidebarHover || mobileOpen ? 'opacity-100' : 'opacity-0'}`}>{section.label}</div>
+            <div key={si} className="sidebar-section">
+              <div className="sidebar-section-label">{section.label}</div>
               {section.items.map((item) => {
                 const Icon = item.icon
                 const isActive = page === item.page
-                const badge = item.page === 'clientes' ? clients.length : item.page === 'mensagens' ? alertCount : null
+                const badge = item.page === 'clientes' ? clients.length : null
                 return (
                   <button key={item.page} onClick={() => { setPage(item.page); setMobileOpen(false) }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${isActive ? 'bg-accent-violet/15 text-accent-light' : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'}`}>
-                    <Icon size={18} className="flex-shrink-0" />
-                    <span className={`flex-1 text-left transition-opacity duration-200 ${sidebarHover || mobileOpen ? 'opacity-100' : 'opacity-0'}`}>{item.label}</span>
-                    {badge > 0 && <span className={`bg-accent-violet text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full transition-opacity duration-200 ${sidebarHover || mobileOpen ? 'opacity-100' : 'opacity-0'}`}>{badge}</span>}
+                    className={`sidebar-item ${isActive ? 'active' : ''}`}>
+                    <span className="sidebar-item-icon"><Icon size={18} /></span>
+                    <span className="sidebar-item-label">{item.label}</span>
+                    {badge > 0 && <span className="sidebar-item-badge">{badge}</span>}
                   </button>
                 )
               })}
             </div>
           ))}
         </nav>
-        <div className="px-2 pb-4 border-t border-white/5 pt-3">
-          <div className="flex items-center gap-3 px-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent-violet to-accent-cyan flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{userName[0].toUpperCase()}</div>
-            <div className={`flex-1 min-w-0 transition-opacity duration-200 ${sidebarHover || mobileOpen ? 'opacity-100' : 'opacity-0'}`}>
-              <div className="text-sm font-semibold truncate">{userName}</div>
-              <div className="text-[11px] text-accent-light">Plano Pro</div>
-            </div>
-            <button onClick={logout} className={`text-gray-600 hover:text-red-400 transition-all p-1 ${sidebarHover || mobileOpen ? 'opacity-100' : 'opacity-0'}`}><LogOut size={16} /></button>
+
+        <div className="sidebar-user">
+          <div className="sidebar-user-avatar">{userName[0].toUpperCase()}</div>
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-name">{userName}</div>
+            <div className="sidebar-user-plan">Plano Pro</div>
           </div>
+          <button onClick={logout} className="sidebar-logout-btn"><LogOut size={16} /></button>
         </div>
       </aside>
 
       {mobileOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setMobileOpen(false)} />}
 
       {/* Main */}
-      <main className="flex-1 lg:ml-16 min-h-screen">
+      <main className="dashboard-main">
         {/* Top Bar */}
-        <header className="sticky top-0 z-30 bg-deep/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex items-center gap-4">
+        <header className="dashboard-topbar">
           <button className="lg:hidden p-1" onClick={() => setMobileOpen(!mobileOpen)}><Menu size={22} /></button>
-          <div className="flex-1">
-            <h1 className="text-lg font-display font-semibold">
+          <div className="topbar-greeting">
+            <h1>
               {page === 'dashboard' && `Bom dia, ${userName} ☀️`}
               {page === 'clientes' && 'Clientes'}
               {page === 'campanhas' && 'Campanhas'}
@@ -425,7 +425,7 @@ export default function Dashboard() {
           </button>
         </header>
 
-        <div className="p-6">
+        <div className="dashboard-content">
           <AnimatePresence mode="wait">
             {/* ═══════════════ DASHBOARD ═══════════════ */}
             {page === 'dashboard' && !metrics && (
@@ -433,42 +433,33 @@ export default function Dashboard() {
             )}
             {page === 'dashboard' && metrics && (
               <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                {/* Insights */}
+                {/* AI Insight */}
                 {insights.length > 0 && (
-                  <div className="space-y-3 mb-6">
-                    {insights.slice(0, 2).map((insight, i) => (
-                      <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                        className={`relative border rounded-xl p-5 overflow-hidden ${insight.type === 'critical' ? 'bg-red-500/5 border-red-500/10' : insight.type === 'warning' ? 'bg-amber-500/5 border-amber-500/10' : insight.type === 'success' ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-accent-violet/5 border-accent-violet/10'}`}>
-                        <div className="absolute top-4 right-4 text-3xl opacity-10">✦</div>
-                        <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-accent-light mb-2">
-                          <span className="w-1.5 h-1.5 bg-accent-violet rounded-full animate-pulse"></span> Insight da IA
-                        </div>
-                        <div className="text-sm font-semibold mb-1.5">{insight.title}</div>
-                        <div className="text-xs text-gray-400 leading-relaxed">{insight.description}</div>
-                        <button onClick={() => setPage(insight.actionPage)} className="mt-3 text-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-full hover:border-accent-violet/30 hover:bg-accent-violet/10 transition-all">{insight.action}</button>
-                      </motion.div>
-                    ))}
+                  <div className="ai-insight">
+                    <div className="ai-insight-label">Insight da IA</div>
+                    <div className="ai-insight-title">{insights[0].title}</div>
+                    <div className="ai-insight-text">{insights[0].description}</div>
+                    <button onClick={() => setPage(insights[0].actionPage)} className="btn-dash-secondary" style={{marginTop: '12px', fontSize: '12px', padding: '6px 14px'}}>{insights[0].action}</button>
                   </div>
                 )}
 
                 {/* KPIs */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="kpi-grid">
                   {[
-                    { label: 'Total de Clientes', value: kpis.totalClients || 0, change: `+${kpis.newThisWeek || 0} esta semana`, up: true, icon: Users, color: 'violet' },
-                    { label: 'Clientes Ativos', value: kpis.activeClients || 0, change: `${kpis.recoveryRate || 0}% recuperação`, up: true, icon: RefreshCw, color: 'emerald' },
-                    { label: 'Clientes Inativos', value: kpis.inactiveClients || 0, change: `${kpis.atRiskClients || 0} em risco`, up: false, icon: Clock, color: 'amber' },
-                    { label: 'Mensagens Hoje', value: kpis.messagesToday || 0, change: `${kpis.totalSent || 0} total`, up: true, icon: MessageSquare, color: 'cyan' },
+                    { label: 'Total de Clientes', value: kpis.totalClients || 0, change: `+${kpis.newThisWeek || 0} esta semana`, up: true, icon: Users },
+                    { label: 'Clientes Ativos', value: kpis.activeClients || 0, change: `${kpis.recoveryRate || 0}% recuperação`, up: true, icon: RefreshCw },
+                    { label: 'Clientes Inativos', value: kpis.inactiveClients || 0, change: `${kpis.atRiskClients || 0} em risco`, up: false, icon: Clock },
+                    { label: 'Mensagens Hoje', value: kpis.messagesToday || 0, change: `${kpis.totalSent || 0} total`, up: true, icon: MessageSquare },
                   ].map((m, i) => {
                     const Icon = m.icon
-                    const colorMap = { violet: 'bg-accent-violet/10 text-accent-violet', emerald: 'bg-emerald-500/10 text-emerald-400', amber: 'bg-amber-500/10 text-amber-400', cyan: 'bg-cyan-500/10 text-cyan-400' }
-                    const barMap = { violet: 'bg-accent-violet', emerald: 'bg-emerald-500', amber: 'bg-amber-500', cyan: 'bg-cyan-500' }
                     return (
-                      <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="relative bg-white/[0.03] border border-white/5 rounded-xl p-5 hover:border-white/10 hover:-translate-y-0.5 transition-all overflow-hidden group">
-                        <div className={`absolute top-0 left-0 right-0 h-0.5 ${barMap[m.color]} opacity-60`}></div>
-                        <Icon size={32} className="absolute bottom-3 right-3 text-white/[0.03] group-hover:text-white/[0.06] transition-colors" />
-                        <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 mb-2">{m.label}</div>
-                        <div className="font-display text-2xl font-bold mb-1">{m.value}</div>
-                        <div className={`text-xs font-semibold ${m.up ? 'text-emerald-400' : 'text-amber-400'}`}>{m.change}</div>
+                      <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="kpi-card">
+                        <div className="kpi-label">{m.label}</div>
+                        <div className="kpi-value">{m.value}</div>
+                        <div className={`kpi-change ${m.up ? 'up' : 'down'}`}>
+                          {m.up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                          {m.change}
+                        </div>
                       </motion.div>
                     )
                   })}
@@ -592,42 +583,42 @@ export default function Dashboard() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white/[0.03] border border-white/5 rounded-xl overflow-hidden">
+                <div className="dash-card">
                   <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="dash-table">
                       <thead>
-                        <tr className="border-b border-white/5">
-                          <th className="text-left px-4 py-3 w-10"><input type="checkbox" onChange={e => setSelectedClients(e.target.checked ? clients.map(c => c.id) : [])} className="accent-accent-violet" /></th>
-                          <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Cliente</th>
-                          <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Status</th>
-                          <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500 hidden md:table-cell">Contato</th>
-                          <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500 hidden lg:table-cell">Última Interação</th>
-                          <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500 hidden lg:table-cell">Dias Inativo</th>
-                          <th className="text-left px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Ações</th>
+                        <tr>
+                          <th><input type="checkbox" onChange={e => setSelectedClients(e.target.checked ? clients.map(c => c.id) : [])} className="accent-accent-violet" /></th>
+                          <th>Cliente</th>
+                          <th>Status</th>
+                          <th className="hidden md:table-cell">Contato</th>
+                          <th className="hidden lg:table-cell">Última Interação</th>
+                          <th className="hidden lg:table-cell">Dias Inativo</th>
+                          <th>Ações</th>
                         </tr>
                       </thead>
                       <tbody>
                         {clients.map((c, i) => (
-                          <motion.tr key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                            <td className="px-4 py-3"><input type="checkbox" checked={selectedClients.includes(c.id)} onChange={e => setSelectedClients(e.target.checked ? [...selectedClients, c.id] : selectedClients.filter(id => id !== c.id))} className="accent-accent-violet" /></td>
-                            <td className="px-4 py-3">
+                          <motion.tr key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}>
+                            <td><input type="checkbox" checked={selectedClients.includes(c.id)} onChange={e => setSelectedClients(e.target.checked ? [...selectedClients, c.id] : selectedClients.filter(id => id !== c.id))} className="accent-accent-violet" /></td>
+                            <td>
                               <button onClick={() => openClientDetail(c)} className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity">
                                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent-violet to-accent-cyan flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{c.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</div>
                                 <div>
-                                  <div className="text-sm font-medium">{c.name}</div>
+                                  <div className="text-sm font-medium text-white">{c.name}</div>
                                   {c.company && <div className="text-xs text-gray-500">{c.company}</div>}
                                 </div>
                               </button>
                             </td>
-                            <td className="px-4 py-3"><span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${STATUS_MAP[c.status]?.class}`}>{STATUS_MAP[c.status]?.label}</span></td>
-                            <td className="px-4 py-3 hidden md:table-cell">
-                              <div className="text-xs text-gray-400">{c.phone || c.email || '-'}</div>
+                            <td><span className={`status-badge ${c.status}`}>{STATUS_MAP[c.status]?.label}</span></td>
+                            <td className="hidden md:table-cell">
+                              <div className="text-xs">{c.phone || c.email || '-'}</div>
                             </td>
-                            <td className="px-4 py-3 text-xs text-gray-400 hidden lg:table-cell">{c.last_interaction ? new Date(c.last_interaction).toLocaleDateString('pt-BR') : '-'}</td>
-                            <td className="px-4 py-3 hidden lg:table-cell">
-                              <span className={`text-xs font-semibold ${(c.days_inactive || 0) > 30 ? 'text-red-400' : (c.days_inactive || 0) > 14 ? 'text-amber-400' : 'text-gray-400'}`}>{c.days_inactive || 0}d</span>
+                            <td className="hidden lg:table-cell">{c.last_interaction ? new Date(c.last_interaction).toLocaleDateString('pt-BR') : '-'}</td>
+                            <td className="hidden lg:table-cell">
+                              <span className={`text-xs font-semibold ${(c.days_inactive || 0) > 30 ? 'text-red-400' : (c.days_inactive || 0) > 14 ? 'text-amber-400' : ''}`}>{c.days_inactive || 0}d</span>
                             </td>
-                            <td className="px-4 py-3">
+                            <td>
                               <div className="flex gap-1.5">
                                 <button onClick={() => openClientDetail(c)} className="p-1.5 rounded-md hover:bg-white/5 text-gray-500 hover:text-white transition-all"><Eye size={14} /></button>
                                 <button onClick={() => openEditClient(c)} className="p-1.5 rounded-md hover:bg-white/5 text-gray-500 hover:text-white transition-all"><Edit size={14} /></button>
@@ -1141,7 +1132,7 @@ export default function Dashboard() {
       </main>
 
       {/* ═══════════════ NOTIFICATION PANEL ═══════════════ */}
-      <div className={`fixed right-0 top-0 bottom-0 w-80 bg-surface/95 backdrop-blur-xl border-l border-white/5 z-40 transition-transform duration-300 ${notifOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`notif-panel ${notifOpen ? 'open' : ''}`}>
         <div className="p-5">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-display font-semibold">Notificações ({alertCount})</h3>
@@ -1172,22 +1163,22 @@ export default function Dashboard() {
 
       {/* ═══════════════ CLIENT FORM MODAL ═══════════════ */}
       {showClientForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setShowClientForm(false)}>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="dash-modal-overlay" onClick={e => e.target === e.currentTarget && setShowClientForm(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-lg font-semibold">{editingClient ? 'Editar Cliente' : 'Novo Cliente'}</h2>
+              <h2 className="dash-modal-title">{editingClient ? 'Editar Cliente' : 'Novo Cliente'}</h2>
               <button onClick={() => setShowClientForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
             </div>
             <div className="space-y-4">
-              <div><label className="text-xs text-gray-500 mb-1.5 block">Nome *</label><input value={clientForm.name} onChange={e => setClientForm({ ...clientForm, name: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Nome do cliente" /></div>
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Nome *</label><input value={clientForm.name} onChange={e => setClientForm({ ...clientForm, name: e.target.value })} className="dash-input" placeholder="Nome do cliente" /></div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-xs text-gray-500 mb-1.5 block">Email</label><input value={clientForm.email} onChange={e => setClientForm({ ...clientForm, email: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="email@exemplo.com" /></div>
-                <div><label className="text-xs text-gray-500 mb-1.5 block">Telefone</label><input value={clientForm.phone} onChange={e => setClientForm({ ...clientForm, phone: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="(11) 99999-9999" /></div>
+                <div><label className="text-xs text-gray-500 mb-1.5 block">Email</label><input value={clientForm.email} onChange={e => setClientForm({ ...clientForm, email: e.target.value })} className="dash-input" placeholder="email@exemplo.com" /></div>
+                <div><label className="text-xs text-gray-500 mb-1.5 block">Telefone</label><input value={clientForm.phone} onChange={e => setClientForm({ ...clientForm, phone: e.target.value })} className="dash-input" placeholder="(11) 99999-9999" /></div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="text-xs text-gray-500 mb-1.5 block">Empresa</label><input value={clientForm.company} onChange={e => setClientForm({ ...clientForm, company: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Nome da empresa" /></div>
+                <div><label className="text-xs text-gray-500 mb-1.5 block">Empresa</label><input value={clientForm.company} onChange={e => setClientForm({ ...clientForm, company: e.target.value })} className="dash-input" placeholder="Nome da empresa" /></div>
                 <div><label className="text-xs text-gray-500 mb-1.5 block">Status</label>
-                  <select value={clientForm.status} onChange={e => setClientForm({ ...clientForm, status: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors">
+                  <select value={clientForm.status} onChange={e => setClientForm({ ...clientForm, status: e.target.value })} className="dash-input">
                     {Object.entries(STATUS_MAP).map(([key, val]) => <option key={key} value={key}>{val.label}</option>)}
                   </select>
                 </div>
@@ -1199,10 +1190,10 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
-              <div><label className="text-xs text-gray-500 mb-1.5 block">Observações</label><textarea value={clientForm.notes} onChange={e => setClientForm({ ...clientForm, notes: e.target.value })} rows="3" className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors resize-none" placeholder="Notas sobre o cliente..." /></div>
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Observações</label><textarea value={clientForm.notes} onChange={e => setClientForm({ ...clientForm, notes: e.target.value })} rows="3" className="dash-input" placeholder="Notas sobre o cliente..." /></div>
               <div className="flex gap-3 justify-end pt-2">
-                <button onClick={() => setShowClientForm(false)} className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors">Cancelar</button>
-                <button onClick={editingClient ? handleUpdateClient : handleCreateClient} className="btn-primary px-6 py-2.5 text-sm">{editingClient ? 'Salvar' : 'Criar Cliente'}</button>
+                <button onClick={() => setShowClientForm(false)} className="btn-dash-secondary">Cancelar</button>
+                <button onClick={editingClient ? handleUpdateClient : handleCreateClient} className="btn-dash-primary">{editingClient ? 'Salvar' : 'Criar Cliente'}</button>
               </div>
             </div>
           </motion.div>
