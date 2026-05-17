@@ -76,6 +76,7 @@ const sidebarSections = [
 export default function Dashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
+  const userId = user?.id
   const [page, setPage] = useState('dashboard')
   const [sidebarHover, setSidebarHover] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -144,7 +145,6 @@ export default function Dashboard() {
   }, [navigate])
 
   // Data hooks
-  const userId = user?.id
   const { metrics, refresh: refreshMetrics } = useMetrics(userId)
   const { clients, refresh: refreshClients } = useClients(userId, { status: clientFilter !== 'all' ? clientFilter : undefined, search: clientSearch || undefined })
   const { alerts, count: alertCount, refresh: refreshAlerts } = useAlerts(userId)
