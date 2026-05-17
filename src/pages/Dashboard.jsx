@@ -11,6 +11,10 @@ import {
 import { checkSession, logout, supabase } from '../lib/supabase'
 import { chatWithAI, OPENROUTER_MODELS } from '../lib/ai'
 import { showToast } from '../components/Toast'
+import Onboarding from '../components/Onboarding'
+import CsvImport from '../components/CsvImport'
+import { DashboardSkeleton, ClientsSkeleton } from '../components/Skeleton'
+import { useRealtimeClients, useRealtimeAlerts, useRealtimeMessages } from '../hooks/useRealtime'
 
 import { useMetrics, useClients, useAlerts, useCampaigns, useInsights } from '../hooks/useData'
 import { createClient, updateClient, deleteClient, bulkUpdateStatus, sendMessage, getClientMessages } from '../lib/clients'
@@ -68,6 +72,8 @@ export default function Dashboard() {
   const [sidebarHover, setSidebarHover] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('reativa_onboarding_done'))
+  const [showCsvImport, setShowCsvImport] = useState(false)
 
   // AI state
   const [chatMessages, setChatMessages] = useState([
@@ -112,6 +118,11 @@ export default function Dashboard() {
   const { alerts, count: alertCount, refresh: refreshAlerts } = useAlerts(userId)
   const { campaigns, stats: campaignStats, refresh: refreshCampaigns } = useCampaigns(userId)
   const { insights, refresh: refreshInsights } = useInsights(userId)
+
+  // Realtime subscriptions
+  useRealtimeClients(userId, useCallback(() => { refreshClients(); refreshMetrics() }, [refreshClients, refreshMetrics]))
+  useRealtimeAlerts(userId, useCallback(() => refreshAlerts(), [refreshAlerts]))
+  useRealtimeMessages(userId, useCallback(() => refreshMetrics(), [refreshMetrics]))
 
   const refreshAll = useCallback(() => {
     refreshMetrics()
@@ -260,8 +271,32 @@ export default function Dashboard() {
     setChatMessages(newMessages)
     setChatInput('')
     setChatLoading(true)
+
+    // Build real context from data
+    const contextLines = []
+    if (metrics?.kpis) {
+      const k = metrics.kpis
+      contextLines.push(`DADOS ATUAIS: ${k.totalClients} clientes total, ${k.activeClients} ativos, ${k.inactiveClients} inativos, ${k.lostClients} perdidos, ${k.atRiskClients} em risco, ${k.messagesToday} mensagens hoje, ${k.activeCampaigns} campanhas ativas.`)
+    }
+    if (clients.length > 0) {
+      const recent = clients.slice(0, 5).map(c => `${c.name} (${c.status}, ${c.days_inactive || 0}d inativo)`).join(', ')
+      contextLines.push(`CLIENTES RECENTES: ${recent}`)
+    }
+    if (alerts.length > 0) {
+      const recentAlerts = alerts.slice(0, 3).map(a => a.title).join('; ')
+      contextLines.push(`ALERTAS: ${recentAlerts}`)
+    }
+
+    const contextMessage = contextLines.length > 0
+      ? { role: 'user', text: `[CONTEXTO DO NEGÓCIO]\n${contextLines.join('\n')}\n\n[PERGUNTA DO USUÁRIO]\n${chatInput}` }
+      : userMsg
+
+    const messagesToSend = contextLines.length > 0
+      ? [...chatMessages, contextMessage]
+      : newMessages
+
     try {
-      const reply = await chatWithAI(newMessages, apiKey, aiModel)
+      const reply = await chatWithAI(messagesToSend, apiKey, aiModel)
       setChatMessages(prev => [...prev, { role: 'ai', text: reply }])
     } catch (error) {
       setChatMessages(prev => [...prev, { role: 'ai', text: `⚠️ ${error.message}` }])
@@ -357,7 +392,10 @@ export default function Dashboard() {
         <div className="p-6">
           <AnimatePresence mode="wait">
             {/* ═══════════════ DASHBOARD ═══════════════ */}
-            {page === 'dashboard' && (
+            {page === 'dashboard' && !metrics && (
+              <DashboardSkeleton />
+            )}
+            {page === 'dashboard' && metrics && (
               <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                 {/* Insights */}
                 {insights.length > 0 && (
@@ -512,6 +550,7 @@ export default function Dashboard() {
                         <button onClick={() => handleBulkAction('delete')} className="text-xs px-3 py-2 bg-red-500/15 text-red-400 rounded-lg hover:bg-red-500/25 transition-all">Remover</button>
                       </div>
                     )}
+                    <button onClick={() => setShowCsvImport(true)} className="btn-secondary text-xs py-2 px-3"><Download size={14} /> Importar CSV</button>
                     <button onClick={() => { setEditingClient(null); setClientForm({ name: '', email: '', phone: '', company: '', status: 'novo', tags: [], notes: '', priority: 'normal' }); setShowClientForm(true) }} className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Adicionar</button>
                   </div>
                 </div>
@@ -905,6 +944,22 @@ export default function Dashboard() {
                 <button onClick={handleCreateCampaign} className="btn-primary px-6 py-2.5 text-sm">Criar Campanha</button>
               </div>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ═══════════════ ONBOARDING ═══════════════ */}
+      {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
+
+      {/* ═══════════════ CSV IMPORT MODAL ═══════════════ */}
+      {showCsvImport && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setShowCsvImport(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-lg">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display text-lg font-semibold">Importar Clientes</h2>
+              <button onClick={() => setShowCsvImport(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+            </div>
+            <CsvImport userId={userId} onComplete={() => { setShowCsvImport(false); refreshClients(); refreshMetrics() }} />
           </motion.div>
         </div>
       )}

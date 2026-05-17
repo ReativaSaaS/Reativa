@@ -42,8 +42,8 @@ export default function Footer() {
             <div className="flex flex-col gap-2.5">
               <a href="#" className="text-sm text-gray-400 hover:text-accent-violet transition-colors">Central de Ajuda</a>
               <a href="#" className="text-sm text-gray-400 hover:text-accent-violet transition-colors">Documentação</a>
-              <a href="#" className="text-sm text-gray-400 hover:text-accent-violet transition-colors">Termos de Uso</a>
-              <a href="#" className="text-sm text-gray-400 hover:text-accent-violet transition-colors">Privacidade</a>
+              <a href="/terms" className="text-sm text-gray-400 hover:text-accent-violet transition-colors">Termos de Uso</a>
+              <a href="/privacy" className="text-sm text-gray-400 hover:text-accent-violet transition-colors">Privacidade</a>
             </div>
           </div>
         </div>

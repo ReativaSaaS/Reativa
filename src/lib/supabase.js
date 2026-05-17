@@ -41,6 +41,30 @@ export async function login(email, password) {
   return data
 }
 
+export async function loginWithGoogle() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + '/dashboard'
+    }
+  })
+
+  if (error) throw error
+  return data
+}
+
+export async function loginWithGitHub() {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+      redirectTo: window.location.origin + '/dashboard'
+    }
+  })
+
+  if (error) throw error
+  return data
+}
+
 export async function logout() {
   const { error } = await supabase.auth.signOut()
   if (error) throw error

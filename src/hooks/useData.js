@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { getDashboardMetrics, generateInsights } from '../lib/metrics'
 import { getClients, getClientsByStatus } from '../lib/clients'
 import { getUnreadAlerts, getAlertCount, generateAlerts } from '../lib/alerts'
@@ -28,6 +28,7 @@ export function useMetrics(userId) {
 export function useClients(userId, filters = {}) {
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
+  const debounceRef = useRef(null)
 
   const refresh = useCallback(async () => {
     if (!userId) return
@@ -41,7 +42,11 @@ export function useClients(userId, filters = {}) {
     }
   }, [userId, JSON.stringify(filters)])
 
-  useEffect(() => { refresh() }, [refresh])
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => { refresh() }, 300)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [refresh])
 
   return { clients, loading, refresh }
 }

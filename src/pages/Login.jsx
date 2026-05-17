@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import { login } from '../lib/supabase'
+import { login, loginWithGoogle, loginWithGitHub } from '../lib/supabase'
 import { showToast } from '../components/Toast'
 
 export default function Login() {
