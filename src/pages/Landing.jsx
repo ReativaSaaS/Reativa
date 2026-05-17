@@ -1,154 +1,118 @@
-import { useState, useEffect, useRef } from 'react'
-import { motion, useInView, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, useInView, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight, Check, MessageSquare, Bot, TrendingUp, Users, Clock, BarChart3,
   Mail, Phone, MapPin, Send, Menu, X, Star, ChevronRight, Sparkles, Zap, Shield
 } from 'lucide-react'
 
-// =============================================
-// ANIMATED COUNTER HOOK
-// =============================================
-function useCounter(end, duration = 2000) {
-  const [count, setCount] = useState(0)
+// ═══════════════════════════════════════════
+// COUNTER HOOK
+// ═══════════════════════════════════════════
+function useCounter(target, duration = 2000) {
+  const [val, setVal] = useState(0)
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-50px' })
+  const inView = useInView(ref, { once: true, margin: '-60px' })
+  const reduced = useReducedMotion()
 
   useEffect(() => {
-    if (!isInView) return
+    if (!inView) return
+    if (reduced) { setVal(target); return }
     let start = 0
-    const increment = end / (duration / 16)
-    const timer = setInterval(() => {
-      start += increment
-      if (start >= end) {
-        setCount(end)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(start))
-      }
+    const step = target / (duration / 16)
+    const id = setInterval(() => {
+      start += step
+      if (start >= target) { setVal(target); clearInterval(id) }
+      else setVal(Math.floor(start))
     }, 16)
-    return () => clearInterval(timer)
-  }, [isInView, end, duration])
+    return () => clearInterval(id)
+  }, [inView, target, duration, reduced])
 
-  return { count, ref }
+  return { val, ref }
 }
 
-// =============================================
+// ═══════════════════════════════════════════
+// NOISE SVG (inline)
+// ═══════════════════════════════════════════
+const NoiseSVG = () => (
+  <svg className="fixed inset-0 w-full h-full pointer-events-none z-[2] opacity-[0.035]" style={{ mixBlendMode: 'overlay' }}>
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noise)" />
+  </svg>
+)
+
+// ═══════════════════════════════════════════
 // NAVBAR
-// =============================================
+// ═══════════════════════════════════════════
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [open, setOpen] = useState(false)
+  const reduced = useReducedMotion()
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const fn = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  const links = [
-    { href: '#home', label: 'Home' },
-    { href: '#features', label: 'Features' },
-    { href: '#pricing', label: 'Pricing' },
-    { href: '#about', label: 'About' },
-    { href: '#contact', label: 'Contact' },
+  const nav = [
+    { h: '#home', l: 'Home' }, { h: '#features', l: 'Features' },
+    { h: '#pricing', l: 'Pricing' }, { h: '#about', l: 'About' },
+    { h: '#contact', l: 'Contact' },
   ]
 
-  const scrollTo = (e, href) => {
-    e.preventDefault()
-    const el = document.querySelector(href)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
-    setMobileOpen(false)
-  }
+  const go = (e, h) => { e.preventDefault(); document.querySelector(h)?.scrollIntoView({ behavior: 'smooth' }); setOpen(false) }
 
   return (
     <>
       <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-500 ${
-          scrolled ? 'bg-[#080810]/80 backdrop-blur-xl border-b border-white/[0.07] py-3' : 'py-5'
-        }`}
+        className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${scrolled ? 'bg-[#06060f]/85 backdrop-blur-xl border-b border-white/[0.07] py-3' : 'py-5'}`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <a href="#home" className="flex items-center gap-2.5 group">
-            <div className="relative">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center shadow-lg shadow-[#7C3AED]/20">
-                <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.6 }}
-                >
-                  <Check size={18} className="text-white" strokeWidth={3} />
-                </motion.div>
-              </div>
-            </div>
-            <span className="font-['Syne'] text-xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-              REATIVA
-            </span>
+          <a href="#home" onClick={e => go(e, '#home')} className="flex items-center gap-2.5 group">
+            <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.5 }} className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#06b6d4] flex items-center justify-center shadow-lg shadow-[#7c3aed]/20">
+              <Check size={17} className="text-white" strokeWidth={3} />
+            </motion.div>
+            <span className="font-['Syne',sans-serif] text-xl font-extrabold tracking-tight text-white">RE<span className="bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">ATIVA</span></span>
           </a>
 
           <div className="hidden md:flex items-center gap-8">
-            {links.map(link => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => scrollTo(e, link.href)}
-                className="relative text-sm font-medium text-white/60 hover:text-white transition-colors group"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] transition-all duration-300 group-hover:w-full" />
+            {nav.map(n => (
+              <a key={n.h} href={n.h} onClick={e => go(e, n.h)} className="relative text-sm font-medium text-white/50 hover:text-white transition-colors duration-200 group">
+                {n.l}
+                <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] transition-all duration-300 origin-left group-hover:w-full" />
               </a>
             ))}
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/login" className="text-sm font-medium text-white/60 hover:text-white transition-colors px-4 py-2">
-              Login
-            </Link>
-            <Link to="/register" className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#7C3AED] via-[#2563EB] to-[#06B6D4] rounded-lg blur-sm opacity-60 group-hover:opacity-100 transition-opacity" />
-              <div className="relative flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#7C3AED] via-[#2563EB] to-[#06B6D4] rounded-lg text-white text-sm font-semibold overflow-hidden">
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_3s_ease_infinite]" />
-                Começar Grátis
-                <ArrowRight size={14} />
-              </div>
+            <Link to="/login" className="text-sm font-medium text-white/50 hover:text-white transition-colors px-4 py-2">Login</Link>
+            <Link to="/register" className="relative group overflow-hidden rounded-lg">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#7c3aed] via-[#2563eb] to-[#06b6d4]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full animate-[shimmer_4s_ease_infinite]" />
+              <span className="relative flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold">Começar Grátis <ArrowRight size={14} /></span>
             </Link>
           </div>
 
-          <button className="md:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
-          </button>
+          <button className="md:hidden p-2 text-white" onClick={() => setOpen(!open)}>{open ? <X size={24} /> : <Menu size={24} />}</button>
         </div>
       </motion.nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-[#080810]/98 backdrop-blur-xl z-[999] flex flex-col items-center justify-center gap-8"
-          >
-            {links.map(link => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => scrollTo(e, link.href)}
-                className="font-['Syne'] text-3xl font-bold text-white/80 hover:text-white transition-colors"
-              >
-                {link.label}
-              </a>
+        {open && (
+          <motion.div initial={{ opacity: 0, x: '100%' }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: '100%' }} transition={{ duration: 0.3 }} className="fixed inset-0 bg-[#06060f]/98 backdrop-blur-xl z-[99] flex flex-col items-center justify-center gap-8">
+            {nav.map(n => (
+              <a key={n.h} href={n.h} onClick={e => go(e, n.h)} className="font-['Syne',sans-serif] text-3xl font-bold text-white/80 hover:text-white transition-colors">{n.l}</a>
             ))}
             <div className="flex flex-col gap-3 w-60 mt-4">
-              <Link to="/login" className="text-center py-3 bg-white/5 border border-white/10 rounded-lg text-white font-medium">
-                Login
-              </Link>
-              <Link to="/register" className="text-center py-3 bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] rounded-lg text-white font-semibold">
-                Começar Grátis
-              </Link>
+              <Link to="/login" className="text-center py-3 bg-white/[0.06] border border-white/[0.08] rounded-xl text-white font-medium">Login</Link>
+              <Link to="/register" className="text-center py-3 bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] rounded-xl text-white font-semibold">Começar Grátis</Link>
             </div>
           </motion.div>
         )}
@@ -157,207 +121,117 @@ function Navbar() {
   )
 }
 
-// =============================================
+// ═══════════════════════════════════════════
 // HERO
-// =============================================
+// ═══════════════════════════════════════════
 function Hero() {
+  const reduced = useReducedMotion()
+  const words1 = ['Reative', 'clientes']
+  const word2 = 'perdidos.'
+  const words3 = ['Organize', 'seu', 'negócio.']
+
   const stats = [
-    { end: 2500, suffix: '+', label: 'Empresas' },
-    { end: 98, suffix: '%', label: 'Satisfação' },
-    { end: 50, suffix: 'M+', label: 'Mensagens/mês' },
+    { end: 2500, suf: '+', label: 'Empresas' },
+    { end: 98, suf: '%', label: 'Satisfação' },
+    { end: 50, suf: 'M+', label: 'Mensagens/mês' },
   ]
 
   return (
     <section id="home" className="relative min-h-screen flex items-center pt-32 pb-20 overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#7C3AED]/15 rounded-full blur-[120px]" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M0%200h40v40H0z%22%20fill%3D%22none%22%2F%3E%3Cpath%20d%3D%22M0%200h1v40H0z%22%20fill%3D%22rgba(255%2C255%2C255%2C0.03)%22%2F%3E%3Cpath%20d%3D%22M0%200h40v1H0z%22%20fill%3D%22rgba(255%2C255%2C255%2C0.03)%22%2F%3E%3C%2Fsvg%3E')] opacity-50" />
-      </div>
+      {/* Radial glow behind headline */}
+      <div className="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-[#7c3aed]/[0.12] rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
-        {/* Content */}
+        {/* LEFT */}
         <div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/[0.05] border border-white/[0.07] rounded-full text-sm text-white/50 mb-8"
-          >
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0 }} className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/[0.04] border border-white/[0.07] rounded-full text-xs text-white/40 mb-8 backdrop-blur-sm">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
             Plataforma em Beta
           </motion.div>
 
-          <motion.h1
-            className="font-['Syne'] text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight mb-6"
-          >
-            {['Reative', 'clientes'].map((word, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="inline-block mr-3"
-              >
-                {word}
-              </motion.span>
+          {/* Title word by word */}
+          <h1 className="font-['Syne',sans-serif] text-[clamp(2.8rem,6vw,4.5rem)] font-extrabold leading-[1.05] tracking-tight mb-6">
+            {words1.map((w, i) => (
+              <motion.span key={i} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }} className="inline-block mr-3 text-white">{w}</motion.span>
             ))}
-            <motion.span
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-block bg-gradient-to-r from-[#7C3AED] via-[#2563EB] to-[#06B6D4] bg-clip-text text-transparent animate-[hue-shift_8s_ease_infinite]"
-            >
-              perdidos.
-            </motion.span>
             <br />
-            <motion.span
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="inline-block text-white/60 font-normal"
-            >
-              Organize seu negócio.
-            </motion.span>
-          </motion.h1>
+            <motion.span initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.26 }} className="inline-block bg-gradient-to-r from-[#7c3aed] via-[#2563eb] to-[#06b6d4] bg-clip-text text-transparent bg-[length:200%_200%] animate-[hue-shift_8s_ease_infinite]">{word2}</motion.span>
+            <br />
+            {words3.map((w, i) => (
+              <motion.span key={i} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.34 + i * 0.08 }} className="inline-block mr-3 text-white/50 font-bold">{w}</motion.span>
+            ))}
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-lg text-white/50 leading-relaxed mb-10 max-w-lg"
-          >
+          <motion.p initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }} animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }} transition={{ duration: 0.8, delay: 0.6 }} className="text-lg text-white/45 leading-relaxed mb-10 max-w-lg font-light">
             Automatize o atendimento, recupere clientes inativos e mantenha seu negócio funcionando 24/7 — sem complicação.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex flex-wrap gap-4 mb-12"
-          >
+          {/* CTAs */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.7 }} className="flex flex-wrap gap-4 mb-14">
             <Link to="/register" className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] rounded-xl blur-sm opacity-60 group-hover:opacity-100 transition-opacity animate-pulse" />
-              <div className="relative flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] rounded-xl text-white font-semibold text-base">
-                Comece Grátis
-                <ArrowRight size={18} />
-              </div>
+              <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#7c3aed] to-[#06b6d4 animate-ping opacity-20 group-hover:opacity-40" />
+              <span className="relative flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] text-white font-semibold shadow-lg shadow-[#7c3aed]/25">Comece Grátis <ArrowRight size={18} /></span>
             </Link>
-            <a href="#features" className="flex items-center gap-2 px-8 py-4 bg-white/[0.05] border border-white/[0.07] rounded-xl text-white font-semibold text-base backdrop-blur-xl hover:bg-white/[0.08] transition-all">
+            <a href="#features" className="flex items-center gap-2 px-8 py-4 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white font-semibold backdrop-blur-xl hover:bg-white/[0.08] hover:border-white/[0.14] transition-all duration-200">
               Ver Funcionalidades
             </a>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="flex items-center gap-8"
-          >
-            {stats.map((stat, i) => {
-              const { count, ref } = useCounter(stat.end)
+          {/* Stats */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} className="flex items-center gap-8">
+            {stats.map((s, i) => {
+              const { val, ref } = useCounter(s.end)
               return (
-                <div key={i} ref={ref} className="flex flex-col">
-                  <span className="font-['Syne'] text-2xl font-bold bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">
-                    {count.toLocaleString()}{stat.suffix}
-                  </span>
-                  <span className="text-xs text-white/40">{stat.label}</span>
+                <div key={i} className="flex items-center gap-8">
+                  <div ref={ref} className="flex flex-col">
+                    <span className="font-['Syne',sans-serif] text-2xl font-bold bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">{val.toLocaleString()}{s.suf}</span>
+                    <span className="text-[11px] text-white/30 mt-0.5">{s.label}</span>
+                  </div>
+                  {i < stats.length - 1 && <div className="w-px h-10 bg-white/[0.08]" />}
                 </div>
               )
             })}
           </motion.div>
         </div>
 
-        {/* Dashboard Mockup */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="relative"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-[#7C3AED]/20 to-[#06B6D4]/20 rounded-3xl blur-3xl" />
-          <motion.div
-            animate={{ y: [-8, 0, -8] }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-            className="relative bg-[#0F0F1A]/80 backdrop-blur-2xl border border-white/[0.07] rounded-2xl overflow-hidden shadow-2xl"
-          >
-            {/* Browser Chrome */}
-            <div className="flex items-center gap-3 px-4 py-3 bg-black/40 border-b border-white/[0.07]">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-              </div>
-              <div className="flex-1 text-center">
-                <div className="inline-block px-4 py-1 bg-white/[0.05] rounded text-xs text-white/30">
-                  app.reativa.com/dashboard
-                </div>
-              </div>
+        {/* RIGHT — Dashboard Mockup */}
+        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.4 }} className="relative">
+          {/* Glow behind */}
+          <div className="absolute inset-0 bg-[#7c3aed]/[0.18] rounded-3xl blur-[80px] pointer-events-none" />
+
+          <motion.div animate={reduced ? {} : { y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} className="relative bg-white/[0.04] backdrop-blur-2xl border border-white/[0.1] rounded-2xl overflow-hidden shadow-2xl">
+            {/* Browser bar */}
+            <div className="flex items-center gap-3 px-4 py-3 bg-black/40 border-b border-white/[0.06]">
+              <div className="flex gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" /><div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" /><div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" /></div>
+              <div className="flex-1 text-center"><span className="text-[11px] text-white/25 bg-white/[0.04] px-4 py-1 rounded-md">app.reativa.com/dashboard</span></div>
             </div>
 
-            {/* Dashboard Content */}
             <div className="p-5 space-y-4">
-              {/* Metrics */}
+              {/* Metrics row */}
               <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: 'Conversas', value: '1,247', change: '+12.5%', color: 'emerald' },
-                  { label: 'Reativados', value: '384', change: '+8.3%', color: 'blue' },
-                  { label: 'Resolução', value: '94%', change: '+5.2%', color: 'purple' },
-                ].map((m, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 + i * 0.1 }}
-                    className="bg-black/30 border border-white/[0.05] rounded-lg p-3"
-                  >
-                    <div className="text-[10px] text-white/30 uppercase tracking-wider mb-1">{m.label}</div>
-                    <div className="font-['Syne'] text-lg font-bold text-white">{m.value}</div>
-                    <div className="text-[10px] text-emerald-400 font-semibold mt-0.5">{m.change}</div>
+                {[{ l: 'Conversas', v: '1,247', c: '+12.5%' }, { l: 'Reativados', v: '384', c: '+8.3%' }, { l: 'Resolução', v: '94%', c: '+5.2%' }].map((m, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 + i * 0.1 }} className="bg-black/30 border border-white/[0.05] rounded-lg p-3">
+                    <div className="text-[9px] text-white/25 uppercase tracking-wider mb-1">{m.l}</div>
+                    <div className="font-['Syne',sans-serif] text-base font-bold text-white">{m.v}</div>
+                    <div className="text-[9px] text-emerald-400 font-semibold mt-0.5">{m.c}</div>
                   </motion.div>
                 ))}
               </div>
 
               {/* Chart */}
-              <div className="bg-black/30 border border-white/[0.05] rounded-lg p-4 h-24 flex items-end gap-2">
-                {[40, 65, 45, 80, 60, 90, 70, 85, 55, 95, 75, 88].map((h, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    transition={{ duration: 0.6, delay: 1 + i * 0.05 }}
-                    className="flex-1 bg-gradient-to-t from-[#7C3AED] to-[#06B6D4] rounded-t opacity-70 hover:opacity-100 transition-opacity"
-                  />
+              <div className="bg-black/30 border border-white/[0.05] rounded-lg p-4 h-24 flex items-end gap-1.5">
+                {[35, 60, 42, 78, 55, 88, 65, 82, 50, 92, 70, 85].map((h, i) => (
+                  <motion.div key={i} initial={{ height: 0 }} animate={{ height: `${h}%` }} transition={{ duration: 0.8, delay: 1.1 + i * 0.06, ease: [0.22, 1, 0.36, 1] }} className="flex-1 rounded-t-sm bg-gradient-to-t from-[#7c3aed] to-[#06b6d4] opacity-70 hover:opacity-100 transition-opacity" />
                 ))}
               </div>
 
-              {/* Client Rows */}
-              <div className="space-y-2">
-                {[
-                  { name: 'Maria Clara', status: 'Online', color: 'from-[#7C3AED] to-[#06B6D4]', badge: 'emerald' },
-                  { name: 'Rafael Santos', status: 'Inativo', color: 'from-yellow-500 to-red-500', badge: 'yellow' },
-                  { name: 'Ana Lima', status: 'Reativado', color: 'from-emerald-500 to-blue-500', badge: 'blue' },
-                ].map((c, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1.3 + i * 0.1 }}
-                    className="flex items-center gap-3 py-2 px-3 bg-black/20 rounded-lg"
-                  >
-                    <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${c.color} flex items-center justify-center text-white text-xs font-bold`}>
-                      {c.name[0]}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-white">{c.name}</div>
-                    </div>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                      c.badge === 'emerald' ? 'bg-emerald-500/15 text-emerald-400' :
-                      c.badge === 'yellow' ? 'bg-yellow-500/15 text-yellow-400' :
-                      'bg-blue-500/15 text-blue-400'
-                    }`}>
-                      {c.status}
-                    </span>
+              {/* Client rows */}
+              <div className="space-y-1.5">
+                {[{ n: 'Maria Clara', s: 'Online', g: 'from-[#7c3aed] to-[#06b6d4]', b: 'bg-emerald-500/15 text-emerald-400' }, { n: 'Rafael Santos', s: 'Inativo', g: 'from-amber-500 to-red-500', b: 'bg-amber-500/15 text-amber-400' }, { n: 'Ana Lima', s: 'Reativado', g: 'from-emerald-500 to-blue-500', b: 'bg-blue-500/15 text-blue-400' }].map((c, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.5 + i * 0.1 }} className="flex items-center gap-3 py-2 px-3 bg-black/20 rounded-lg">
+                    <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${c.g} flex items-center justify-center text-white text-[10px] font-bold`}>{c.n[0]}</div>
+                    <span className="flex-1 text-xs font-medium text-white/80">{c.n}</span>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${c.b}`}>{c.s}</span>
                   </motion.div>
                 ))}
               </div>
@@ -369,81 +243,47 @@ function Hero() {
   )
 }
 
-// =============================================
+// ═══════════════════════════════════════════
 // FEATURES
-// =============================================
+// ═══════════════════════════════════════════
 function Features() {
-  const features = [
-    { icon: MessageSquare, title: 'Automação de Mensagens', desc: 'Respostas inteligentes que se adaptam ao contexto de cada conversa.' },
-    { icon: Bot, title: 'Chatbot Inteligente', desc: 'IA que entende a intenção do cliente e resolve 90% das dúvidas.' },
-    { icon: TrendingUp, title: 'Campanhas Promocionais', desc: 'Crie campanhas segmentadas para reengajar clientes inativos.' },
-    { icon: Users, title: 'Organização de Clientes', desc: 'CRM integrado para gerenciar contatos, histórico e segmentar sua base.' },
-    { icon: Clock, title: 'Agendamento de Respostas', desc: 'Programe mensagens para o momento ideal e nunca perca uma oportunidade.' },
-    { icon: BarChart3, title: 'Painel Analítico', desc: 'Dashboards em tempo real para acompanhar métricas e performance.' },
+  const feats = [
+    { icon: MessageSquare, t: 'Automação de Mensagens', d: 'Respostas inteligentes que se adaptam ao contexto de cada conversa.' },
+    { icon: Bot, t: 'Chatbot Inteligente', d: 'IA que entende a intenção do cliente e resolve 90% das dúvidas.' },
+    { icon: TrendingUp, t: 'Campanhas Promocionais', d: 'Crie campanhas segmentadas para reengajar clientes inativos.' },
+    { icon: Users, t: 'Organização de Clientes', d: 'CRM integrado para gerenciar contatos, histórico e segmentar sua base.' },
+    { icon: Clock, t: 'Agendamento de Respostas', d: 'Programe mensagens para o momento ideal e nunca perca uma oportunidade.' },
+    { icon: BarChart3, t: 'Painel Analítico', d: 'Dashboards em tempo real para acompanhar métricas e performance.' },
   ]
 
-  const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.08 } }
-  }
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  }
+  const container = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }
+  const item = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
 
   return (
     <section id="features" className="relative py-32 z-10">
       <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          className="text-center mb-16"
-        >
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7C3AED] mb-4">
-            <span className="w-6 h-[2px] bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] rounded" />
-            Funcionalidades
-          </span>
-          <h2 className="font-['Syne'] text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Tudo que você precisa para{' '}
-            <span className="bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">reativar</span>
-          </h2>
-          <p className="text-lg text-white/50 max-w-xl mx-auto">Ferramentas poderosas para transformar clientes perdidos em oportunidades.</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} className="text-center mb-16">
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7c3aed] mb-4"><span className="w-6 h-[2px] bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] rounded" />Funcionalidades</span>
+          <h2 className="font-['Syne',sans-serif] text-[clamp(2rem,4vw,3.2rem)] font-extrabold tracking-tight mb-4">Tudo que você precisa para <span className="bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">reativar</span></h2>
+          <p className="text-lg text-white/40 max-w-xl mx-auto">Ferramentas poderosas para transformar clientes perdidos em oportunidades.</p>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
-        >
-          {features.map((f, i) => {
-            const Icon = f.icon
+        <motion.div variants={container} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }} className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {feats.map((f, i) => {
+            const I = f.icon
             return (
-              <motion.div
-                key={i}
-                variants={itemVariants}
-                className={`group relative bg-[#0F0F1A] border border-white/[0.07] rounded-2xl p-8 backdrop-blur-xl transition-all duration-300 hover:border-[#7C3AED]/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#7C3AED]/10 overflow-hidden ${
-                  i === 0 ? 'lg:col-span-2' : ''
-                }`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-[#7C3AED]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <motion.div key={i} variants={item} className={`group relative bg-[#0d0d1a] border border-white/[0.07] rounded-2xl p-8 transition-all duration-300 hover:border-transparent hover:-translate-y-1.5 hover:shadow-[0_0_30px_rgba(124,58,237,0.15)] overflow-hidden ${i === 0 ? 'lg:col-span-2' : ''}`}>
+                {/* Gradient border on hover */}
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(6,182,212,0.3))', mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)', maskComposite: 'exclude', WebkitMaskComposite: 'xor', padding: '1px' }} />
+                <div className="absolute inset-[1px] rounded-[15px] bg-[#0d0d1a] pointer-events-none" />
                 <div className="relative z-10">
-                  <motion.div
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-[#7C3AED]/20 to-[#06B6D4]/20 flex items-center justify-center mb-5"
-                  >
-                    <Icon size={22} className="text-[#7C3AED]" />
+                  <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.5 }} className="w-12 h-12 rounded-full bg-gradient-to-br from-[#7c3aed]/20 to-[#06b6d4]/20 flex items-center justify-center mb-5">
+                    <I size={22} className="text-[#7c3aed]" />
                   </motion.div>
-                  <h3 className="font-['Syne'] text-lg font-semibold mb-2">{f.title}</h3>
-                  <p className="text-sm text-white/50 leading-relaxed">{f.desc}</p>
+                  <h3 className="font-['Syne',sans-serif] text-lg font-bold mb-2">{f.t}</h3>
+                  <p className="text-sm text-white/40 leading-relaxed">{f.d}</p>
                 </div>
-                <div className="absolute bottom-6 right-6 text-[#7C3AED] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                  <ChevronRight size={16} />
-                </div>
+                <div className="absolute bottom-6 right-6 text-[#7c3aed] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"><ChevronRight size={16} /></div>
               </motion.div>
             )
           })}
@@ -453,68 +293,41 @@ function Features() {
   )
 }
 
-// =============================================
+// ═══════════════════════════════════════════
 // HOW IT WORKS
-// =============================================
+// ═══════════════════════════════════════════
 function HowItWorks() {
   const steps = [
-    { num: '01', title: 'Conecte seus Contatos', desc: 'Importe sua base ou conecte com WhatsApp Business.' },
-    { num: '02', title: 'Configure Automações', desc: 'Crie fluxos com nossa interface drag-and-drop.' },
-    { num: '03', title: 'Acompanhe Resultados', desc: 'Monitore métricas e veja clientes perdidos voltando.' },
+    { n: '01', t: 'Conecte seus Contatos', d: 'Importe sua base ou conecte com WhatsApp Business.' },
+    { n: '02', t: 'Configure Automações', d: 'Crie fluxos com interface drag-and-drop.' },
+    { n: '03', t: 'Acompanhe Resultados', d: 'Monitore métricas e veja clientes voltando.' },
   ]
 
   return (
     <section id="about" className="relative py-32 z-10">
       <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          className="text-center mb-16"
-        >
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7C3AED] mb-4">
-            <span className="w-6 h-[2px] bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] rounded" />
-            Como Funciona
-          </span>
-          <h2 className="font-['Syne'] text-4xl md:text-5xl font-bold tracking-tight">
-            Três passos para{' '}
-            <span className="bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">reativar</span>
-          </h2>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} className="text-center mb-16">
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7c3aed] mb-4"><span className="w-6 h-[2px] bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] rounded" />Como Funciona</span>
+          <h2 className="font-['Syne',sans-serif] text-[clamp(2rem,4vw,3.2rem)] font-extrabold tracking-tight">Três passos para <span className="bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">reativar</span></h2>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-10 relative">
-          {/* Connecting Line */}
-          <div className="absolute top-16 left-[15%] w-[70%] h-[2px] hidden md:block">
-            <div className="w-full h-full border-t-2 border-dashed border-white/[0.1]" />
-            <motion.div
-              initial={{ width: 0 }}
-              whileInView={{ width: '100%' }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.5, ease: 'easeInOut' }}
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#7C3AED] to-[#06B6D4]"
-              style={{ clipPath: 'polygon(0 0, 100% 0, 100% 2px, 0 2px)' }}
-            />
-          </div>
+          {/* Dashed connecting line */}
+          <svg className="absolute top-16 left-[12%] w-[76%] h-4 hidden md:block overflow-visible" viewBox="0 0 800 16" fill="none" preserveAspectRatio="none">
+            <motion.path d="M0 8 H800" stroke="url(#lineGrad)" strokeWidth="2" strokeDasharray="8 6" initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: 'easeInOut' }} />
+            <defs><linearGradient id="lineGrad" x1="0" y1="0" x2="800" y2="0" gradientUnits="userSpaceOnUse"><stop stopColor="#7c3aed" /><stop offset="1" stopColor="#06b6d4" /></linearGradient></defs>
+          </svg>
 
-          {steps.map((step, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.5, delay: i * 0.2 }}
-              className="text-center relative"
-            >
+          {steps.map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.5, delay: i * 0.2 }} className="text-center relative">
               <div className="relative inline-block mb-6">
-                <span className="font-['Syne'] text-[120px] font-extrabold text-white/[0.03] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  {step.num}
-                </span>
-                <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-[#7C3AED]/20">
-                  {step.num}
+                <span className="font-['Syne',sans-serif] text-[9rem] font-extrabold text-white/[0.03] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] select-none">{s.n}</span>
+                <div className="relative w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0d0d1a, #0d0d1a)', boxShadow: '0 0 0 2px transparent, 0 0 0 2px rgba(124,58,237,0.5)' }}>
+                  <span className="font-['Syne',sans-serif] text-lg font-bold bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">{s.n}</span>
                 </div>
               </div>
-              <h3 className="font-['Syne'] text-xl font-semibold mb-3">{step.title}</h3>
-              <p className="text-sm text-white/50 max-w-xs mx-auto">{step.desc}</p>
+              <h3 className="font-['Syne',sans-serif] text-xl font-bold mb-3">{s.t}</h3>
+              <p className="text-sm text-white/40 max-w-xs mx-auto">{s.d}</p>
             </motion.div>
           ))}
         </div>
@@ -523,105 +336,58 @@ function HowItWorks() {
   )
 }
 
-// =============================================
+// ═══════════════════════════════════════════
 // PRICING
-// =============================================
+// ═══════════════════════════════════════════
 function Pricing() {
   const plans = [
-    {
-      name: 'Starter',
-      price: 97,
-      desc: 'Ideal para quem está começando',
-      features: ['Até 500 contatos', '5 automações ativas', 'Relatórios básicos', 'Suporte por email'],
-      featured: false,
-    },
-    {
-      name: 'Pro',
-      price: 197,
-      desc: 'Para negócios em crescimento',
-      features: ['Até 5.000 contatos', 'Automações ilimitadas', 'Chatbot com IA', 'Relatórios avançados', 'Suporte prioritário'],
-      featured: true,
-    },
-    {
-      name: 'Business',
-      price: 497,
-      desc: 'Para operações de grande escala',
-      features: ['Contatos ilimitados', 'Tudo do Pro', 'API dedicada', 'Multi-atendentes', 'Gerente de conta'],
-      featured: false,
-    },
+    { name: 'Starter', price: 97, desc: 'Ideal para quem está começando', feats: ['Até 500 contatos', '5 automações ativas', 'Relatórios básicos', 'Suporte por email'], hot: false },
+    { name: 'Pro', price: 197, desc: 'Para negócios em crescimento', feats: ['Até 5.000 contatos', 'Automações ilimitadas', 'Chatbot com IA', 'Relatórios avançados', 'Suporte prioritário'], hot: true },
+    { name: 'Business', price: 497, desc: 'Para operações de grande escala', feats: ['Contatos ilimitados', 'Tudo do Pro', 'API dedicada', 'Multi-atendentes', 'Gerente de conta'], hot: false },
   ]
 
   return (
     <section id="pricing" className="relative py-32 z-10">
       <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          className="text-center mb-16"
-        >
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7C3AED] mb-4">
-            <span className="w-6 h-[2px] bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] rounded" />
-            Preços
-          </span>
-          <h2 className="font-['Syne'] text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Planos que <span className="bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">crescem</span> com você
-          </h2>
-          <p className="text-lg text-white/50 max-w-xl mx-auto">Escolha o plano ideal para o tamanho do seu negócio.</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} className="text-center mb-16">
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7c3aed] mb-4"><span className="w-6 h-[2px] bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] rounded" />Preços</span>
+          <h2 className="font-['Syne',sans-serif] text-[clamp(2rem,4vw,3.2rem)] font-extrabold tracking-tight mb-4">Planos que <span className="bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">crescem</span> com você</h2>
+          <p className="text-lg text-white/40 max-w-xl mx-auto">Escolha o plano ideal para o tamanho do seu negócio.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto items-start">
-          {plans.map((plan, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.5, delay: i * 0.15 }}
-              className={`relative bg-[#0F0F1A] border rounded-2xl p-9 transition-all duration-300 hover:-translate-y-1 ${
-                plan.featured
-                  ? 'border-[#7C3AED]/50 shadow-lg shadow-[#7C3AED]/10 scale-[1.02]'
-                  : 'border-white/[0.07] hover:border-white/[0.15]'
-              }`}
-            >
-              {plan.featured && (
-                <>
-                  <div className="absolute -inset-[2px] rounded-2xl bg-gradient-to-r from-[#7C3AED] via-[#2563EB] to-[#06B6D4] -z-10" />
-                  <div className="absolute inset-0 rounded-2xl bg-[#0F0F1A] -z-[5]" />
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] text-white text-xs font-semibold px-4 py-1 rounded-full">
-                    Mais Popular
-                  </div>
-                  <div className="absolute inset-0 bg-[#7C3AED]/5 rounded-2xl blur-3xl -z-[3]" />
-                </>
-              )}
+          {plans.map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.5, delay: i * 0.15 }} className="relative group">
+              {/* Glow behind Pro */}
+              {p.hot && <div className="absolute inset-0 bg-[#7c3aed]/[0.12] rounded-3xl blur-[100px] pointer-events-none" />}
 
-              <div className="text-base font-semibold text-white/60 mb-2">{plan.name}</div>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-lg font-semibold text-white/60">R$</span>
-                <span className="font-['Syne'] text-5xl font-extrabold text-white">{plan.price}</span>
-                <span className="text-base text-white/40">/mês</span>
+              <div className={`relative bg-[#0d0d1a] rounded-2xl p-9 transition-all duration-300 hover:scale-[1.03] hover:shadow-2xl ${p.hot ? 'border-2 border-transparent' : 'border border-white/[0.07]'}`} style={p.hot ? { background: 'linear-gradient(#0d0d1a,#0d0d1a) padding-box, linear-gradient(135deg,#7c3aed,#2563eb,#06b6d4) border-box', border: '2px solid transparent' } : {}}>
+                {p.hot && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] text-white text-[11px] font-bold px-5 py-1.5 rounded-full shadow-lg shadow-[#7c3aed]/30">Mais Popular</div>}
+
+                <div className="text-sm font-semibold text-white/50 mb-2">{p.name}</div>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-base font-semibold text-white/50">R$</span>
+                  <span className="font-['Syne',sans-serif] text-5xl font-extrabold text-white">{p.price}</span>
+                  <span className="text-sm text-white/30">/mês</span>
+                </div>
+                <p className="text-sm text-white/35 mb-7">{p.desc}</p>
+
+                <ul className="mb-8 space-y-0">
+                  {p.feats.map((f, j) => (
+                    <li key={j} className="flex items-center gap-3 py-3 border-b border-white/[0.04] text-sm text-white/50 last:border-0">
+                      <motion.div initial={{ strokeDashoffset: 24 }} whileInView={{ strokeDashoffset: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 + j * 0.08 }}>
+                        <Check size={16} className="text-[#7c3aed]" />
+                      </motion.div>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link to="/register" className={`block w-full py-3.5 text-center rounded-xl font-semibold transition-all duration-200 ${p.hot ? 'bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] text-white shadow-lg shadow-[#7c3aed]/20 hover:shadow-[#7c3aed]/40 relative overflow-hidden group/btn' : 'bg-white/[0.04] border border-white/[0.07] text-white hover:bg-white/[0.08]'}`}>
+                  {p.hot && <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />}
+                  <span className="relative">Começar Agora</span>
+                </Link>
               </div>
-              <p className="text-sm text-white/40 mb-7">{plan.desc}</p>
-
-              <ul className="mb-8 space-y-0">
-                {plan.features.map((f, j) => (
-                  <li key={j} className="flex items-center gap-3 py-3 border-b border-white/[0.05] text-sm text-white/60 last:border-0">
-                    <Check size={16} className="text-[#7C3AED] flex-shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                to="/register"
-                className={`block w-full py-3.5 text-center rounded-lg font-semibold transition-all duration-300 ${
-                  plan.featured
-                    ? 'bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] text-white shadow-lg shadow-[#7C3AED]/20 hover:shadow-[#7C3AED]/40'
-                    : 'bg-white/[0.05] border border-white/[0.07] text-white hover:bg-white/[0.08]'
-                }`}
-              >
-                Começar Agora
-              </Link>
             </motion.div>
           ))}
         </div>
@@ -630,85 +396,39 @@ function Pricing() {
   )
 }
 
-// =============================================
+// ═══════════════════════════════════════════
 // TESTIMONIALS
-// =============================================
+// ═══════════════════════════════════════════
 function Testimonials() {
-  const testimonials = [
-    {
-      quote: 'A REATIVA transformou nosso atendimento. Reduzimos o tempo de resposta em 80% e clientes perdidos estão voltando.',
-      name: 'Maria Clara',
-      role: 'CEO, Boutique Online',
-      avatar: 'MC',
-      gradient: 'from-[#7C3AED] to-[#06B6D4]',
-    },
-    {
-      quote: 'O chatbot resolve 90% das dúvidas sem intervenção humana. Economia absurda de tempo e dinheiro.',
-      name: 'Rafael Santos',
-      role: 'Fundador, Tech Solutions',
-      avatar: 'RS',
-      gradient: 'from-yellow-500 to-red-500',
-    },
-    {
-      quote: 'A segmentação automática aumentou nossa taxa de conversão em 45%. Ferramenta indispensável.',
-      name: 'Ana Lima',
-      role: 'Diretora de Marketing, E-commerce Plus',
-      avatar: 'AL',
-      gradient: 'from-emerald-500 to-blue-500',
-    },
+  const items = [
+    { q: 'A REATIVA transformou nosso atendimento. Reduzimos o tempo de resposta em 80% e clientes perdidos estão voltando.', n: 'Maria Clara', r: 'CEO, Boutique Online', av: 'MC', g: 'from-[#7c3aed] to-[#06b6d4]' },
+    { q: 'O chatbot resolve 90% das dúvidas sem intervenção humana. Economia absurda de tempo e dinheiro.', n: 'Rafael Santos', r: 'Fundador, Tech Solutions', av: 'RS', g: 'from-amber-500 to-red-500' },
+    { q: 'A segmentação automática aumentou nossa taxa de conversão em 45%. Ferramenta indispensável.', n: 'Ana Lima', r: 'Diretora de Marketing, E-commerce Plus', av: 'AL', g: 'from-emerald-500 to-blue-500' },
   ]
 
   return (
     <section className="relative py-32 z-10">
       <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          className="text-center mb-16"
-        >
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7C3AED] mb-4">
-            <span className="w-6 h-[2px] bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] rounded" />
-            Depoimentos
-          </span>
-          <h2 className="font-['Syne'] text-4xl md:text-5xl font-bold tracking-tight">
-            O que nossos <span className="bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">clientes</span> dizem
-          </h2>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} className="text-center mb-16">
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7c3aed] mb-4"><span className="w-6 h-[2px] bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] rounded" />Depoimentos</span>
+          <h2 className="font-['Syne',sans-serif] text-[clamp(2rem,4vw,3.2rem)] font-extrabold tracking-tight">O que nossos <span className="bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">clientes</span> dizem</h2>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-5">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.5, delay: i * 0.15 }}
-              className="group bg-[#0F0F1A] border border-white/[0.07] rounded-2xl p-8 backdrop-blur-xl transition-all duration-300 hover:border-[#7C3AED]/30 hover:-translate-y-1 relative overflow-hidden"
-            >
-              <span className="absolute top-4 left-6 text-6xl font-serif bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent opacity-20">"</span>
+          {items.map((t, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.5, delay: i * 0.15 }} className="relative bg-white/[0.04] backdrop-blur-md border border-white/[0.07] rounded-2xl p-8 transition-all duration-300 hover:border-[#7c3aed]/30 hover:-translate-y-1 overflow-hidden">
+              <span className="absolute -top-2 left-5 text-[6rem] font-serif leading-none bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent opacity-15 select-none">"</span>
               <div className="flex gap-1 mb-4 relative z-10">
                 {[...Array(5)].map((_, j) => (
-                  <motion.div
-                    key={j}
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.3 + j * 0.05 }}
-                  >
-                    <Star size={14} fill="#F59E0B" className="text-yellow-500" />
+                  <motion.div key={j} initial={{ opacity: 0, scale: 0 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 0.3 + j * 0.06 }}>
+                    <Star size={14} fill="#eab308" className="text-yellow-500" />
                   </motion.div>
                 ))}
               </div>
-              <p className="text-sm text-white/60 leading-relaxed mb-6 relative z-10">"{t.quote}"</p>
+              <p className="text-sm text-white/50 leading-relaxed mb-6 relative z-10">"{t.q}"</p>
               <div className="flex items-center gap-3 relative z-10">
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${t.gradient} flex items-center justify-center text-white text-xs font-bold`}>
-                  {t.avatar}
-                </div>
-                <div>
-                  <div className="text-sm font-semibold">{t.name}</div>
-                  <div className="text-xs text-white/40">{t.role}</div>
-                </div>
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${t.g} flex items-center justify-center text-white text-xs font-bold`}>{t.av}</div>
+                <div><div className="text-sm font-semibold">{t.n}</div><div className="text-xs text-white/35">{t.r}</div></div>
               </div>
             </motion.div>
           ))}
@@ -718,121 +438,45 @@ function Testimonials() {
   )
 }
 
-// =============================================
+// ═══════════════════════════════════════════
 // CONTACT
-// =============================================
+// ═══════════════════════════════════════════
 function Contact() {
-  const [submitted, setSubmitted] = useState(false)
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
-  }
-
-  const contactInfo = [
-    { icon: Mail, label: 'Email', value: 'contato@reativa.com' },
-    { icon: Phone, label: 'Telefone', value: '+55 (11) 9999-9999' },
-    { icon: MapPin, label: 'Localização', value: 'São Paulo, SP - Brasil' },
+  const [sent, setSent] = useState(false)
+  const info = [
+    { icon: Mail, l: 'Email', v: 'contato@reativa.com' },
+    { icon: Phone, l: 'Telefone', v: '+55 (11) 9999-9999' },
+    { icon: MapPin, l: 'Localização', v: 'São Paulo, SP - Brasil' },
   ]
 
   return (
-    <section id="contact" className="relative py-32 z-10 bg-white/[0.02]">
+    <section id="contact" className="relative py-32 z-10 bg-white/[0.015]">
       <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          className="text-center mb-16"
-        >
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#7C3AED] mb-4">
-            <span className="w-6 h-[2px] bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] rounded" />
-            Contato
-          </span>
-          <h2 className="font-['Syne'] text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Pronto para <span className="bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] bg-clip-text text-transparent">começar</span>?
-          </h2>
-          <p className="text-lg text-white/50 max-w-xl mx-auto">Entre em contato ou crie sua conta gratuitamente.</p>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} className="text-center mb-16">
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7c3aed] mb-4"><span className="w-6 h-[2px] bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] rounded" />Contato</span>
+          <h2 className="font-['Syne',sans-serif] text-[clamp(2rem,4vw,3.2rem)] font-extrabold tracking-tight mb-4">Pronto para <span className="bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">começar</span>?</h2>
+          <p className="text-lg text-white/40 max-w-xl mx-auto">Entre em contato ou crie sua conta gratuitamente.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-12">
-          <motion.form
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.5 }}
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-2">Nome</label>
-              <input
-                type="text"
-                placeholder="Seu nome completo"
-                required
-                className="w-full px-4 py-3.5 bg-white/[0.05] border border-white/[0.07] rounded-xl text-white placeholder-white/30 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/30 transition-all outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-2">Email</label>
-              <input
-                type="email"
-                placeholder="seu@email.com"
-                required
-                className="w-full px-4 py-3.5 bg-white/[0.05] border border-white/[0.07] rounded-xl text-white placeholder-white/30 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/30 transition-all outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/60 mb-2">Mensagem</label>
-              <textarea
-                placeholder="Como podemos ajudar?"
-                rows="4"
-                required
-                className="w-full px-4 py-3.5 bg-white/[0.05] border border-white/[0.07] rounded-xl text-white placeholder-white/30 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/30 transition-all outline-none resize-none"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-[#7C3AED] via-[#2563EB] to-[#06B6D4] rounded-xl text-white font-semibold text-base hover:shadow-lg hover:shadow-[#7C3AED]/20 transition-all relative overflow-hidden group"
-            >
+          <motion.form initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.5 }} onSubmit={e => { e.preventDefault(); setSent(true); setTimeout(() => setSent(false), 3000) }} className="space-y-5">
+            {[{ l: 'Nome', p: 'Seu nome completo', t: 'text' }, { l: 'Email', p: 'seu@email.com', t: 'email' }].map((f, i) => (
+              <div key={i}><label className="block text-sm font-medium text-white/50 mb-2">{f.l}</label><input type={f.t} placeholder={f.p} required className="w-full px-4 py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/25 focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/25 transition-all duration-200 outline-none" /></div>
+            ))}
+            <div><label className="block text-sm font-medium text-white/50 mb-2">Mensagem</label><textarea placeholder="Como podemos ajudar?" rows="4" required className="w-full px-4 py-3.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/25 focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/25 transition-all duration-200 outline-none resize-none" /></div>
+            <button type="submit" className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-[#7c3aed] via-[#2563eb] to-[#06b6d4] text-white font-semibold text-base relative overflow-hidden group">
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              {submitted ? 'Mensagem Enviada!' : (
-                <>
-                  Enviar Mensagem
-                  <Send size={18} />
-                </>
-              )}
+              <span className="relative flex items-center gap-2">{sent ? 'Mensagem Enviada!' : <><>Enviar Mensagem</><Send size={18} /></>}</span>
             </button>
           </motion.form>
 
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="space-y-4"
-          >
-            {contactInfo.map((info, i) => {
-              const Icon = info.icon
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 + i * 0.1 }}
-                  className="flex items-center gap-4 p-5 bg-[#0F0F1A] border border-white/[0.07] rounded-xl transition-all duration-300 hover:border-[#7C3AED]/30"
-                >
-                  <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[#7C3AED]/20 to-[#06B6D4]/20 flex items-center justify-center text-[#7C3AED] flex-shrink-0">
-                    <Icon size={20} />
-                  </div>
-                  <div>
-                    <div className="text-xs text-white/40 mb-0.5">{info.label}</div>
-                    <div className="text-sm font-medium">{info.value}</div>
-                  </div>
-                </motion.div>
-              )
-            })}
+          <motion.div initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.5, delay: 0.15 }} className="space-y-4">
+            {info.map((c, i) => { const I = c.icon; return (
+              <motion.div key={i} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 + i * 0.1 }} className="flex items-center gap-4 p-5 bg-[#0d0d1a] border border-white/[0.07] rounded-xl transition-all duration-300 hover:border-[#7c3aed]/30">
+                <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[#7c3aed]/20 to-[#06b6d4]/20 flex items-center justify-center flex-shrink-0"><I size={20} className="text-[#7c3aed]" /></div>
+                <div><div className="text-xs text-white/30 mb-0.5">{c.l}</div><div className="text-sm font-medium text-white/80">{c.v}</div></div>
+              </motion.div>
+            )})}
           </motion.div>
         </div>
       </div>
@@ -840,56 +484,32 @@ function Contact() {
   )
 }
 
-// =============================================
+// ═══════════════════════════════════════════
 // FOOTER
-// =============================================
+// ═══════════════════════════════════════════
 function Footer() {
   return (
-    <footer className="relative bg-[#0F0F1A] border-t border-white/[0.07] py-16 z-10">
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#7C3AED]/50 to-transparent" />
+    <footer className="relative bg-[#0d0d1a] border-t border-white/[0.05] py-16 z-10">
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#7c3aed]/40 to-transparent" />
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center">
-                <Check size={18} className="text-white" strokeWidth={3} />
-              </div>
-              <span className="font-['Syne'] text-xl font-bold">REATIVA</span>
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#06b6d4] flex items-center justify-center"><Check size={17} className="text-white" strokeWidth={3} /></div>
+              <span className="font-['Syne',sans-serif] text-xl font-extrabold text-white">REATIVA</span>
             </div>
-            <p className="text-sm text-white/50 max-w-xs">Reative clientes perdidos. Organize seu negócio.</p>
+            <p className="text-sm text-white/35 max-w-xs">Reative clientes perdidos. Organize seu negócio.</p>
           </div>
-
-          {[
-            { title: 'Produto', links: ['Funcionalidades', 'Preços', 'Integrações', 'API'] },
-            { title: 'Empresa', links: ['Sobre', 'Blog', 'Carreiras', 'Contato'] },
-            { title: 'Suporte', links: ['Central de Ajuda', 'Documentação', 'Termos de Uso', 'Privacidade'] },
-          ].map((col, i) => (
-            <div key={i}>
-              <h4 className="font-['Syne'] text-sm font-semibold mb-4">{col.title}</h4>
-              <div className="flex flex-col gap-2.5">
-                {col.links.map((link, j) => (
-                  <a key={j} href="#" className="text-sm text-white/50 hover:text-[#7C3AED] transition-colors">{link}</a>
-                ))}
-              </div>
-            </div>
+          {[{ t: 'Produto', l: ['Funcionalidades', 'Preços', 'Integrações', 'API'] }, { t: 'Empresa', l: ['Sobre', 'Blog', 'Carreiras', 'Contato'] }, { t: 'Suporte', l: ['Central de Ajuda', 'Documentação', 'Termos de Uso', 'Privacidade'] }].map((c, i) => (
+            <div key={i}><h4 className="font-['Syne',sans-serif] text-sm font-bold mb-4">{c.t}</h4><div className="flex flex-col gap-2.5">{c.l.map((l, j) => <a key={j} href="#" className="text-sm text-white/40 hover:text-[#7c3aed] transition-colors duration-200">{l}</a>)}</div></div>
           ))}
         </div>
-
-        <div className="flex flex-col md:flex-row items-center justify-between pt-6 border-t border-white/[0.07] text-xs text-white/30">
+        <div className="flex flex-col md:flex-row items-center justify-between pt-6 border-t border-white/[0.05] text-[11px] text-white/25">
           <span>&copy; 2026 REATIVA. Todos os direitos reservados.</span>
-          <div className="flex gap-4 mt-4 md:mt-0">
-            {['Twitter', 'Instagram', 'LinkedIn', 'GitHub'].map((social, i) => (
-              <a
-                key={i}
-                href="#"
-                className="w-9 h-9 flex items-center justify-center bg-white/[0.05] border border-white/[0.07] rounded-lg text-white/40 hover:border-[#7C3AED] hover:text-[#7C3AED] hover:bg-[#7C3AED]/10 transition-all"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  {social === 'Twitter' && <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>}
-                  {social === 'Instagram' && <><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></>}
-                  {social === 'LinkedIn' && <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></>}
-                  {social === 'GitHub' && <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>}
-                </svg>
+          <div className="flex gap-3 mt-4 md:mt-0">
+            {['M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z', 'rect x="2" y="2" width="20" height="20" rx="5" ry="5"', 'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z', 'M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22'].map((d, i) => (
+              <a key={i} href="#" className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.06] text-white/35 hover:border-[#7c3aed] hover:text-[#7c3aed] hover:bg-[#7c3aed]/10 transition-all duration-200">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
               </a>
             ))}
           </div>
@@ -899,55 +519,35 @@ function Footer() {
   )
 }
 
-// =============================================
-// MAIN APP
-// =============================================
+// ═══════════════════════════════════════════
+// APP
+// ═══════════════════════════════════════════
 export default function Landing() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-
-        @keyframes hue-shift {
-          0%, 100% { filter: hue-rotate(0deg); }
-          50% { filter: hue-rotate(30deg); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-
-        body {
-          font-family: 'DM Sans', sans-serif;
-          background: #080810;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+        body { font-family: 'DM Sans', sans-serif; background: #06060f; }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        @keyframes hue-shift { 0%,100% { filter: hue-rotate(0deg); } 50% { filter: hue-rotate(25deg); } }
+        @keyframes blob1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30px,-40px) scale(1.05); } 66% { transform: translate(-20px,30px) scale(0.95); } }
+        @keyframes blob2 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-40px,20px) scale(0.95); } 66% { transform: translate(30px,-30px) scale(1.05); } }
+        @keyframes blob3 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(20px,40px) scale(1.08); } 66% { transform: translate(-30px,-20px) scale(0.92); } }
+        @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:0.01ms!important; animation-iteration-count:1!important; transition-duration:0.01ms!important; } }
       `}</style>
 
-      {/* Background Gradient Mesh */}
+      {/* Animated blobs */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#7C3AED]/8 rounded-full blur-[120px] animate-[float_8s_ease-in-out_infinite]" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#2563EB]/8 rounded-full blur-[120px] animate-[float_8s_ease-in-out_infinite_2s]" />
-        <div className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-[#06B6D4]/8 rounded-full blur-[120px] animate-[float_8s_ease-in-out_infinite_4s]" />
+        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] bg-[#7c3aed] rounded-full blur-[140px] opacity-[0.12] animate-[blob1_12s_ease-in-out_infinite]" />
+        <div className="absolute -top-20 -right-32 w-[450px] h-[450px] bg-[#2563eb] rounded-full blur-[140px] opacity-[0.12] animate-[blob2_12s_ease-in-out_infinite_4s]" />
+        <div className="absolute -bottom-32 left-1/3 w-[500px] h-[500px] bg-[#06b6d4] rounded-full blur-[140px] opacity-[0.12] animate-[blob3_12s_ease-in-out_infinite_8s]" />
       </div>
 
-      {/* Noise Overlay */}
-      <div
-        className="fixed inset-0 z-[1] pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '256px'
-        }}
-      />
+      {/* Grid pattern */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='48' height='48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h48v48H0z' fill='none'/%3E%3Cpath d='M0 0h1v48H0z' fill='rgba(255,255,255,0.025)'/%3E%3Cpath d='M0 0h48v1H0z' fill='rgba(255,255,255,0.025)'/%3E%3C/svg%3E")` }} />
+
+      {/* Noise */}
+      <NoiseSVG />
 
       <div className="relative z-10">
         <Navbar />
