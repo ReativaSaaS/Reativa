@@ -18,6 +18,7 @@ import { DashboardSkeleton, ClientsSkeleton } from '../components/Skeleton'
 import { useRealtimeClients, useRealtimeAlerts, useRealtimeMessages } from '../hooks/useRealtime'
 
 import { useMetrics, useClients, useAlerts, useCampaigns, useInsights } from '../hooks/useData'
+import { useTasks, useGoals, useKanban, useFinancial, useTeam } from '../hooks/useDashboardData'
 import { createClient, updateClient, deleteClient, bulkUpdateStatus, sendMessage, getClientMessages } from '../lib/clients'
 import { markAlertAsRead, dismissAlert, markAllAlertsAsRead } from '../lib/alerts'
 import { createCampaign, launchCampaign, pauseCampaign, CAMPAIGN_TYPES, CAMPAIGN_STATUS } from '../lib/campaigns'
@@ -106,44 +107,28 @@ export default function Dashboard() {
   const [campaignForm, setCampaignForm] = useState({ name: '', type: 'reativacao', target_status: [], message_template: '', description: '' })
 
   // Kanban state
-  const [kanbanColumns, setKanbanColumns] = useState([
-    { id: 'ideias', title: 'Ideias', color: '#a78bfa', cards: [
-      { id: 1, tag: 'Produto', tagColor: 'bg-purple-500/15 text-purple-400', title: 'Sistema de notificações push', desc: 'Alertas inteligentes para lembrar usuários de tarefas pendentes.', avatars: ['M', 'A'], date: '20 mai' },
-      { id: 2, tag: 'Design', tagColor: 'bg-red-500/15 text-red-400', title: 'Redesign da tela de onboarding', desc: 'Simplificar o fluxo de cadastro para aumentar conversão.', avatars: ['L'], date: '25 mai' },
-    ]},
-    { id: 'progresso', title: 'Em Progresso', color: '#60a5fa', cards: [
-      { id: 3, tag: 'Dev', tagColor: 'bg-blue-500/15 text-blue-400', title: 'Integração com API de pagamento', desc: 'Implementar Stripe e boleto bancário para checkout.', avatars: ['A', 'R', 'J'], date: 'Atrasado', urgent: true },
-      { id: 4, tag: 'Conteúdo', tagColor: 'bg-emerald-500/15 text-emerald-400', title: 'Série de e-mails de boas-vindas', desc: '5 e-mails automatizados para novos usuários.', avatars: ['M'], date: '18 mai' },
-    ]},
-    { id: 'revisao', title: 'Revisão', color: '#fbbf24', cards: [
-      { id: 5, tag: 'QA', tagColor: 'bg-amber-500/15 text-amber-400', title: 'Testes de usabilidade v2.1', desc: 'Validar fluxo completo com 10 usuários beta.', avatars: ['P', 'M'], date: '17 mai' },
-    ]},
-    { id: 'concluido', title: 'Concluído', color: '#4ade80', cards: [
-      { id: 6, tag: 'Feito', tagColor: 'bg-emerald-500/15 text-emerald-400', title: 'Configurar servidor de produção', avatars: ['A'], done: true },
-    ]},
-  ])
+  const { columns: kanbanColumns, cards: kanbanCards, loading: kanbanLoading, addColumn: addKanbanColumn, addCard: addKanbanCard, updateCard: updateKanbanCard, removeCard: removeKanbanCard, getColumnCards } = useKanban(userId)
+  const [showKanbanForm, setShowKanbanForm] = useState(false)
+  const [kanbanForm, setKanbanForm] = useState({ title: '', description: '', tag: '', tagColor: '', columnId: '' })
 
   // Financial data
-  const [financialData] = useState([
-    { month: 'Dez', revenue: 19000, expense: 12000 },
-    { month: 'Jan', revenue: 21000, expense: 13000 },
-    { month: 'Fev', revenue: 18000, expense: 11000 },
-    { month: 'Mar', revenue: 24000, expense: 14000 },
-    { month: 'Abr', revenue: 23000, expense: 13000 },
-    { month: 'Mai', revenue: 28540, expense: 12380 },
-  ])
+  const { entries: financialEntries, months: financialMonths, summary: financialSummary, loading: financialLoading, addEntry: addFinancialEntry, removeEntry: removeFinancialEntry } = useFinancial(userId)
+  const [showFinancialForm, setShowFinancialForm] = useState(false)
+  const [financialForm, setFinancialForm] = useState({ description: '', category: '', categoryColor: 'bg-emerald-500/15 text-emerald-400', amount: '', type: 'revenue' })
 
   // Planning tabs
   const [planningTab, setPlanningTab] = useState('canvas')
 
   // Team members
-  const [teamMembers] = useState([
-    { name: 'Marina Rezende', role: 'Fundadora & CEO', initials: 'MR', gradient: 'from-emerald-500 to-teal-500', status: 'online', tag: 'Admin', tagColor: 'bg-emerald-500/15 text-emerald-400' },
-    { name: 'André Lima', role: 'CTO — Desenvolvedor', initials: 'AL', gradient: 'from-blue-500 to-cyan-500', status: 'online', tag: 'Dev', tagColor: 'bg-blue-500/15 text-blue-400' },
-    { name: 'Laura Costa', role: 'Head de Design', initials: 'LC', gradient: 'from-purple-500 to-violet-500', status: 'away', tag: 'Design', tagColor: 'bg-purple-500/15 text-purple-400' },
-    { name: 'João Matos', role: 'Desenvolvedor Full-Stack', initials: 'JM', gradient: 'from-emerald-600 to-emerald-400', status: 'online', tag: 'Dev', tagColor: 'bg-emerald-500/15 text-emerald-400' },
-    { name: 'Paula Ramos', role: 'Marketing & Growth', initials: 'PR', gradient: 'from-amber-500 to-yellow-500', status: 'offline', tag: 'Marketing', tagColor: 'bg-amber-500/15 text-amber-400' },
-  ])
+  const { members: teamMembers, loading: teamLoading, add: addTeamMember, update: updateTeamMember, remove: removeTeamMember } = useTeam(userId)
+  const [showTeamForm, setShowTeamForm] = useState(false)
+  const [teamForm, setTeamForm] = useState({ name: '', role: '', email: '', tag: '', tagColor: 'bg-emerald-500/15 text-emerald-400' })
+
+  // Tasks
+  const { tasks, loading: tasksLoading, add: addTask, toggle: toggleTaskDb, remove: removeTask } = useTasks(userId)
+
+  // Goals
+  const { goals, loading: goalsLoading, add: addGoal, update: updateGoalDb, remove: removeGoal } = useGoals(userId)
 
   // Client detail
   const [selectedClient, setSelectedClient] = useState(null)
@@ -810,46 +795,56 @@ export default function Dashboard() {
               <motion.div key="quadros" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex gap-2">
-                    {['Lançamento do App', 'Marketing Q2', 'Clientes'].map((tab, i) => (
-                      <button key={i} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${i === 0 ? 'bg-accent-violet/15 text-accent-light border border-accent-violet/30' : 'bg-white/[0.03] border border-white/5 text-gray-500 hover:text-white'}`}>{tab}</button>
-                    ))}
+                    <button className="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-violet/15 text-accent-light border border-accent-violet/30">Quadro Principal</button>
                   </div>
-                  <button className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Quadro</button>
+                  <div className="flex gap-2">
+                    <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: '' }); setShowKanbanForm(true) }} className="btn-secondary text-xs py-2 px-3"><Plus size={14} /> Coluna</button>
+                    <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: kanbanColumns[0]?.id || '' }); setShowKanbanForm(true) }} className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Card</button>
+                  </div>
                 </div>
 
-                <div className="flex gap-4 overflow-x-auto pb-4">
-                  {kanbanColumns.map((col) => (
-                    <div key={col.id} className="min-w-[280px] max-w-[280px] bg-white/[0.02] rounded-xl p-3">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full" style={{ background: col.color }}></div>
-                          <span className="text-xs font-semibold text-gray-400">{col.title}</span>
-                        </div>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/[0.07] text-gray-400">{col.cards.length}</span>
-                      </div>
-
-                      {col.cards.map((card) => (
-                        <div key={card.id} className={`bg-white/[0.03] border border-white/5 rounded-lg p-3.5 mb-2.5 cursor-grab hover:border-white/10 hover:-translate-y-0.5 transition-all ${card.done ? 'opacity-60' : ''}`}>
-                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${card.tagColor} mb-2 inline-block`}>{card.tag}</span>
-                          <div className="text-xs font-semibold mb-1.5">{card.title}</div>
-                          {card.desc && <div className="text-[11px] text-gray-500 mb-2.5">{card.desc}</div>}
-                          <div className="flex items-center justify-between text-[11px] text-gray-500">
-                            <div className="flex">
-                              {card.avatars.map((av, j) => (
-                                <div key={j} className="w-5 h-5 rounded-full bg-gradient-to-br from-accent-violet to-accent-cyan flex items-center justify-center text-[8px] font-bold text-white -ml-1.5 first:ml-0">{av}</div>
-                              ))}
+                {kanbanLoading ? (
+                  <div className="flex gap-4 overflow-x-auto pb-4">
+                    {[1,2,3].map(i => <div key={i} className="min-w-[280px] h-64 bg-white/[0.02] rounded-xl animate-pulse" />)}
+                  </div>
+                ) : (
+                  <div className="flex gap-4 overflow-x-auto pb-4">
+                    {kanbanColumns.map((col) => {
+                      const colCards = getColumnCards(col.id)
+                      return (
+                        <div key={col.id} className="min-w-[280px] max-w-[280px] bg-white/[0.02] rounded-xl p-3">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full" style={{ background: col.color }}></div>
+                              <span className="text-xs font-semibold text-gray-400">{col.title}</span>
                             </div>
-                            <span className={card.urgent ? 'text-red-400' : ''}>{card.date}</span>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/[0.07] text-gray-400">{colCards.length}</span>
                           </div>
-                        </div>
-                      ))}
 
-                      <button className="w-full py-2 border border-dashed border-white/10 rounded-lg text-xs text-gray-500 hover:border-accent-violet/30 hover:text-accent-light transition-all">
-                        + Adicionar card
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                          {colCards.map((card) => (
+                            <div key={card.id} className={`bg-white/[0.03] border border-white/5 rounded-lg p-3.5 mb-2.5 cursor-grab hover:border-white/10 hover:-translate-y-0.5 transition-all ${card.done ? 'opacity-60' : ''}`}>
+                              {card.tag && <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${card.tag_color || 'bg-purple-500/15 text-purple-400'} mb-2 inline-block`}>{card.tag}</span>}
+                              <div className="text-xs font-semibold mb-1.5">{card.title}</div>
+                              {card.description && <div className="text-[11px] text-gray-500 mb-2.5">{card.description}</div>}
+                              <div className="flex items-center justify-between text-[11px] text-gray-500">
+                                <div className="flex">
+                                  {(card.avatars || []).map((av, j) => (
+                                    <div key={j} className="w-5 h-5 rounded-full bg-gradient-to-br from-accent-violet to-accent-cyan flex items-center justify-center text-[8px] font-bold text-white -ml-1.5 first:ml-0">{av}</div>
+                                  ))}
+                                </div>
+                                <span className={card.urgent ? 'text-red-400' : ''}>{card.date_text}</span>
+                              </div>
+                            </div>
+                          ))}
+
+                          <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: col.id }); setShowKanbanForm(true) }} className="w-full py-2 border border-dashed border-white/10 rounded-lg text-xs text-gray-500 hover:border-accent-violet/30 hover:text-accent-light transition-all">
+                            + Adicionar card
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -859,19 +854,18 @@ export default function Dashboard() {
                 {/* KPIs */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
                   {[
-                    { label: 'Receita Total', value: 'R$ 28.540', change: '+18%', up: true, icon: TrendingUp },
-                    { label: 'Despesas', value: 'R$ 12.380', change: '+4%', up: false, icon: Receipt },
-                    { label: 'Lucro Líquido', value: 'R$ 16.160', change: '+29%', up: true, icon: Wallet },
+                    { label: 'Receita Total', value: `R$ ${financialSummary.revenue.toLocaleString('pt-BR')}`, icon: TrendingUp, color: 'emerald' },
+                    { label: 'Despesas', value: `R$ ${financialSummary.expense.toLocaleString('pt-BR')}`, icon: Receipt, color: 'red' },
+                    { label: 'Lucro Líquido', value: `R$ ${financialSummary.profit.toLocaleString('pt-BR')}`, icon: Wallet, color: financialSummary.profit >= 0 ? 'emerald' : 'red' },
                   ].map((m, i) => {
                     const Icon = m.icon
                     return (
                       <div key={i} className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
                         <div className="flex items-center justify-between mb-3">
                           <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{m.label}</div>
-                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><Icon size={16} /></div>
+                          <div className={`w-8 h-8 rounded-lg ${m.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}><Icon size={16} /></div>
                         </div>
                         <div className="font-mono text-2xl font-bold mb-1">{m.value}</div>
-                        <div className={`text-xs font-semibold ${m.up ? 'text-emerald-400' : 'text-red-400'}`}>{m.change} vs mês anterior</div>
                       </div>
                     )
                   })}
@@ -880,45 +874,54 @@ export default function Dashboard() {
                 <div className="grid lg:grid-cols-3 gap-4 mb-6">
                   {/* Chart */}
                   <div className="lg:col-span-2 bg-white/[0.03] border border-white/5 rounded-xl p-5">
-                    <h3 className="text-sm font-semibold mb-4">Fluxo de Caixa — Últimos 6 meses</h3>
-                    <div className="h-48 flex items-end gap-3 px-2">
-                      {financialData.map((d, i) => {
-                        const max = 32000
-                        return (
-                          <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                            <div className="w-full flex gap-1 items-end" style={{ height: '160px' }}>
-                              <motion.div initial={{ height: 0 }} animate={{ height: `${(d.revenue / max) * 100}%` }} transition={{ duration: 0.8, delay: i * 0.1 }} className="flex-1 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t opacity-70 hover:opacity-100 transition-opacity"></motion.div>
-                              <motion.div initial={{ height: 0 }} animate={{ height: `${(d.expense / max) * 100}%` }} transition={{ duration: 0.8, delay: i * 0.1 + 0.05 }} className="flex-1 bg-red-500/50 rounded-t opacity-70 hover:opacity-100 transition-opacity"></motion.div>
-                            </div>
-                            <span className="text-[10px] text-gray-500">{d.month}</span>
-                          </div>
-                        )
-                      })}
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold">Fluxo de Caixa</h3>
+                      <button onClick={() => setShowFinancialForm(true)} className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Lançar</button>
                     </div>
-                    <div className="flex gap-4 mt-3 text-[11px] text-gray-500">
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-emerald-500"></span>Receita</span>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-red-500/50"></span>Despesa</span>
-                    </div>
+                    {financialLoading ? (
+                      <div className="h-48 bg-white/[0.02] rounded animate-pulse" />
+                    ) : financialMonths.length > 0 ? (
+                      <>
+                        <div className="h-48 flex items-end gap-3 px-2">
+                          {financialMonths.slice(-6).map((d, i) => {
+                            const max = Math.max(...financialMonths.map(m => Math.max(m.revenue, m.expense)), 1)
+                            return (
+                              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                                <div className="w-full flex gap-1 items-end" style={{ height: '160px' }}>
+                                  <motion.div initial={{ height: 0 }} animate={{ height: `${(d.revenue / max) * 100}%` }} transition={{ duration: 0.8, delay: i * 0.1 }} className="flex-1 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t opacity-70 hover:opacity-100 transition-opacity"></motion.div>
+                                  <motion.div initial={{ height: 0 }} animate={{ height: `${(d.expense / max) * 100}%` }} transition={{ duration: 0.8, delay: i * 0.1 + 0.05 }} className="flex-1 bg-red-500/50 rounded-t opacity-70 hover:opacity-100 transition-opacity"></motion.div>
+                                </div>
+                                <span className="text-[10px] text-gray-500">{d.month}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                        <div className="flex gap-4 mt-3 text-[11px] text-gray-500">
+                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-emerald-500"></span>Receita</span>
+                          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-red-500/50"></span>Despesa</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="h-48 flex items-center justify-center text-gray-500 text-sm">Nenhum dado financeiro ainda</div>
+                    )}
                   </div>
 
-                  {/* Distribution */}
+                  {/* Summary */}
                   <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
-                    <h3 className="text-sm font-semibold mb-4">Distribuição de Gastos</h3>
+                    <h3 className="text-sm font-semibold mb-4">Resumo</h3>
                     <div className="space-y-4">
                       {[
-                        { name: 'Marketing', value: 'R$ 3.800', pct: 30, color: 'bg-blue-500' },
-                        { name: 'Salários', value: 'R$ 5.200', pct: 42, color: 'bg-red-400' },
-                        { name: 'Ferramentas', value: 'R$ 1.400', pct: 11, color: 'bg-purple-500' },
-                        { name: 'Infraestrutura', value: 'R$ 980', pct: 8, color: 'bg-amber-500' },
-                        { name: 'Outros', value: 'R$ 1.000', pct: 9, color: 'bg-gray-500' },
+                        { name: 'Receita', value: financialSummary.revenue, color: 'bg-emerald-500' },
+                        { name: 'Despesas', value: financialSummary.expense, color: 'bg-red-400' },
+                        { name: 'Lucro', value: financialSummary.profit, color: financialSummary.profit >= 0 ? 'bg-emerald-500' : 'bg-red-500' },
                       ].map((item, i) => (
                         <div key={i}>
                           <div className="flex justify-between text-xs mb-1.5">
                             <span className="text-gray-400">{item.name}</span>
-                            <span className="font-mono font-semibold">{item.value}</span>
+                            <span className="font-mono font-semibold">R$ {item.value.toLocaleString('pt-BR')}</span>
                           </div>
                           <div className="h-1.5 bg-white/[0.07] rounded-full overflow-hidden">
-                            <motion.div initial={{ width: 0 }} animate={{ width: `${item.pct}%` }} transition={{ duration: 0.8, delay: 0.3 + i * 0.1 }} className={`h-full rounded-full ${item.color}`}></motion.div>
+                            <div className={`h-full rounded-full ${item.color}`} style={{ width: financialSummary.revenue > 0 ? `${Math.abs(item.value) / financialSummary.revenue * 100}%` : '0%' }}></div>
                           </div>
                         </div>
                       ))}
@@ -930,34 +933,35 @@ export default function Dashboard() {
                 <div className="bg-white/[0.03] border border-white/5 rounded-xl overflow-hidden">
                   <div className="flex items-center justify-between p-5 border-b border-white/5">
                     <h3 className="text-sm font-semibold">Lançamentos Recentes</h3>
-                    <button className="btn-secondary text-xs py-2 px-3"><Download size={14} /> Exportar</button>
                   </div>
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-white/5">
-                        <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Descrição</th>
-                        <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Categoria</th>
-                        <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Data</th>
-                        <th className="text-right px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Valor</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        { desc: 'Mensalidade Cliente Alpha', cat: 'Receita', catColor: 'bg-emerald-500/15 text-emerald-400', date: '12 mai', value: '+ R$ 3.500', positive: true },
-                        { desc: 'Hospedagem AWS', cat: 'Infra', catColor: 'bg-blue-500/15 text-blue-400', date: '11 mai', value: '− R$ 480', positive: false },
-                        { desc: 'Consultoria Beta Corp', cat: 'Receita', catColor: 'bg-emerald-500/15 text-emerald-400', date: '10 mai', value: '+ R$ 8.000', positive: true },
-                        { desc: 'Google Ads — Campanha Maio', cat: 'Marketing', catColor: 'bg-amber-500/15 text-amber-400', date: '09 mai', value: '− R$ 1.200', positive: false },
-                        { desc: 'Venda de licença SaaS', cat: 'Receita', catColor: 'bg-emerald-500/15 text-emerald-400', date: '08 mai', value: '+ R$ 5.900', positive: true },
-                      ].map((row, i) => (
-                        <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                          <td className="px-5 py-3.5 text-sm">{row.desc}</td>
-                          <td className="px-5 py-3.5"><span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${row.catColor}`}>{row.cat}</span></td>
-                          <td className="px-5 py-3.5 text-xs text-gray-500">{row.date}</td>
-                          <td className={`px-5 py-3.5 text-right text-sm font-mono font-semibold ${row.positive ? 'text-emerald-400' : 'text-red-400'}`}>{row.value}</td>
+                  {financialLoading ? (
+                    <div className="p-8 text-center text-gray-500 text-sm">Carregando...</div>
+                  ) : financialEntries.length === 0 ? (
+                    <div className="p-8 text-center text-gray-500 text-sm">Nenhum lançamento ainda</div>
+                  ) : (
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-white/5">
+                          <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Descrição</th>
+                          <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Categoria</th>
+                          <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Data</th>
+                          <th className="text-right px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Valor</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {financialEntries.slice(0, 10).map((entry) => (
+                          <tr key={entry.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
+                            <td className="px-5 py-3.5 text-sm">{entry.description}</td>
+                            <td className="px-5 py-3.5"><span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${entry.category_color || 'bg-emerald-500/15 text-emerald-400'}`}>{entry.category}</span></td>
+                            <td className="px-5 py-3.5 text-xs text-gray-500">{new Date(entry.entry_date).toLocaleDateString('pt-BR')}</td>
+                            <td className={`px-5 py-3.5 text-right text-sm font-mono font-semibold ${entry.type === 'revenue' ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {entry.type === 'revenue' ? '+' : '−'} R$ {parseFloat(entry.amount).toLocaleString('pt-BR')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -1086,52 +1090,34 @@ export default function Dashboard() {
                     <h2 className="text-lg font-semibold">Equipe</h2>
                     <p className="text-xs text-gray-500">Gerencie colaboradores e permissões</p>
                   </div>
-                  <button className="btn-primary text-xs py-2 px-3"><UserPlus size={14} /> Convidar</button>
+                  <button onClick={() => setShowTeamForm(true)} className="btn-primary text-xs py-2 px-3"><UserPlus size={14} /> Convidar</button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  {teamMembers.map((member, i) => (
-                    <div key={i} className="bg-white/[0.03] border border-white/5 rounded-xl p-5 text-center hover:border-white/10 hover:-translate-y-0.5 transition-all">
-                      <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white text-lg font-bold mx-auto mb-3`}>{member.initials}</div>
-                      <div className="text-sm font-semibold mb-0.5">{member.name}</div>
-                      <div className="text-xs text-gray-500 mb-2">{member.role}</div>
-                      <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 mb-3">
-                        <span className={`w-1.5 h-1.5 rounded-full ${member.status === 'online' ? 'bg-emerald-500' : member.status === 'away' ? 'bg-amber-500' : 'bg-gray-500'}`}></span>
-                        {member.status === 'online' ? 'Online agora' : member.status === 'away' ? 'Ausente' : 'Offline'}
-                      </div>
-                      <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${member.tagColor}`}>{member.tag}</span>
-                    </div>
-                  ))}
-                  <div className="bg-white/[0.03] border border-dashed border-white/10 rounded-xl p-5 text-center cursor-pointer hover:border-accent-violet/30 transition-all">
-                    <div className="w-14 h-14 rounded-full bg-white/[0.05] flex items-center justify-center text-gray-500 mx-auto mb-3"><Plus size={24} /></div>
-                    <div className="text-sm text-gray-500 font-semibold">Adicionar membro</div>
-                    <div className="text-xs text-gray-600">Convidar por e-mail</div>
+                {teamLoading ? (
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    {[1,2,3].map(i => <div key={i} className="h-48 bg-white/[0.02] rounded-xl animate-pulse" />)}
                   </div>
-                </div>
-
-                {/* Activity */}
-                <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
-                  <h3 className="text-sm font-semibold mb-4">Atividade Recente da Equipe</h3>
-                  <div className="space-y-3">
-                    {[
-                      { icon: CheckCircle, color: 'bg-emerald-500/10 text-emerald-400', text: 'André concluiu "Configurar servidor de produção"', time: 'há 12 minutos' },
-                      { icon: Edit, color: 'bg-purple-500/10 text-purple-400', text: 'Laura atualizou o card "Redesign de onboarding"', time: 'há 45 minutos' },
-                      { icon: MessageSquare, color: 'bg-red-500/10 text-red-400', text: 'João comentou em "Integração com API de pagamento"', time: 'há 1 hora' },
-                      { icon: Plus, color: 'bg-amber-500/10 text-amber-400', text: 'Paula criou o card "Campanha de e-mail maio"', time: 'há 2 horas' },
-                    ].map((activity, i) => {
-                      const Icon = activity.icon
-                      return (
-                        <div key={i} className="flex items-center gap-3 py-2">
-                          <div className={`w-8 h-8 rounded-lg ${activity.color} flex items-center justify-center flex-shrink-0`}><Icon size={14} /></div>
-                          <div className="flex-1">
-                            <div className="text-xs text-gray-400">{activity.text}</div>
-                            <div className="text-[10px] text-gray-600 mt-0.5">{activity.time}</div>
-                          </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    {teamMembers.map((member) => (
+                      <div key={member.id} className="bg-white/[0.03] border border-white/5 rounded-xl p-5 text-center hover:border-white/10 hover:-translate-y-0.5 transition-all">
+                        <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${member.gradient || 'from-accent-violet to-accent-cyan'} flex items-center justify-center text-white text-lg font-bold mx-auto mb-3`}>{member.initials || member.name[0]}</div>
+                        <div className="text-sm font-semibold mb-0.5">{member.name}</div>
+                        <div className="text-xs text-gray-500 mb-2">{member.role}</div>
+                        <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 mb-3">
+                          <span className={`w-1.5 h-1.5 rounded-full ${member.status === 'online' ? 'bg-emerald-500' : member.status === 'away' ? 'bg-amber-500' : 'bg-gray-500'}`}></span>
+                          {member.status === 'online' ? 'Online agora' : member.status === 'away' ? 'Ausente' : 'Offline'}
                         </div>
-                      )
-                    })}
+                        {member.tag && <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${member.tag_color || 'bg-emerald-500/15 text-emerald-400'}`}>{member.tag}</span>}
+                      </div>
+                    ))}
+                    <div onClick={() => setShowTeamForm(true)} className="bg-white/[0.03] border border-dashed border-white/10 rounded-xl p-5 text-center cursor-pointer hover:border-accent-violet/30 transition-all">
+                      <div className="w-14 h-14 rounded-full bg-white/[0.05] flex items-center justify-center text-gray-500 mx-auto mb-3"><Plus size={24} /></div>
+                      <div className="text-sm text-gray-500 font-semibold">Adicionar membro</div>
+                      <div className="text-xs text-gray-600">Convidar por e-mail</div>
+                    </div>
                   </div>
-                </div>
+                )}
               </motion.div>
             )}
 
@@ -1341,6 +1327,155 @@ export default function Dashboard() {
               <button onClick={() => setShowCsvImport(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
             </div>
             <CsvImport userId={userId} onComplete={() => { setShowCsvImport(false); refreshClients(); refreshMetrics() }} />
+          </motion.div>
+        </div>
+      )}
+
+      {/* ═══════════════ KANBAN CARD MODAL ═══════════════ */}
+      {showKanbanForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setShowKanbanForm(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display text-lg font-semibold">Novo Card</h2>
+              <button onClick={() => setShowKanbanForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block">Título *</label>
+                <input value={kanbanForm.title} onChange={e => setKanbanForm({ ...kanbanForm, title: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Título do card" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block">Descrição</label>
+                <textarea value={kanbanForm.description} onChange={e => setKanbanForm({ ...kanbanForm, description: e.target.value })} rows="3" className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors resize-none" placeholder="Descrição opcional" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Tag</label>
+                  <input value={kanbanForm.tag} onChange={e => setKanbanForm({ ...kanbanForm, tag: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Dev" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Coluna</label>
+                  <select value={kanbanForm.columnId} onChange={e => setKanbanForm({ ...kanbanForm, columnId: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors">
+                    {kanbanColumns.map(col => <option key={col.id} value={col.id}>{col.title}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end pt-2">
+                <button onClick={() => setShowKanbanForm(false)} className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors">Cancelar</button>
+                <button onClick={async () => {
+                  if (!kanbanForm.title.trim()) return showToast('Título é obrigatório', 'error')
+                  try {
+                    await addKanbanCard({ ...kanbanForm, tagColor: 'bg-purple-500/15 text-purple-400' })
+                    showToast('Card criado!', 'success')
+                    setShowKanbanForm(false)
+                  } catch (e) { showToast('Erro ao criar card', 'error') }
+                }} className="btn-primary px-6 py-2.5 text-sm">Criar Card</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ═══════════════ FINANCIAL ENTRY MODAL ═══════════════ */}
+      {showFinancialForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setShowFinancialForm(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display text-lg font-semibold">Novo Lançamento</h2>
+              <button onClick={() => setShowFinancialForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block">Descrição *</label>
+                <input value={financialForm.description} onChange={e => setFinancialForm({ ...financialForm, description: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Mensalidade cliente" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Categoria</label>
+                  <input value={financialForm.category} onChange={e => setFinancialForm({ ...financialForm, category: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Receita" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Valor (R$)</label>
+                  <input type="number" value={financialForm.amount} onChange={e => setFinancialForm({ ...financialForm, amount: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="0.00" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block">Tipo</label>
+                <div className="flex gap-2">
+                  <button onClick={() => setFinancialForm({ ...financialForm, type: 'revenue' })} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${financialForm.type === 'revenue' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-white/[0.03] border border-white/5 text-gray-500'}`}>Receita</button>
+                  <button onClick={() => setFinancialForm({ ...financialForm, type: 'expense' })} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${financialForm.type === 'expense' ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-white/[0.03] border border-white/5 text-gray-500'}`}>Despesa</button>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end pt-2">
+                <button onClick={() => setShowFinancialForm(false)} className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors">Cancelar</button>
+                <button onClick={async () => {
+                  if (!financialForm.description.trim() || !financialForm.amount) return showToast('Preencha descrição e valor', 'error')
+                  try {
+                    await addFinancialEntry({ ...financialForm, categoryColor: financialForm.type === 'revenue' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400' })
+                    showToast('Lançamento criado!', 'success')
+                    setShowFinancialForm(false)
+                    setFinancialForm({ description: '', category: '', categoryColor: 'bg-emerald-500/15 text-emerald-400', amount: '', type: 'revenue' })
+                  } catch (e) { showToast('Erro ao criar lançamento', 'error') }
+                }} className="btn-primary px-6 py-2.5 text-sm">Criar Lançamento</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ═══════════════ TEAM MEMBER MODAL ═══════════════ */}
+      {showTeamForm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setShowTeamForm(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-display text-lg font-semibold">Adicionar Membro</h2>
+              <button onClick={() => setShowTeamForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block">Nome *</label>
+                <input value={teamForm.name} onChange={e => setTeamForm({ ...teamForm, name: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Nome completo" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Cargo</label>
+                  <input value={teamForm.role} onChange={e => setTeamForm({ ...teamForm, role: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Desenvolvedor" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Email</label>
+                  <input type="email" value={teamForm.email} onChange={e => setTeamForm({ ...teamForm, email: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="email@exemplo.com" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Tag</label>
+                  <input value={teamForm.tag} onChange={e => setTeamForm({ ...teamForm, tag: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Dev" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1.5 block">Cor da Tag</label>
+                  <select value={teamForm.tagColor} onChange={e => setTeamForm({ ...teamForm, tagColor: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors">
+                    <option value="bg-emerald-500/15 text-emerald-400">Verde</option>
+                    <option value="bg-blue-500/15 text-blue-400">Azul</option>
+                    <option value="bg-purple-500/15 text-purple-400">Roxo</option>
+                    <option value="bg-amber-500/15 text-amber-400">Amarelo</option>
+                    <option value="bg-red-500/15 text-red-400">Vermelho</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end pt-2">
+                <button onClick={() => setShowTeamForm(false)} className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors">Cancelar</button>
+                <button onClick={async () => {
+                  if (!teamForm.name.trim()) return showToast('Nome é obrigatório', 'error')
+                  try {
+                    const initials = teamForm.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                    await addTeamMember({ ...teamForm, initials, gradient: 'from-accent-violet to-accent-cyan', status: 'offline' })
+                    showToast('Membro adicionado!', 'success')
+                    setShowTeamForm(false)
+                    setTeamForm({ name: '', role: '', email: '', tag: '', tagColor: 'bg-emerald-500/15 text-emerald-400' })
+                  } catch (e) { showToast('Erro ao adicionar membro', 'error') }
+                }} className="btn-primary px-6 py-2.5 text-sm">Adicionar</button>
+              </div>
+            </div>
           </motion.div>
         </div>
       )}
