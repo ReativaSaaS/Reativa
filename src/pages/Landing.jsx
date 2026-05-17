@@ -76,9 +76,7 @@ function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <a href="#home" onClick={e => go(e, '#home')} className="flex items-center gap-2.5 group">
-            <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.5 }} className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#06b6d4] flex items-center justify-center shadow-lg shadow-[#7c3aed]/20">
-              <Check size={17} className="text-white" strokeWidth={3} />
-            </motion.div>
+            <motion.img whileHover={{ rotate: 360 }} transition={{ duration: 0.5 }} src="/logo-icon.png" alt="R" className="w-9 h-9 rounded-lg shadow-lg shadow-[#7c3aed]/20" />
             <span className="font-['Syne',sans-serif] text-xl font-extrabold tracking-tight text-white">RE<span className="bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">ATIVA</span></span>
           </a>
 
@@ -495,7 +493,7 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#06b6d4] flex items-center justify-center"><Check size={17} className="text-white" strokeWidth={3} /></div>
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#06b6d4] flex items-center justify-center"><img src="/logo-icon.png" alt="R" className="w-5 h-5" /></div>
               <span className="font-['Syne',sans-serif] text-xl font-extrabold text-white">REATIVA</span>
             </div>
             <p className="text-sm text-white/35 max-w-xs">Reative clientes perdidos. Organize seu negócio.</p>

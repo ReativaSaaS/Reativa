@@ -325,7 +325,7 @@ export default function Dashboard() {
         onMouseEnter={() => !mobileOpen && setSidebarHover(true)} onMouseLeave={() => !mobileOpen && setSidebarHover(false)}>
         <div className="px-3 pt-5 mb-6 flex items-center gap-3 overflow-hidden">
           <div className="w-9 h-9 bg-gradient-to-br from-accent-violet to-accent-cyan rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-accent-violet/30">
-            <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M10 16L14 20L22 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <img src="/logo-icon.png" alt="R" className="w-5 h-5" />
           </div>
           <span className={`font-display text-lg font-bold whitespace-nowrap transition-opacity duration-200 ${sidebarHover || mobileOpen ? 'opacity-100' : 'opacity-0'}`}>REATIVA</span>
         </div>

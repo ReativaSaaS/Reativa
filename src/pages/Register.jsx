@@ -61,7 +61,7 @@ export default function Register() {
 
         <div className="relative z-10 text-center max-w-sm">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center"><Check size={24} className="text-white" strokeWidth={3} /></div>
+            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center"><img src="/logo-icon.png" alt="R" className="w-8 h-8" /></div>
             <span className="font-['Syne',sans-serif] text-4xl font-extrabold text-white tracking-tight">REATIVA</span>
           </div>
           <p className="font-['DM_Sans',sans-serif] text-lg text-white/80 font-light mb-10">Recupere clientes. Automatize tudo.</p>
@@ -90,7 +90,7 @@ export default function Register() {
 
         <div className="relative z-10 w-full max-w-[400px]">
           <Link to="/" className="lg:hidden flex items-center gap-2.5 mb-8">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#06b6d4] flex items-center justify-center"><Check size={17} className="text-white" strokeWidth={3} /></div>
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#7c3aed] to-[#06b6d4] flex items-center justify-center"><img src="/logo-icon.png" alt="R" className="w-5 h-5" /></div>
             <span className="font-['Syne',sans-serif] text-xl font-extrabold text-white">REATIVA</span>
           </Link>
 
