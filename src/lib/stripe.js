@@ -1,6 +1,6 @@
 import { checkSession } from './supabase'
 
-const STRIPE_PUBLISHABLE_KEY = "pk_test_51TXnFnFqMSsyBLEJrgw2fx5Eq91tGGoE5b0s0xmmwggWkBwkalqfF1ptvktrSlrNDAio4tRFOvGcxHuSzF1xQ67R00wPFf2gj5"
+const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_KEY
 
 const STRIPE_PRICES = {
   starter: "price_1TXnzgPtCVDjmIv2RmQVt4B9",
