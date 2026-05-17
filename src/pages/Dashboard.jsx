@@ -415,13 +415,13 @@ export default function Dashboard() {
             </h1>
             {page === 'dashboard' && <p className="text-xs text-gray-500 mt-0.5">{new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })} — {kpis.unreadAlerts || 0} alertas pendentes</p>}
           </div>
-          <div className="hidden md:flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg w-60">
-            <Search size={15} className="text-gray-500" />
-            <input type="text" placeholder="Buscar..." className="bg-transparent text-sm w-full outline-none placeholder-gray-600" />
+          <div className="topbar-search hidden md:flex">
+            <Search size={16} />
+            <input type="text" placeholder="Buscar..." />
           </div>
-          <button onClick={() => setNotifOpen(!notifOpen)} className="relative w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/5 transition-colors">
-            <Bell size={17} className="text-gray-400" />
-            {alertCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-deep"></span>}
+          <button onClick={() => setNotifOpen(!notifOpen)} className="topbar-icon-btn">
+            <Bell size={17} />
+            {alertCount > 0 && <span className="notification-dot"></span>}
           </button>
         </header>
 
@@ -487,7 +487,7 @@ export default function Dashboard() {
                 {/* Status Distribution + Alerts */}
                 <div className="grid lg:grid-cols-2 gap-4 mb-6">
                   {/* Status */}
-                  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                  <div className="dash-card">
                     <h3 className="text-sm font-semibold mb-4">Status dos Clientes</h3>
                     <div className="flex items-center gap-8">
                       <div className="w-32 h-32 rounded-full relative flex-shrink-0" style={{ background: `conic-gradient(#10b981 0deg ${((kpis.activeClients || 0) / (kpis.totalClients || 1)) * 360}deg, #f59e0b ${((kpis.activeClients || 0) / (kpis.totalClients || 1)) * 360}deg ${((kpis.activeClients || 0) + (kpis.inactiveClients || 0)) / (kpis.totalClients || 1) * 360}deg, #ef4444 ${((kpis.activeClients || 0) + (kpis.inactiveClients || 0)) / (kpis.totalClients || 1) * 360}deg ${((kpis.activeClients || 0) + (kpis.inactiveClients || 0) + (kpis.lostClients || 0)) / (kpis.totalClients || 1) * 360}deg, #8b5cf6 ${((kpis.activeClients || 0) + (kpis.inactiveClients || 0) + (kpis.lostClients || 0)) / (kpis.totalClients || 1) * 360}deg 360deg)` }}>
@@ -506,7 +506,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Recent Alerts */}
-                  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                  <div className="dash-card">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-sm font-semibold">Alertas Recentes</h3>
                       {alerts.length > 0 && <button onClick={handleMarkAllRead} className="text-xs text-accent-light hover:underline">Marcar todos como lidos</button>}
@@ -534,7 +534,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Chart */}
-                <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                <div className="dash-card">
                   <h3 className="text-sm font-semibold mb-4">Novos Clientes por Mês</h3>
                   <div className="h-48 flex items-end gap-2 px-2">
                     {(metrics?.monthlyData || []).map((d, i) => (
@@ -577,8 +577,8 @@ export default function Dashboard() {
                         <button onClick={() => handleBulkAction('delete')} className="text-xs px-3 py-2 bg-red-500/15 text-red-400 rounded-lg hover:bg-red-500/25 transition-all">Remover</button>
                       </div>
                     )}
-                    <button onClick={() => setShowCsvImport(true)} className="btn-secondary text-xs py-2 px-3"><Download size={14} /> Importar CSV</button>
-                    <button onClick={() => { setEditingClient(null); setClientForm({ name: '', email: '', phone: '', company: '', status: 'novo', tags: [], notes: '', priority: 'normal' }); setShowClientForm(true) }} className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Adicionar</button>
+                    <button onClick={() => setShowCsvImport(true)} className="btn-dash-secondary text-xs py-2 px-3"><Download size={14} /> Importar CSV</button>
+                    <button onClick={() => { setEditingClient(null); setClientForm({ name: '', email: '', phone: '', company: '', status: 'novo', tags: [], notes: '', priority: 'normal' }); setShowClientForm(true) }} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Adicionar</button>
                   </div>
                 </div>
 
@@ -648,7 +648,7 @@ export default function Dashboard() {
                       </button>
                     ))}
                   </div>
-                  <button onClick={() => setShowCampaignForm(true)} className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Nova Campanha</button>
+                  <button onClick={() => setShowCampaignForm(true)} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Nova Campanha</button>
                 </div>
 
                 {/* Campaign Stats */}
@@ -670,7 +670,7 @@ export default function Dashboard() {
 
                 <div className="grid gap-3">
                   {campaigns.map((c, i) => (
-                    <motion.div key={c.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="bg-white/[0.03] border border-white/5 rounded-xl p-5 hover:border-white/10 transition-all">
+                    <motion.div key={c.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="dash-card hover:border-white/10 transition-all">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <h3 className="text-sm font-semibold">{c.name}</h3>
@@ -789,8 +789,8 @@ export default function Dashboard() {
                     <button className="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-violet/15 text-accent-light border border-accent-violet/30">Quadro Principal</button>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: '' }); setShowKanbanForm(true) }} className="btn-secondary text-xs py-2 px-3"><Plus size={14} /> Coluna</button>
-                    <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: kanbanColumns[0]?.id || '' }); setShowKanbanForm(true) }} className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Card</button>
+                    <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: '' }); setShowKanbanForm(true) }} className="btn-dash-secondary text-xs py-2 px-3"><Plus size={14} /> Coluna</button>
+                    <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: kanbanColumns[0]?.id || '' }); setShowKanbanForm(true) }} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Card</button>
                   </div>
                 </div>
 
@@ -851,7 +851,7 @@ export default function Dashboard() {
                   ].map((m, i) => {
                     const Icon = m.icon
                     return (
-                      <div key={i} className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                      <div key={i} className="dash-card">
                         <div className="flex items-center justify-between mb-3">
                           <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{m.label}</div>
                           <div className={`w-8 h-8 rounded-lg ${m.color === 'emerald' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}><Icon size={16} /></div>
@@ -864,10 +864,10 @@ export default function Dashboard() {
 
                 <div className="grid lg:grid-cols-3 gap-4 mb-6">
                   {/* Chart */}
-                  <div className="lg:col-span-2 bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                  <div className="lg:col-span-2 dash-card">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-sm font-semibold">Fluxo de Caixa</h3>
-                      <button onClick={() => setShowFinancialForm(true)} className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Lançar</button>
+                      <button onClick={() => setShowFinancialForm(true)} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Lançar</button>
                     </div>
                     {financialLoading ? (
                       <div className="h-48 bg-white/[0.02] rounded animate-pulse" />
@@ -898,7 +898,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Summary */}
-                  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                  <div className="dash-card">
                     <h3 className="text-sm font-semibold mb-4">Resumo</h3>
                     <div className="space-y-4">
                       {[
@@ -930,7 +930,7 @@ export default function Dashboard() {
                   ) : financialEntries.length === 0 ? (
                     <div className="p-8 text-center text-gray-500 text-sm">Nenhum lançamento ainda</div>
                   ) : (
-                    <table className="w-full">
+                    <table className="dash-table">
                       <thead>
                         <tr className="border-b border-white/5">
                           <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Descrição</th>
@@ -1031,7 +1031,7 @@ export default function Dashboard() {
                 {/* Plano */}
                 {planningTab === 'plano' && (
                   <div className="grid lg:grid-cols-2 gap-4">
-                    <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                    <div className="dash-card">
                       <h3 className="text-sm font-semibold mb-3">Sumário Executivo</h3>
                       <p className="text-xs text-gray-400 leading-relaxed mb-4">A <strong className="text-white">REATIVA</strong> é uma plataforma SaaS de reativação de clientes desenvolvida para pequenos e médios empreendedores. Nosso produto combina automação de WhatsApp, chatbot IA e campanhas promocionais em uma interface acessível.</p>
                       <div className="grid grid-cols-3 gap-3">
@@ -1047,7 +1047,7 @@ export default function Dashboard() {
                         ))}
                       </div>
                     </div>
-                    <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                    <div className="dash-card">
                       <h3 className="text-sm font-semibold mb-3">Metas Anuais</h3>
                       <div className="space-y-4">
                         {[
@@ -1081,7 +1081,7 @@ export default function Dashboard() {
                     <h2 className="text-lg font-semibold">Equipe</h2>
                     <p className="text-xs text-gray-500">Gerencie colaboradores e permissões</p>
                   </div>
-                  <button onClick={() => setShowTeamForm(true)} className="btn-primary text-xs py-2 px-3"><UserPlus size={14} /> Convidar</button>
+                  <button onClick={() => setShowTeamForm(true)} className="btn-dash-primary text-xs py-2 px-3"><UserPlus size={14} /> Convidar</button>
                 </div>
 
                 {teamLoading ? (
@@ -1091,7 +1091,7 @@ export default function Dashboard() {
                 ) : (
                   <div className="grid grid-cols-3 gap-4 mb-6">
                     {teamMembers.map((member) => (
-                      <div key={member.id} className="bg-white/[0.03] border border-white/5 rounded-xl p-5 text-center hover:border-white/10 hover:-translate-y-0.5 transition-all">
+                      <div key={member.id} className="dash-card text-center hover:border-white/10 hover:-translate-y-0.5 transition-all">
                         <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${member.gradient || 'from-accent-violet to-accent-cyan'} flex items-center justify-center text-white text-lg font-bold mx-auto mb-3`}>{member.initials || member.name[0]}</div>
                         <div className="text-sm font-semibold mb-0.5">{member.name}</div>
                         <div className="text-xs text-gray-500 mb-2">{member.role}</div>
@@ -1288,7 +1288,7 @@ export default function Dashboard() {
               <button onClick={() => setShowCampaignForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
             </div>
             <div className="space-y-4">
-              <div><label className="text-xs text-gray-500 mb-1.5 block">Nome *</label><input value={campaignForm.name} onChange={e => setCampaignForm({ ...campaignForm, name: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Nome da campanha" /></div>
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Nome *</label><input value={campaignForm.name} onChange={e => setCampaignForm({ ...campaignForm, name: e.target.value })} className="dash-input" placeholder="Nome da campanha" /></div>
               <div><label className="text-xs text-gray-500 mb-1.5 block">Tipo</label>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(CAMPAIGN_TYPES).map(([key, val]) => (
@@ -1333,7 +1333,7 @@ export default function Dashboard() {
             <div className="space-y-4">
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block">Título *</label>
-                <input value={kanbanForm.title} onChange={e => setKanbanForm({ ...kanbanForm, title: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Título do card" />
+                <input value={kanbanForm.title} onChange={e => setKanbanForm({ ...kanbanForm, title: e.target.value })} className="dash-input" placeholder="Título do card" />
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block">Descrição</label>
@@ -1342,11 +1342,11 @@ export default function Dashboard() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500 mb-1.5 block">Tag</label>
-                  <input value={kanbanForm.tag} onChange={e => setKanbanForm({ ...kanbanForm, tag: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Dev" />
+                  <input value={kanbanForm.tag} onChange={e => setKanbanForm({ ...kanbanForm, tag: e.target.value })} className="dash-input" placeholder="Ex: Dev" />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1.5 block">Coluna</label>
-                  <select value={kanbanForm.columnId} onChange={e => setKanbanForm({ ...kanbanForm, columnId: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors">
+                  <select value={kanbanForm.columnId} onChange={e => setKanbanForm({ ...kanbanForm, columnId: e.target.value })} className="dash-input">
                     {kanbanColumns.map(col => <option key={col.id} value={col.id}>{col.title}</option>)}
                   </select>
                 </div>
@@ -1378,16 +1378,16 @@ export default function Dashboard() {
             <div className="space-y-4">
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block">Descrição *</label>
-                <input value={financialForm.description} onChange={e => setFinancialForm({ ...financialForm, description: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Mensalidade cliente" />
+                <input value={financialForm.description} onChange={e => setFinancialForm({ ...financialForm, description: e.target.value })} className="dash-input" placeholder="Ex: Mensalidade cliente" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500 mb-1.5 block">Categoria</label>
-                  <input value={financialForm.category} onChange={e => setFinancialForm({ ...financialForm, category: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Receita" />
+                  <input value={financialForm.category} onChange={e => setFinancialForm({ ...financialForm, category: e.target.value })} className="dash-input" placeholder="Ex: Receita" />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1.5 block">Valor (R$)</label>
-                  <input type="number" value={financialForm.amount} onChange={e => setFinancialForm({ ...financialForm, amount: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="0.00" />
+                  <input type="number" value={financialForm.amount} onChange={e => setFinancialForm({ ...financialForm, amount: e.target.value })} className="dash-input" placeholder="0.00" />
                 </div>
               </div>
               <div>
@@ -1425,26 +1425,26 @@ export default function Dashboard() {
             <div className="space-y-4">
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block">Nome *</label>
-                <input value={teamForm.name} onChange={e => setTeamForm({ ...teamForm, name: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Nome completo" />
+                <input value={teamForm.name} onChange={e => setTeamForm({ ...teamForm, name: e.target.value })} className="dash-input" placeholder="Nome completo" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500 mb-1.5 block">Cargo</label>
-                  <input value={teamForm.role} onChange={e => setTeamForm({ ...teamForm, role: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Desenvolvedor" />
+                  <input value={teamForm.role} onChange={e => setTeamForm({ ...teamForm, role: e.target.value })} className="dash-input" placeholder="Ex: Desenvolvedor" />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1.5 block">Email</label>
-                  <input type="email" value={teamForm.email} onChange={e => setTeamForm({ ...teamForm, email: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="email@exemplo.com" />
+                  <input type="email" value={teamForm.email} onChange={e => setTeamForm({ ...teamForm, email: e.target.value })} className="dash-input" placeholder="email@exemplo.com" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500 mb-1.5 block">Tag</label>
-                  <input value={teamForm.tag} onChange={e => setTeamForm({ ...teamForm, tag: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors" placeholder="Ex: Dev" />
+                  <input value={teamForm.tag} onChange={e => setTeamForm({ ...teamForm, tag: e.target.value })} className="dash-input" placeholder="Ex: Dev" />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1.5 block">Cor da Tag</label>
-                  <select value={teamForm.tagColor} onChange={e => setTeamForm({ ...teamForm, tagColor: e.target.value })} className="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors">
+                  <select value={teamForm.tagColor} onChange={e => setTeamForm({ ...teamForm, tagColor: e.target.value })} className="dash-input">
                     <option value="bg-emerald-500/15 text-emerald-400">Verde</option>
                     <option value="bg-blue-500/15 text-blue-400">Azul</option>
                     <option value="bg-purple-500/15 text-purple-400">Roxo</option>
