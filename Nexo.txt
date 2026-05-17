@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo — Seu negócio, organizado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Epilogue:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sage: #B8C9B0;
+    --sage-light: #E8F0E5;
+    --sage-dark: #5A7A52;
+    --warm: #F5F0E8;
+    --warm-mid: #E8DDD0;
+    --warm-dark: #8B7355;
+    --peach: #F2C4A8;
+    --peach-light: #FBF0E8;
+    --sky: #A8C8E8;
+    --sky-light: #EAF3FB;
+    --lavender: #C4B8E8;
+    --lav-light: #F0EEF9;
+    --lemon: #E8D8A0;
+    --lemon-light: #FBF6E0;
+    --coral: #E8A090;
+    --coral-light: #FBEEEC;
+    --ink: #1E2028;
+    --ink-soft: #3A3D48;
+    --muted: #8A8D9A;
+    --subtle: #B8BAC8;
+    --border: rgba(30,32,40,0.08);
+    --border-mid: rgba(30,32,40,0.14);
+    --white: #FFFFFF;
+    --surface: #FAFAF8;
+    --card: #FFFFFF;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --shadow-sm: 0 1px 3px rgba(30,32,40,0.06), 0 1px 2px rgba(30,32,40,0.04);
+    --shadow-md: 0 4px 12px rgba(30,32,40,0.08), 0 2px 4px rgba(30,32,40,0.04);
+    --shadow-lg: 0 8px 24px rgba(30,32,40,0.10), 0 4px 8px rgba(30,32,40,0.06);
+    --font: 'Sora', sans-serif;
+    --font-body: 'Epilogue', sans-serif;
+    --transition: 0.18s ease;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 64px;
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    z-index: 100;
+    transition: width 0.25s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar:hover { width: 220px; }
+
+  .sidebar-logo {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--sage-dark), #3d6b38);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(90,122,82,0.35);
+    transition: var(--transition);
+  }
+
+  .sidebar-logo-wrap {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; padding: 0 14px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+
+  .sidebar-logo-text {
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .sidebar:hover .sidebar-logo-text { opacity: 1; }
+
+  .sidebar-nav {
+    display: flex; flex-direction: column;
+    gap: 4px; width: 100%; padding: 0 10px;
+    flex: 1;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+  .nav-item:hover { background: var(--warm); color: var(--ink); }
+  .nav-item.active { background: var(--sage-light); color: var(--sage-dark); }
+  .nav-item i { font-size: 19px; flex-shrink: 0; }
+  .nav-label { opacity: 0; transition: opacity 0.2s; }
+  .sidebar:hover .nav-label { opacity: 1; }
+
+  .nav-badge {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: var(--coral); color: white;
+    font-size: 10px; font-weight: 600;
+    padding: 1px 6px; border-radius: 20px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .sidebar:hover .nav-badge { opacity: 1; }
+
+  .sidebar-footer {
+    padding: 0 10px; width: 100%;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+
+  .avatar-wrap {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    overflow: hidden; cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+  }
+  .avatar-wrap:hover { background: var(--warm); }
+
+  .avatar {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--peach), var(--coral));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .avatar-info { opacity: 0; transition: opacity 0.2s; overflow: hidden; }
+  .sidebar:hover .avatar-info { opacity: 1; }
+  .avatar-name { font-size: 12.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+  .avatar-plan { font-size: 11px; color: var(--muted); }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 64px;
+    min-height: 100vh;
+    transition: margin-left 0.25s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 50;
+  }
+
+  .topbar-greeting {
+    flex: 1;
+  }
+  .topbar-greeting h1 {
+    font-family: var(--font);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .topbar-greeting p {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--warm);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 8px 14px;
+    width: 240px;
+    transition: var(--transition);
+    cursor: text;
+  }
+  .search-bar:hover { border-color: var(--border-mid); background: var(--white); }
+  .search-bar i { font-size: 16px; color: var(--muted); }
+  .search-bar span { font-size: 13px; color: var(--muted); }
+
+  .topbar-actions {
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: var(--transition);
+    color: var(--muted);
+    position: relative;
+  }
+  .icon-btn:hover { background: var(--warm); color: var(--ink); border-color: var(--border-mid); }
+  .icon-btn i { font-size: 17px; }
+
+  .notif-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 7px; height: 7px;
+    background: var(--coral);
+    border-radius: 50%;
+    border: 1.5px solid var(--white);
+  }
+
+  .btn-primary {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--sage-dark);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(90,122,82,0.3);
+  }
+  .btn-primary:hover { background: #4a6b43; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(90,122,82,0.4); }
+  .btn-primary i { font-size: 15px; }
+
+  /* ── PAGE CONTENT ── */
+  .page { display: none; padding: 28px; }
+  .page.active { display: block; }
+
+  /* ── TABS ── */
+  .page-tabs {
+    display: flex; gap: 4px;
+    margin-bottom: 24px;
+  }
+  .tab-btn {
+    padding: 7px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    font-size: 13px; font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--muted);
+    background: transparent;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    background: var(--white);
+    border-color: var(--border);
+    color: var(--ink);
+  }
+  .tab-btn.active { color: var(--sage-dark); font-weight: 600; }
+
+  /* ── DASHBOARD ── */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    animation: fadeUp 0.4s ease both;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+  }
+  .kpi-card.green::before { background: var(--sage-dark); }
+  .kpi-card.peach::before { background: #d4845a; }
+  .kpi-card.sky::before { background: #3a7ebf; }
+  .kpi-card.lav::before { background: #7b68c8; }
+
+  .kpi-label { font-size: 11.5px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .kpi-value { font-family: var(--font); font-size: 26px; font-weight: 700; color: var(--ink); line-height: 1; }
+  .kpi-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .kpi-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px;
+    margin-top: 6px;
+  }
+  .kpi-badge.up { background: #e8f5e5; color: #2d7a2d; }
+  .kpi-badge.down { background: #fdeaea; color: #c02020; }
+
+  .kpi-icon {
+    position: absolute; bottom: 16px; right: 16px;
+    font-size: 32px; opacity: 0.08; color: var(--ink);
+  }
+
+  /* ── CONTENT ROW ── */
+  .content-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    animation: fadeUp 0.4s ease both;
+  }
+  .card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: var(--font);
+    font-size: 14px; font-weight: 600;
+    color: var(--ink);
+  }
+  .card-action {
+    font-size: 12px; color: var(--sage-dark);
+    cursor: pointer; font-weight: 500;
+    transition: var(--transition);
+  }
+  .card-action:hover { opacity: 0.7; }
+
+  /* ── TASKS ── */
+  .task-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    cursor: pointer;
+  }
+  .task-item:hover { background: var(--warm); }
+
+  .task-check {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border-mid);
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; cursor: pointer; transition: var(--transition);
+  }
+  .task-check.done { background: var(--sage-dark); border-color: var(--sage-dark); }
+  .task-check.done::after { content: ''; width: 4px; height: 7px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px,-1px); display: block; }
+
+  .task-text { font-size: 13.5px; flex: 1; }
+  .task-text.done { text-decoration: line-through; color: var(--muted); }
+
+  .task-tag {
+    font-size: 11px; font-weight: 500;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .tag-green { background: var(--sage-light); color: var(--sage-dark); }
+  .tag-peach { background: var(--peach-light); color: #b86040; }
+  .tag-sky { background: var(--sky-light); color: #2a6a9e; }
+  .tag-lav { background: var(--lav-light); color: #5a48a8; }
+  .tag-lemon { background: var(--lemon-light); color: #8a6e10; }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    background: var(--warm); border-radius: 8px;
+    height: 7px; overflow: hidden; margin: 6px 0 2px;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 8px;
+    background: var(--sage-dark);
+    transition: width 0.8s cubic-bezier(.4,0,.2,1);
+  }
+
+  .goal-item { margin-bottom: 16px; }
+  .goal-header { display: flex; justify-content: space-between; align-items: center; }
+  .goal-name { font-size: 13px; font-weight: 500; }
+  .goal-pct { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+  /* ── AI CARD ── */
+  .ai-card {
+    background: linear-gradient(135deg, #f0ede8 0%, #e8f0e5 50%, #e8eef8 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.5s ease both;
+    position: relative; overflow: hidden;
+  }
+  .ai-card::before {
+    content: '✦';
+    position: absolute; right: 20px; top: 16px;
+    font-size: 28px; opacity: 0.12; color: var(--sage-dark);
+  }
+  .ai-label {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    color: var(--sage-dark); text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .ai-label::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--sage-dark); border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+  .ai-title { font-family: var(--font); font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .ai-text { font-size: 13px; line-height: 1.6; color: var(--ink-soft); }
+
+  .ai-suggestions {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;
+  }
+  .ai-chip {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: var(--transition);
+    color: var(--ink-soft);
+  }
+  .ai-chip:hover { border-color: var(--sage-dark); color: var(--sage-dark); background: var(--sage-light); }
+
+  /* ── QUICK ACTIONS ── */
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .qa-btn {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+    cursor: pointer; transition: var(--transition);
+    text-align: left;
+    animation: fadeUp 0.3s ease both;
+  }
+  .qa-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border-mid); }
+
+  .qa-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .qa-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .qa-sub { font-size: 11.5px; color: var(--muted); }
+
+  /* ── BOARD (Kanban) ── */
+  .board-wrap {
+    display: flex; gap: 16px;
+    overflow-x: auto; padding-bottom: 12px;
+  }
+  .board-col {
+    min-width: 280px; max-width: 280px;
+    background: var(--warm);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+  }
+  .col-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .col-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600;
+  }
+  .col-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .col-count {
+    background: rgba(30,32,40,0.1);
+    color: var(--ink-soft);
+    font-size: 11px; font-weight: 600;
+    padding: 1px 7px; border-radius: 20px;
+  }
+
+  .board-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: grab; transition: var(--transition);
+    animation: fadeUp 0.3s ease both;
+  }
+  .board-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .board-card:active { cursor: grabbing; }
+
+  .bc-tag {
+    font-size: 10.5px; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px;
+    margin-bottom: 8px; display: inline-block;
+  }
+  .bc-title { font-size: 13.5px; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
+  .bc-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+
+  .bc-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11.5px; color: var(--muted);
+  }
+  .bc-avatars { display: flex; }
+  .bc-av {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-left: -6px;
+    font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+  }
+  .bc-av:first-child { margin-left: 0; }
+
+  .bc-date { display: flex; align-items: center; gap: 4px; }
+
+  .add-card-btn {
+    width: 100%;
+    background: transparent;
+    border: 1.5px dashed var(--border-mid);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    font-size: 12.5px; color: var(--muted);
+    cursor: pointer; transition: var(--transition);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: var(--font-body);
+  }
+  .add-card-btn:hover { border-color: var(--sage-dark); color: var(--sage-dark); background: var(--sage-light); }
+
+  /* ── FINANCEIRO ── */
+  .fin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .chart-bar-wrap {
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 120px; margin: 16px 0 8px;
+  }
+  .chart-bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+  .bar { width: 100%; border-radius: 6px 6px 0 0; transition: height 0.6s cubic-bezier(.4,0,.2,1); }
+  .bar-label { font-size: 10px; color: var(--muted); text-align: center; }
+
+  /* ── FINANCEIRO TABLE ── */
+  .fin-table { width: 100%; border-collapse: collapse; }
+  .fin-table th {
+    text-align: left; font-size: 11.5px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 8px 12px; border-bottom: 1px solid var(--border);
+  }
+  .fin-table td {
+    padding: 11px 12px; border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .fin-table tr:last-child td { border-bottom: none; }
+  .fin-table tr:hover td { background: var(--warm); }
+  .amount { font-weight: 600; font-family: var(--font); }
+  .amount.pos { color: #2d7a2d; }
+  .amount.neg { color: #c02020; }
+
+  /* ── IA ── */
+  .ia-chat {
+    display: flex; flex-direction: column; gap: 14px;
+    max-width: 700px;
+  }
+
+  .chat-msg {
+    display: flex; gap: 12px; animation: fadeUp 0.3s ease both;
+  }
+  .chat-msg.user { flex-direction: row-reverse; }
+
+  .chat-av {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .chat-av.ai { background: var(--sage-light); color: var(--sage-dark); }
+  .chat-av.user { background: linear-gradient(135deg, var(--peach), var(--coral)); color: white; }
+
+  .chat-bubble {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13.5px; line-height: 1.6;
+  }
+  .chat-bubble.ai { background: var(--white); border: 1px solid var(--border); color: var(--ink); }
+  .chat-bubble.user { background: var(--sage-dark); color: white; }
+
+  .chat-input-wrap {
+    display: flex; gap: 10px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+    margin-top: 20px;
+    max-width: 700px;
+    transition: var(--transition);
+  }
+  .chat-input-wrap:focus-within { border-color: var(--sage-dark); box-shadow: 0 0 0 3px rgba(90,122,82,0.1); }
+  .chat-input {
+    flex: 1; border: none; outline: none;
+    font-size: 14px; font-family: var(--font-body);
+    background: transparent; color: var(--ink);
+  }
+  .chat-send {
+    background: var(--sage-dark); color: white;
+    border: none; border-radius: var(--radius-sm);
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: var(--transition);
+    font-size: 16px;
+  }
+  .chat-send:hover { background: #4a6b43; }
+
+  /* ── CANVAS ── */
+  .canvas-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .canvas-grid-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .canvas-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    min-height: 130px;
+  }
+  .canvas-block-title {
+    font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .canvas-item {
+    background: var(--warm);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: var(--ink-soft);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center; padding: 48px 20px; color: var(--muted);
+  }
+  .empty i { font-size: 40px; opacity: 0.3; display: block; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .section-title {
+    font-family: var(--font);
+    font-size: 16px; font-weight: 700;
+    color: var(--ink);
+  }
+  .section-sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ── TEAM ── */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .member-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    text-align: center;
+    transition: var(--transition);
+    animation: fadeUp 0.4s ease both;
+  }
+  .member-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .member-av {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: white;
+  }
+  .member-name { font-size: 14px; font-weight: 600; }
+  .member-role { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .member-status {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; margin-top: 8px;
+    color: var(--muted);
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-dot.online { background: #3ab06a; }
+  .status-dot.away { background: #e8a030; }
+  .status-dot.offline { background: var(--subtle); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--warm-mid); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(30,32,40,0.5);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+    width: 480px; max-width: 95vw;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(16px); transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-title {
+    font-family: var(--font); font-size: 18px; font-weight: 700;
+    margin-bottom: 20px;
+  }
+  .modal-input {
+    width: 100%; border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px; font-size: 13.5px;
+    font-family: var(--font-body); color: var(--ink);
+    background: var(--warm);
+    margin-bottom: 12px; outline: none; transition: var(--transition);
+  }
+  .modal-input:focus { border-color: var(--sage-dark); background: white; box-shadow: 0 0 0 3px rgba(90,122,82,0.1); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .btn-cancel {
+    padding: 8px 18px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: transparent;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: var(--transition);
+    font-family: var(--font);
+  }
+  .btn-cancel:hover { background: var(--warm); }
+
+  /* ── NOTIFICATION TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--ink); color: white;
+    padding: 12px 18px; border-radius: var(--radius-md);
+    font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+    z-index: 300; transform: translateY(60px);
+    opacity: 0; transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    box-shadow: var(--shadow-lg);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast i { font-size: 16px; color: #6cce6c; }
+
+  /* ── SWOT ── */
+  .swot-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .swot-block {
+    border-radius: var(--radius-md); padding: 16px;
+    min-height: 120px;
+  }
+  .swot-block.s { background: var(--sage-light); border: 1px solid rgba(90,122,82,0.2); }
+  .swot-block.w { background: var(--peach-light); border: 1px solid rgba(212,132,90,0.2); }
+  .swot-block.o { background: var(--sky-light); border: 1px solid rgba(58,126,191,0.2); }
+  .swot-block.t { background: var(--lemon-light); border: 1px solid rgba(138,110,16,0.2); }
+  .swot-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .swot-block.s .swot-title { color: var(--sage-dark); }
+  .swot-block.w .swot-title { color: #b86040; }
+  .swot-block.o .swot-title { color: #2a6a9e; }
+  .swot-block.t .swot-title { color: #8a6e10; }
+  .swot-item { font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); padding: 3px 0; }
+  .swot-item::before { content: '·  '; }
+
+  /* ── NOTIFICATION PANEL ── */
+  .notif-panel {
+    position: fixed; right: 0; top: 0; bottom: 0;
+    width: 320px; background: var(--white);
+    border-left: 1px solid var(--border);
+    z-index: 150; transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    padding: 24px 20px;
+    overflow-y: auto;
+  }
+  .notif-panel.open { transform: translateX(0); }
+
+  .notif-item {
+    display: flex; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .notif-icon {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .notif-text { font-size: 13px; line-height: 1.5; }
+  .notif-time { font-size: 11px; color: var(--muted); margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo-wrap">
+    <div class="sidebar-logo">N</div>
+    <span class="sidebar-logo-text">Nexo</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-item active" onclick="showPage('dashboard')">
+      <i class="ti ti-layout-dashboard"></i>
+      <span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" onclick="showPage('quadros')">
+      <i class="ti ti-columns"></i>
+      <span class="nav-label">Quadros</span>
+      <span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item" onclick="showPage('financeiro')">
+      <i class="ti ti-chart-bar"></i>
+      <span class="nav-label">Financeiro</span>
+    </a>
+    <a class="nav-item" onclick="showPage('planejamento')">
+      <i class="ti ti-map"></i>
+      <span class="nav-label">Planejamento</span>
+    </a>
+    <a class="nav-item" onclick="showPage('ia')">
+      <i class="ti ti-sparkles"></i>
+      <span class="nav-label">Assistente IA</span>
+    </a>
+    <a class="nav-item" onclick="showPage('equipe')">
+      <i class="ti ti-users"></i>
+      <span class="nav-label">Equipe</span>
+    </a>
+    <a class="nav-item" style="margin-top: auto">
+      <i class="ti ti-settings"></i>
+      <span class="nav-label">Configurações</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="avatar-wrap">
+      <div class="avatar">MR</div>
+      <div class="avatar-info">
+        <div class="avatar-name">Marina Rezende</div>
+        <div class="avatar-plan">Plano Pro ✦</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-greeting">
+      <h1>Bom dia, Marina ☀️</h1>
+      <p>Hoje é terça-feira, 13 de maio — 3 tarefas para concluir</p>
+    </div>
+
+    <div class="search-bar" onclick="showToast('Pesquisa em breve!')">
+      <i class="ti ti-search"></i>
+      <span>Pesquisar...</span>
+    </div>
+
+    <div class="topbar-actions">
+      <div class="icon-btn" onclick="toggleNotif()" title="Notificações">
+        <i class="ti ti-bell"></i>
+        <div class="notif-dot"></div>
+      </div>
+      <div class="icon-btn" onclick="showToast('Modo escuro em breve!')" title="Modo escuro">
+        <i class="ti ti-moon"></i>
+      </div>
+      <button class="btn-primary" onclick="openModal()">
+        <i class="ti ti-plus"></i>
+        Novo Projeto
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════ DASHBOARD ══════════════════════════════════════ -->
+  <div class="page active" id="page-dashboard">
+
+    <!-- AI INSIGHT -->
+    <div class="ai-card">
+      <div class="ai-label"><i class="ti ti-sparkles" style="font-size:13px"></i> Insight da IA</div>
+      <div class="ai-title">Sua receita cresceu 18% este mês! 🎉</div>
+      <div class="ai-text">Com base no seu histórico, o melhor canal de aquisição é o Instagram orgânico. Sugiro criar 2 posts por semana focados em depoimentos de clientes — isso pode aumentar conversões em até 24%.</div>
+      <div class="ai-suggestions">
+        <div class="ai-chip" onclick="showPage('ia')">✦ Ver análise completa</div>
+        <div class="ai-chip" onclick="showPage('planejamento')">Criar estratégia de conteúdo</div>
+        <div class="ai-chip" onclick="showToast('Relatório gerado!')">Gerar relatório</div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="dash-grid">
+      <div class="kpi-card green" style="animation-delay:0.05s">
+        <div class="kpi-label">Receita do Mês</div>
+        <div class="kpi-value">R$ 28.540</div>
+        <div class="kpi-badge up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +18%</div>
+        <i class="ti ti-coin kpi-icon"></i>
+      </div>
+      <div class="kpi-card peach" style="animation-delay:0.1s">
+        <div class="kpi-label">Clientes Ativos</div>
+        <div class="kpi-value">47</div>
+        <div class="kpi-badge up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +5 este mês</div>
+        <i class="ti ti-users kpi-icon"></i>
+      </div>
+      <div class="kpi-card sky" style="animation-delay:0.15s">
+        <div class="kpi-label">Tarefas Concluídas</div>
+        <div class="kpi-value">83%</div>
+        <div class="kpi-sub">24 de 29 na semana</div>
+        <i class="ti ti-checks kpi-icon"></i>
+      </div>
+      <div class="kpi-card lav" style="animation-delay:0.2s">
+        <div class="kpi-label">Projetos Ativos</div>
+        <div class="kpi-value">6</div>
+        <div class="kpi-badge down"><i class="ti ti-clock" style="font-size:11px"></i> 1 atrasado</div>
+        <i class="ti ti-briefcase kpi-icon"></i>
+      </div>
+    </div>
+
+    <!-- AÇÕES RÁPIDAS -->
+    <div class="quick-actions">
+      <div class="qa-btn" onclick="showPage('quadros')" style="animation-delay:0.1s">
+        <div class="qa-icon" style="background:var(--sage-light)"><i class="ti ti-plus" style="color:var(--sage-dark)"></i></div>
+        <div class="qa-label">Nova Tarefa</div>
+        <div class="qa-sub">Adicionar ao quadro</div>
+      </div>
+      <div class="qa-btn" onclick="showPage('financeiro')" style="animation-delay:0.15s">
+        <div class="qa-icon" style="background:var(--peach-light)"><i class="ti ti-receipt" style="color:#b86040"></i></div>
+        <div class="qa-label">Lançar Receita</div>
+        <div class="qa-sub">Fluxo de caixa</div>
+      </div>
+      <div class="qa-btn" onclick="showPage('ia')" style="animation-delay:0.2s">
+        <div class="qa-icon" style="background:var(--lav-light)"><i class="ti ti-sparkles" style="color:#5a48a8"></i></div>
+        <div class="qa-label">Pedir à IA</div>
+        <div class="qa-sub">Sugestões rápidas</div>
+      </div>
+      <div class="qa-btn" onclick="showToast('Relatório sendo gerado...')" style="animation-delay:0.25s">
+        <div class="qa-icon" style="background:var(--sky-light)"><i class="ti ti-file-report" style="color:#2a6a9e"></i></div>
+        <div class="qa-label">Relatório Rápido</div>
+        <div class="qa-sub">Exportar PDF</div>
+      </div>
+    </div>
+
+    <!-- TAREFAS + METAS -->
+    <div class="content-row">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Tarefas Prioritárias</div>
+          <span class="card-action" onclick="showPage('quadros')">Ver todas →</span>
+        </div>
+        <div id="task-list">
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check"></div>
+            <span class="task-text">Preparar proposta para Cliente XYZ</span>
+            <span class="task-tag tag-peach">🔥 Urgente</span>
+          </div>
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check done"></div>
+            <span class="task-text done">Reunião com equipe de design</span>
+            <span class="task-tag tag-green">✓ Feito</span>
+          </div>
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check"></div>
+            <span class="task-text">Atualizar planilha de custos</span>
+            <span class="task-tag tag-sky">Financeiro</span>
+          </div>
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check"></div>
+            <span class="task-text">Revisar campanha de e-mail marketing</span>
+            <span class="task-tag tag-lav">Marketing</span>
+          </div>
+          <div class="task-item" onclick="toggleTask(this)">
+            <div class="task-check done"></div>
+            <span class="task-text done">Publicar post no Instagram</span>
+            <span class="task-tag tag-green">✓ Feito</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Metas da Semana</div>
+          <span class="card-action" onclick="showPage('planejamento')">Editar →</span>
+        </div>
+        <div class="goal-item">
+          <div class="goal-header">
+            <span class="goal-name">Receita</span>
+            <span class="goal-pct">72%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:72%; background: var(--sage-dark)"></div></div>
+          <div style="font-size:11.5px; color:var(--muted)">R$ 18k de R$ 25k</div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-header">
+            <span class="goal-name">Novos Clientes</span>
+            <span class="goal-pct">60%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:60%; background: #3a7ebf"></div></div>
+          <div style="font-size:11.5px; color:var(--muted)">3 de 5 clientes</div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-header">
+            <span class="goal-name">Tarefas</span>
+            <span class="goal-pct">83%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:83%; background: #7b68c8"></div></div>
+          <div style="font-size:11.5px; color:var(--muted)">24 de 29 tarefas</div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-header">
+            <span class="goal-name">Satisfação Cliente</span>
+            <span class="goal-pct">91%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:91%; background: #d4845a"></div></div>
+          <div style="font-size:11.5px; color:var(--muted)">NPS 91/100</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ QUADROS ══════════════════════════════════════ -->
+  <div class="page" id="page-quadros">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Quadros</div>
+        <div class="section-sub">Organize seus projetos visualmente</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div class="page-tabs" style="margin:0">
+          <button class="tab-btn active">Lançamento do App</button>
+          <button class="tab-btn" onclick="this.parentNode.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active')">Marketing Q2</button>
+          <button class="tab-btn" onclick="this.parentNode.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active')">Clientes</button>
+        </div>
+        <button class="btn-primary" onclick="showToast('Novo quadro criado!')">
+          <i class="ti ti-plus"></i> Quadro
+        </button>
+      </div>
+    </div>
+
+    <div class="board-wrap">
+      <!-- COL: IDEIAS -->
+      <div class="board-col">
+        <div class="col-header">
+          <div class="col-title">
+            <div class="col-dot" style="background:#c8a8e8"></div>
+            Ideias
+          </div>
+          <span class="col-count">2</span>
+        </div>
+        <div class="board-card" style="animation-delay:0.05s">
+          <div class="bc-tag tag-lav">Produto</div>
+          <div class="bc-title">Sistema de notificações push</div>
+          <div class="bc-desc">Alertas inteligentes para lembrar usuários de tarefas pendentes.</div>
+          <div class="bc-footer">
+            <div class="bc-avatars">
+              <div class="bc-av" style="background:#7b68c8">M</div>
+              <div class="bc-av" style="background:#3a7ebf">A</div>
+            </div>
+            <div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 20 mai</div>
+          </div>
+        </div>
+        <div class="board-card" style="animation-delay:0.1s">
+          <div class="bc-tag tag-peach">Design</div>
+          <div class="bc-title">Redesign da tela de onboarding</div>
+          <div class="bc-desc">Simplificar o fluxo de cadastro para aumentar conversão.</div>
+          <div class="bc-footer">
+            <div class="bc-avatars">
+              <div class="bc-av" style="background:#d4845a">L</div>
+            </div>
+            <div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 25 mai</div>
+          </div>
+        </div>
+        <button class="add-card-btn" onclick="showToast('Card adicionado!')">
+          <i class="ti ti-plus" style="font-size:13px"></i> Adicionar card
+        </button>
+      </div>
+
+      <!-- COL: EM PROGRESSO -->
+      <div class="board-col">
+        <div class="col-header">
+          <div class="col-title">
+            <div class="col-dot" style="background:#a8c8e8"></div>
+            Em Progresso
+          </div>
+          <span class="col-count">3</span>
+        </div>
+        <div class="board-card" style="animation-delay:0.1s">
+          <div class="bc-tag tag-sky">Dev</div>
+          <div class="bc-title">Integração com API de pagamento</div>
+          <div class="bc-desc">Implementar Stripe e boleto bancário para checkout.</div>
+          <div class="bc-footer">
+            <div class="bc-avatars">
+              <div class="bc-av" style="background:#3a7ebf">A</div>
+              <div class="bc-av" style="background:#7b68c8">R</div>
+              <div class="bc-av" style="background:#2d7a2d">J</div>
+            </div>
+            <div class="bc-date" style="color:#c02020"><i class="ti ti-alert-circle" style="font-size:11px"></i> Atrasado</div>
+          </div>
+        </div>
+        <div class="board-card" style="animation-delay:0.15s">
+          <div class="bc-tag tag-green">Conteúdo</div>
+          <div class="bc-title">Série de e-mails de boas-vindas</div>
+          <div class="bc-desc">5 e-mails automatizados para novos usuários da plataforma.</div>
+          <div class="bc-footer">
+            <div class="bc-avatars">
+              <div class="bc-av" style="background:#d4845a">M</div>
+            </div>
+            <div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 18 mai</div>
+          </div>
+        </div>
+        <div class="board-card" style="animation-delay:0.2s">
+          <div class="bc-tag tag-lemon">Marketing</div>
+          <div class="bc-title">Landing page do produto</div>
+          <div class="bc-desc">Página de conversão com depoimentos e preços.</div>
+          <div class="bc-footer">
+            <div class="bc-avatars">
+              <div class="bc-av" style="background:#3a6b43">L</div>
+            </div>
+            <div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 22 mai</div>
+          </div>
+        </div>
+        <button class="add-card-btn" onclick="showToast('Card adicionado!')">
+          <i class="ti ti-plus" style="font-size:13px"></i> Adicionar card
+        </button>
+      </div>
+
+      <!-- COL: REVISÃO -->
+      <div class="board-col">
+        <div class="col-header">
+          <div class="col-title">
+            <div class="col-dot" style="background:#e8d8a0"></div>
+            Revisão
+          </div>
+          <span class="col-count">2</span>
+        </div>
+        <div class="board-card" style="animation-delay:0.15s">
+          <div class="bc-tag tag-lemon">QA</div>
+          <div class="bc-title">Testes de usabilidade v2.1</div>
+          <div class="bc-desc">Validar fluxo completo com 10 usuários beta.</div>
+          <div class="bc-footer">
+            <div class="bc-avatars">
+              <div class="bc-av" style="background:#8a6e10">P</div>
+              <div class="bc-av" style="background:#7b68c8">M</div>
+            </div>
+            <div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 17 mai</div>
+          </div>
+        </div>
+        <div class="board-card" style="animation-delay:0.2s">
+          <div class="bc-tag tag-peach">Copy</div>
+          <div class="bc-title">Revisão do pitch deck</div>
+          <div class="bc-desc">Apresentação para investidores — rodada seed.</div>
+          <div class="bc-footer">
+            <div class="bc-avatars">
+              <div class="bc-av" style="background:#d4845a">A</div>
+            </div>
+            <div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 19 mai</div>
+          </div>
+        </div>
+        <button class="add-card-btn" onclick="showToast('Card adicionado!')">
+          <i class="ti ti-plus" style="font-size:13px"></i> Adicionar card
+        </button>
+      </div>
+
+      <!-- COL: CONCLUÍDO -->
+      <div class="board-col">
+        <div class="col-header">
+          <div class="col-title">
+            <div class="col-dot" style="background:var(--sage-dark)"></div>
+            Concluído
+          </div>
+          <span class="col-count">4</span>
+        </div>
+        <div class="board-card" style="animation-delay:0.2s; opacity:0.75">
+          <div class="bc-tag tag-green">✓ Feito</div>
+          <div class="bc-title">Configurar servidor de produção</div>
+          <div class="bc-footer">
+            <div class="bc-avatars"><div class="bc-av" style="background:#3a7ebf">A</div></div>
+            <div class="bc-date" style="color:var(--sage-dark)"><i class="ti ti-check" style="font-size:11px"></i> Concluído</div>
+          </div>
+        </div>
+        <div class="board-card" style="animation-delay:0.25s; opacity:0.75">
+          <div class="bc-tag tag-green">✓ Feito</div>
+          <div class="bc-title">Identidade visual do produto</div>
+          <div class="bc-footer">
+            <div class="bc-avatars"><div class="bc-av" style="background:#d4845a">L</div></div>
+            <div class="bc-date" style="color:var(--sage-dark)"><i class="ti ti-check" style="font-size:11px"></i> Concluído</div>
+          </div>
+        </div>
+        <button class="add-card-btn" onclick="showToast('Card adicionado!')">
+          <i class="ti ti-plus" style="font-size:13px"></i> Adicionar card
+        </button>
+      </div>
+
+      <!-- COL: NOVA -->
+      <div class="board-col" style="opacity:0.6">
+        <div class="col-header">
+          <div class="col-title" style="color:var(--muted); cursor:pointer" onclick="showToast('Coluna criada!')">
+            <i class="ti ti-plus" style="font-size:14px"></i>
+            Nova Coluna
+          </div>
+        </div>
+        <button class="add-card-btn" style="width:100%; height:80px; border-style:dashed" onclick="showToast('Coluna criada!')">
+          <i class="ti ti-plus" style="font-size:14px"></i> Criar coluna
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ FINANCEIRO ══════════════════════════════════════ -->
+  <div class="page" id="page-financeiro">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Financeiro</div>
+        <div class="section-sub">Receitas, despesas e projeções</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div class="page-tabs" style="margin:0">
+          <button class="tab-btn active">Maio 2025</button>
+          <button class="tab-btn" onclick="showToast('Abril carregado!')">Abril</button>
+          <button class="tab-btn" onclick="showToast('Anual carregado!')">Anual</button>
+        </div>
+        <button class="btn-primary" onclick="showToast('Lançamento salvo!')"><i class="ti ti-plus"></i> Lançar</button>
+      </div>
+    </div>
+
+    <div class="fin-grid">
+      <div class="kpi-card green">
+        <div class="kpi-label">Receita Total</div>
+        <div class="kpi-value">R$ 28.540</div>
+        <div class="kpi-badge up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +18% vs mês anterior</div>
+        <i class="ti ti-trending-up kpi-icon"></i>
+      </div>
+      <div class="kpi-card peach">
+        <div class="kpi-label">Despesas</div>
+        <div class="kpi-value">R$ 12.380</div>
+        <div class="kpi-badge down"><i class="ti ti-arrow-up" style="font-size:11px"></i> +4% vs mês anterior</div>
+        <i class="ti ti-receipt kpi-icon"></i>
+      </div>
+      <div class="kpi-card sky">
+        <div class="kpi-label">Lucro Líquido</div>
+        <div class="kpi-value">R$ 16.160</div>
+        <div class="kpi-badge up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +29% vs mês anterior</div>
+        <i class="ti ti-coin kpi-icon"></i>
+      </div>
+    </div>
+
+    <div class="content-row">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Fluxo de Caixa — Últimos 6 meses</div>
+        </div>
+        <div class="chart-bar-wrap" id="bar-chart">
+          <!-- rendered by JS -->
+        </div>
+        <div style="display:flex;gap:16px;font-size:11.5px;color:var(--muted);margin-top:4px">
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--sage-dark);display:inline-block"></span>Receita</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--peach);display:inline-block"></span>Despesa</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Distribuição de Gastos</div>
+        </div>
+        <div id="pie-list">
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+              <span>Marketing</span><span style="font-weight:600">R$ 3.800</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:30%; background:#3a7ebf"></div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+              <span>Salários</span><span style="font-weight:600">R$ 5.200</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:42%; background:#d4845a"></div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+              <span>Ferramentas</span><span style="font-weight:600">R$ 1.400</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:11%; background:#7b68c8"></div></div>
+          </div>
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+              <span>Infraestrutura</span><span style="font-weight:600">R$ 980</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:8%; background:#8a6e10"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">
+              <span>Outros</span><span style="font-weight:600">R$ 1.000</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:9%; background:var(--subtle)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Lançamentos Recentes</div>
+        <button class="btn-primary" style="font-size:12px;padding:6px 12px" onclick="showToast('Exportado como PDF!')">
+          <i class="ti ti-download"></i> Exportar
+        </button>
+      </div>
+      <table class="fin-table">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>Categoria</th>
+            <th>Data</th>
+            <th style="text-align:right">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mensalidade Cliente Alpha</td>
+            <td><span class="task-tag tag-green">Receita</span></td>
+            <td style="color:var(--muted)">12 mai</td>
+            <td class="amount pos" style="text-align:right">+ R$ 3.500</td>
+          </tr>
+          <tr>
+            <td>Hospedagem AWS</td>
+            <td><span class="task-tag tag-sky">Infra</span></td>
+            <td style="color:var(--muted)">11 mai</td>
+            <td class="amount neg" style="text-align:right">− R$ 480</td>
+          </tr>
+          <tr>
+            <td>Consultoria Beta Corp</td>
+            <td><span class="task-tag tag-green">Receita</span></td>
+            <td style="color:var(--muted)">10 mai</td>
+            <td class="amount pos" style="text-align:right">+ R$ 8.000</td>
+          </tr>
+          <tr>
+            <td>Google Ads — Campanha Maio</td>
+            <td><span class="task-tag tag-lemon">Marketing</span></td>
+            <td style="color:var(--muted)">09 mai</td>
+            <td class="amount neg" style="text-align:right">− R$ 1.200</td>
+          </tr>
+          <tr>
+            <td>Venda de licença SaaS</td>
+            <td><span class="task-tag tag-green">Receita</span></td>
+            <td style="color:var(--muted)">08 mai</td>
+            <td class="amount pos" style="text-align:right">+ R$ 5.900</td>
+          </tr>
+          <tr>
+            <td>Freelancer Design</td>
+            <td><span class="task-tag tag-peach">Pessoal</span></td>
+            <td style="color:var(--muted)">07 mai</td>
+            <td class="amount neg" style="text-align:right">− R$ 2.500</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ PLANEJAMENTO ══════════════════════════════════════ -->
+  <div class="page" id="page-planejamento">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Planejamento Empresarial</div>
+        <div class="section-sub">Modelos estratégicos e planos de negócio</div>
+      </div>
+      <div class="page-tabs" style="margin:0">
+        <button class="tab-btn active" onclick="showSection('canvas')">Canvas</button>
+        <button class="tab-btn" onclick="showSection('swot')">SWOT</button>
+        <button class="tab-btn" onclick="showSection('plano')">Plano de Negócio</button>
+      </div>
+    </div>
+
+    <!-- CANVAS -->
+    <div id="section-canvas">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:13px;color:var(--muted)">Business Model Canvas — Nexo App</div>
+        <button class="btn-primary" style="font-size:12px;padding:6px 12px" onclick="showToast('Canvas exportado!')">
+          <i class="ti ti-download"></i> Exportar
+        </button>
+      </div>
+      <div class="canvas-grid">
+        <div class="canvas-block">
+          <div class="canvas-block-title">Parceiros-chave</div>
+          <div class="canvas-item">AWS / Google Cloud</div>
+          <div class="canvas-item">Parceiros de distribuição</div>
+          <div class="canvas-item">Contadores e consultores</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="canvas-block" style="min-height:55px">
+            <div class="canvas-block-title">Atividades-chave</div>
+            <div class="canvas-item">Desenvolvimento do produto</div>
+            <div class="canvas-item">Suporte ao cliente</div>
+          </div>
+          <div class="canvas-block" style="min-height:55px">
+            <div class="canvas-block-title">Recursos-chave</div>
+            <div class="canvas-item">Equipe de tecnologia</div>
+            <div class="canvas-item">Marca e comunidade</div>
+          </div>
+        </div>
+        <div class="canvas-block" style="background:var(--sage-light);border-color:rgba(90,122,82,0.2)">
+          <div class="canvas-block-title" style="color:var(--sage-dark)">Proposta de Valor</div>
+          <div class="canvas-item" style="background:rgba(90,122,82,0.1)">Gestão simples para MEIs</div>
+          <div class="canvas-item" style="background:rgba(90,122,82,0.1)">IA integrada no dia a dia</div>
+          <div class="canvas-item" style="background:rgba(90,122,82,0.1)">Tudo em um só lugar</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="canvas-block" style="min-height:55px">
+            <div class="canvas-block-title">Relacionamento</div>
+            <div class="canvas-item">Comunidade online</div>
+            <div class="canvas-item">Suporte por chat</div>
+          </div>
+          <div class="canvas-block" style="min-height:55px">
+            <div class="canvas-block-title">Canais</div>
+            <div class="canvas-item">App web e mobile</div>
+            <div class="canvas-item">Marketing orgânico</div>
+          </div>
+        </div>
+        <div class="canvas-block">
+          <div class="canvas-block-title">Segmentos</div>
+          <div class="canvas-item">MEIs e autônomos</div>
+          <div class="canvas-item">Pequenas empresas</div>
+          <div class="canvas-item">Startups em early stage</div>
+        </div>
+      </div>
+      <div class="canvas-grid-bottom" style="margin-top:12px">
+        <div class="canvas-block">
+          <div class="canvas-block-title">Estrutura de Custos</div>
+          <div class="canvas-item">Infraestrutura de TI — 18%</div>
+          <div class="canvas-item">Equipe e desenvolvimento — 42%</div>
+          <div class="canvas-item">Marketing e aquisição — 30%</div>
+          <div class="canvas-item">Operacional — 10%</div>
+        </div>
+        <div class="canvas-block">
+          <div class="canvas-block-title">Fontes de Receita</div>
+          <div class="canvas-item">Assinatura mensal (SaaS)</div>
+          <div class="canvas-item">Plano Pro — R$ 49/mês</div>
+          <div class="canvas-item">Plano Equipe — R$ 99/mês</div>
+          <div class="canvas-item">Consultoria Premium</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SWOT -->
+    <div id="section-swot" style="display:none">
+      <div class="swot-grid">
+        <div class="swot-block s">
+          <div class="swot-title">✦ Forças (Strengths)</div>
+          <div class="swot-item">Interface extremamente intuitiva e acessível</div>
+          <div class="swot-item">IA integrada que guia o usuário</div>
+          <div class="swot-item">Tudo em uma só plataforma</div>
+          <div class="swot-item">Baixo custo de aquisição</div>
+        </div>
+        <div class="swot-block w">
+          <div class="swot-title">⚠ Fraquezas (Weaknesses)</div>
+          <div class="swot-item">Produto ainda em fase inicial</div>
+          <div class="swot-item">Equipe pequena</div>
+          <div class="swot-item">Dependência de APIs externas</div>
+          <div class="swot-item">Reconhecimento de marca limitado</div>
+        </div>
+        <div class="swot-block o">
+          <div class="swot-title">↗ Oportunidades (Opportunities)</div>
+          <div class="swot-item">Mercado de MEI crescendo 20% ao ano</div>
+          <div class="swot-item">Baixa digitalização das pequenas empresas</div>
+          <div class="swot-item">Demanda por IA acessível aumentando</div>
+          <div class="swot-item">Expansão para América Latina</div>
+        </div>
+        <div class="swot-block t">
+          <div class="swot-title">⚡ Ameaças (Threats)</div>
+          <div class="swot-item">Grandes players como Notion e Monday</div>
+          <div class="swot-item">Concorrência acirrada no segmento SaaS</div>
+          <div class="swot-item">Custo de APIs de IA em alta</div>
+          <div class="swot-item">Regulamentações de dados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANO -->
+    <div id="section-plano" style="display:none">
+      <div class="content-row">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Sumário Executivo</div></div>
+          <div style="font-size:13.5px;line-height:1.8;color:var(--ink-soft)">
+            <p>A <strong>Nexo</strong> é uma plataforma SaaS de gestão empresarial desenvolvida especialmente para microempreendedores, autônomos e startups brasileiras. Nosso produto combina organização visual, inteligência artificial e planejamento financeiro em uma interface acessível e acolhedora.</p>
+            <br>
+            <p>O mercado-alvo são os <strong>14 milhões de MEIs ativos</strong> no Brasil, que carecem de ferramentas adequadas para a gestão do seu negócio.</p>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:12px">
+            <div style="background:var(--warm);padding:12px 16px;border-radius:var(--radius-md);flex:1;text-align:center">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">TAM</div>
+              <div style="font-family:var(--font);font-size:20px;font-weight:700;margin-top:4px">R$ 4,2B</div>
+            </div>
+            <div style="background:var(--warm);padding:12px 16px;border-radius:var(--radius-md);flex:1;text-align:center">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">SAM</div>
+              <div style="font-family:var(--font);font-size:20px;font-weight:700;margin-top:4px">R$ 840M</div>
+            </div>
+            <div style="background:var(--sage-light);padding:12px 16px;border-radius:var(--radius-md);flex:1;text-align:center">
+              <div style="font-size:11px;color:var(--sage-dark);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">SOM</div>
+              <div style="font-family:var(--font);font-size:20px;font-weight:700;margin-top:4px;color:var(--sage-dark)">R$ 42M</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Metas Anuais</div></div>
+          <div class="goal-item">
+            <div class="goal-header"><span class="goal-name">Usuários pagantes</span><span class="goal-pct">1.000</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:47%; background:var(--sage-dark)"></div></div>
+          </div>
+          <div class="goal-item">
+            <div class="goal-header"><span class="goal-name">MRR (Receita Mensal)</span><span class="goal-pct">R$ 49k</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:58%; background:#3a7ebf"></div></div>
+          </div>
+          <div class="goal-item">
+            <div class="goal-header"><span class="goal-name">NPS</span><span class="goal-pct">85+</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:91%; background:#7b68c8"></div></div>
+          </div>
+          <div class="goal-item">
+            <div class="goal-header"><span class="goal-name">Churn Rate</span><span class="goal-pct">{'<'}3%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:80%; background:#d4845a"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ IA ══════════════════════════════════════ -->
+  <div class="page" id="page-ia">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Assistente IA ✦</div>
+        <div class="section-sub">Sua parceira inteligente de negócios</div>
+      </div>
+    </div>
+
+    <div class="ia-chat" id="chat-container">
+      <div class="chat-msg">
+        <div class="chat-av ai">✦</div>
+        <div class="chat-bubble ai">
+          Olá, Marina! 👋 Sou sua assistente de negócios. Posso ajudar você a criar planos, analisar dados, sugerir estratégias e muito mais. O que você precisa hoje?
+        </div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-av user">M</div>
+        <div class="chat-bubble user">Como posso aumentar minha receita nos próximos 3 meses?</div>
+      </div>
+      <div class="chat-msg">
+        <div class="chat-av ai">✦</div>
+        <div class="chat-bubble ai">
+          Ótima pergunta! Com base nos seus dados, vejo 3 oportunidades principais:<br><br>
+          <strong>1. Upsell nos clientes atuais</strong> — Você tem 47 clientes ativos. Oferecer um plano premium para 20% deles pode gerar +R$ 4.500/mês.<br><br>
+          <strong>2. Reativar leads frios</strong> — Identifiquei 12 leads que não converteram. Uma campanha personalizada pode trazer 2-3 novos clientes.<br><br>
+          <strong>3. Indicações</strong> — Criar um programa de referral com desconto pode crescer sua base em 15% organicamente.
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;max-width:700px">
+      <div class="ai-chip" onclick="sendQuickMsg('Crie um plano de metas para Q3')">📋 Criar plano de metas Q3</div>
+      <div class="ai-chip" onclick="sendQuickMsg('Analise meu fluxo de caixa')">💰 Analisar fluxo de caixa</div>
+      <div class="ai-chip" onclick="sendQuickMsg('Gere ideias de novos produtos')">💡 Ideias de novos produtos</div>
+      <div class="ai-chip" onclick="sendQuickMsg('Como reduzir meus custos operacionais?')">📉 Reduzir custos</div>
+      <div class="ai-chip" onclick="sendQuickMsg('Escreva um e-mail de prospecção')">✉️ E-mail de prospecção</div>
+    </div>
+
+    <div class="chat-input-wrap">
+      <input class="chat-input" id="chat-input" placeholder="Pergunte qualquer coisa sobre seu negócio..." onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="chat-send" onclick="sendMsg()">
+        <i class="ti ti-send"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ EQUIPE ══════════════════════════════════════ -->
+  <div class="page" id="page-equipe">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Equipe</div>
+        <div class="section-sub">Gerencie colaboradores e permissões</div>
+      </div>
+      <button class="btn-primary" onclick="showToast('Convite enviado!')">
+        <i class="ti ti-user-plus"></i> Convidar
+      </button>
+    </div>
+
+    <div class="team-grid">
+      <div class="member-card">
+        <div class="member-av" style="background: linear-gradient(135deg, #d4845a, #e8c4a0)">MR</div>
+        <div class="member-name">Marina Rezende</div>
+        <div class="member-role">Fundadora & CEO</div>
+        <div class="member-status"><span class="status-dot online"></span>Online agora</div>
+        <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
+          <span class="task-tag tag-green">Admin</span>
+        </div>
+      </div>
+      <div class="member-card" style="animation-delay:0.05s">
+        <div class="member-av" style="background: linear-gradient(135deg, #3a7ebf, #a8c8e8)">AL</div>
+        <div class="member-name">André Lima</div>
+        <div class="member-role">CTO — Desenvolvedor</div>
+        <div class="member-status"><span class="status-dot online"></span>Online agora</div>
+        <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
+          <span class="task-tag tag-sky">Dev</span>
+        </div>
+      </div>
+      <div class="member-card" style="animation-delay:0.1s">
+        <div class="member-av" style="background: linear-gradient(135deg, #7b68c8, #c4b8e8)">LC</div>
+        <div class="member-name">Laura Costa</div>
+        <div class="member-role">Head de Design</div>
+        <div class="member-status"><span class="status-dot away"></span>Ausente</div>
+        <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
+          <span class="task-tag tag-lav">Design</span>
+        </div>
+      </div>
+      <div class="member-card" style="animation-delay:0.15s">
+        <div class="member-av" style="background: linear-gradient(135deg, #3a6b43, #b8c9b0)">JM</div>
+        <div class="member-name">João Matos</div>
+        <div class="member-role">Desenvolvedor Full-Stack</div>
+        <div class="member-status"><span class="status-dot online"></span>Online agora</div>
+        <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
+          <span class="task-tag tag-green">Dev</span>
+        </div>
+      </div>
+      <div class="member-card" style="animation-delay:0.2s">
+        <div class="member-av" style="background: linear-gradient(135deg, #8a6e10, #e8d8a0)">PR</div>
+        <div class="member-name">Paula Ramos</div>
+        <div class="member-role">Marketing & Growth</div>
+        <div class="member-status"><span class="status-dot offline"></span>Offline</div>
+        <div style="display:flex;gap:6px;margin-top:12px;justify-content:center">
+          <span class="task-tag tag-lemon">Marketing</span>
+        </div>
+      </div>
+      <div class="member-card" style="animation-delay:0.25s; border-style:dashed; cursor:pointer" onclick="showToast('Convite enviado!')">
+        <div class="member-av" style="background: var(--warm-mid); color: var(--muted)">
+          <i class="ti ti-plus" style="font-size:20px"></i>
+        </div>
+        <div class="member-name" style="color:var(--muted)">Adicionar membro</div>
+        <div class="member-role">Convidar por e-mail</div>
+      </div>
+    </div>
+
+    <!-- ATIVIDADE -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-header">
+        <div class="card-title">Atividade Recente da Equipe</div>
+      </div>
+      <div>
+        <div class="notif-item">
+          <div class="notif-icon" style="background:var(--sage-light)"><i class="ti ti-check" style="color:var(--sage-dark)"></i></div>
+          <div>
+            <div class="notif-text"><strong>André</strong> concluiu "Configurar servidor de produção"</div>
+            <div class="notif-time">há 12 minutos</div>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon" style="background:var(--lav-light)"><i class="ti ti-edit" style="color:#5a48a8"></i></div>
+          <div>
+            <div class="notif-text"><strong>Laura</strong> atualizou o card "Redesign de onboarding"</div>
+            <div class="notif-time">há 45 minutos</div>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon" style="background:var(--peach-light)"><i class="ti ti-message" style="color:#b86040"></i></div>
+          <div>
+            <div class="notif-text"><strong>João</strong> comentou em "Integração com API de pagamento"</div>
+            <div class="notif-time">há 1 hora</div>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon" style="background:var(--lemon-light)"><i class="ti ti-plus" style="color:#8a6e10"></i></div>
+          <div>
+            <div class="notif-text"><strong>Paula</strong> criou o card "Campanha de e-mail maio"</div>
+            <div class="notif-time">há 2 horas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notif-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div style="font-family:var(--font);font-size:16px;font-weight:700">Notificações</div>
+    <div class="icon-btn" onclick="toggleNotif()"><i class="ti ti-x"></i></div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon" style="background:var(--coral-light)"><i class="ti ti-alert-circle" style="color:#c02020"></i></div>
+    <div>
+      <div class="notif-text">Tarefa "Integração de pagamento" está atrasada</div>
+      <div class="notif-time">há 2 horas</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon" style="background:var(--sage-light)"><i class="ti ti-trending-up" style="color:var(--sage-dark)"></i></div>
+    <div>
+      <div class="notif-text">Meta de receita atingiu 72% — ótimo progresso!</div>
+      <div class="notif-time">há 4 horas</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon" style="background:var(--lav-light)"><i class="ti ti-sparkles" style="color:#5a48a8"></i></div>
+    <div>
+      <div class="notif-text">A IA gerou 3 novos insights para o seu negócio</div>
+      <div class="notif-time">Ontem</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon" style="background:var(--sky-light)"><i class="ti ti-user-plus" style="color:#2a6a9e"></i></div>
+    <div>
+      <div class="notif-text">João aceitou o convite para a equipe</div>
+      <div class="notif-time">há 2 dias</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon" style="background:var(--lemon-light)"><i class="ti ti-coin" style="color:#8a6e10"></i></div>
+    <div>
+      <div class="notif-text">Pagamento de R$ 3.500 recebido — Cliente Alpha</div>
+      <div class="notif-time">há 3 dias</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">Novo Projeto</div>
+    <input class="modal-input" placeholder="Nome do projeto" id="proj-name">
+    <input class="modal-input" placeholder="Descrição (opcional)">
+    <select class="modal-input" style="color:var(--ink-soft)">
+      <option>Selecionar categoria</option>
+      <option>Produto</option>
+      <option>Marketing</option>
+      <option>Vendas</option>
+      <option>Operacional</option>
+    </select>
+    <select class="modal-input" style="color:var(--ink-soft)">
+      <option>Prioridade</option>
+      <option>Alta</option>
+      <option>Média</option>
+      <option>Baixa</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" onclick="createProject()">Criar Projeto</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="ti ti-check"></i>
+  <span id="toast-text">Ação realizada!</span>
+</div>
+
+<script>
+  // ── NAVIGATION ──
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(id)) {
+        n.classList.add('active');
+      }
+    });
+    if (id === 'financeiro') renderChart();
+  }
+
+  // ── PLANNING TABS ──
+  function showSection(id) {
+    ['canvas','swot','plano'].forEach(s => {
+      document.getElementById('section-' + s).style.display = s === id ? 'block' : 'none';
+    });
+    document.querySelectorAll('#page-planejamento .tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', ['canvas','swot','plano'][i] === id);
+    });
+  }
+
+  // ── TASKS ──
+  function toggleTask(el) {
+    const check = el.querySelector('.task-check');
+    const text = el.querySelector('.task-text');
+    const tag = el.querySelector('.task-tag');
+    if (check.classList.contains('done')) {
+      check.classList.remove('done');
+      text.classList.remove('done');
+      tag.textContent = '🔥 Pendente';
+      tag.className = 'task-tag tag-peach';
+    } else {
+      check.classList.add('done');
+      text.classList.add('done');
+      tag.textContent = '✓ Feito';
+      tag.className = 'task-tag tag-green';
+    }
+  }
+
+  // ── CHART ──
+  function renderChart() {
+    const data = [
+      { m:'Dez', r: 19, d: 12 },
+      { m:'Jan', r: 21, d: 13 },
+      { m:'Fev', r: 18, d: 11 },
+      { m:'Mar', r: 24, d: 14 },
+      { m:'Abr', r: 23, d: 13 },
+      { m:'Mai', r: 28, d: 12 },
+    ];
+    const max = 32;
+    const wrap = document.getElementById('bar-chart');
+    wrap.innerHTML = data.map(d => `
+      <div class="chart-bar-col">
+        <div style="display:flex;gap:3px;align-items:flex-end;flex:1;width:100%">
+          <div class="bar" style="height:${(d.r/max)*100}%;background:var(--sage-dark);flex:1"></div>
+          <div class="bar" style="height:${(d.d/max)*100}%;background:var(--peach);flex:1"></div>
+        </div>
+        <div class="bar-label">${d.m}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── MODAL ──
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+  function createProject() {
+    const name = document.getElementById('proj-name').value || 'Novo Projeto';
+    closeModal();
+    showToast('Projeto "' + name + '" criado!');
+  }
+
+  // ── NOTIFICATIONS ──
+  function toggleNotif() {
+    document.getElementById('notif-panel').classList.toggle('open');
+  }
+
+  // ── TOAST ──
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-text').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── AI CHAT ──
+  const aiReplies = [
+    "Ótima ideia! Com base nos dados do seu negócio, sugiro começar com uma análise de cohort dos seus clientes mais rentáveis. Isso pode revelar padrões de compra e ajudar a criar ofertas mais assertivas.",
+    "Analisando seu histórico financeiro, identifico uma oportunidade de aumentar a margem em 8% reduzindo custos de infraestrutura e renegociando com fornecedores. Posso gerar um plano detalhado?",
+    "Baseado em empresas similares à sua, o melhor momento para lançar uma campanha de captação é nos meses de março e setembro. Quer que eu crie um calendário editorial personalizado?",
+    "Excelente pergunta! A validação de startup mais eficaz começa com entrevistas com 20 potenciais clientes. Posso te ajudar a criar um roteiro de perguntas e uma planilha de análise?",
+    "Com R$ 28.540 de receita e 47 clientes, seu LTV médio está em R$ 607. Para aumentar para R$ 900, recomendo uma estratégia de expansão de conta — vou detalhar os próximos passos."
+  ];
+  let replyIdx = 0;
+
+  function sendMsg() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    addMsg(msg, 'user');
+    input.value = '';
+    setTimeout(() => addMsg(aiReplies[replyIdx % aiReplies.length], 'ai'), 900);
+    replyIdx++;
+  }
+
+  function sendQuickMsg(msg) {
+    showPage('ia');
+    setTimeout(() => {
+      addMsg(msg, 'user');
+      setTimeout(() => addMsg(aiReplies[replyIdx % aiReplies.length], 'ai'), 900);
+      replyIdx++;
+    }, 50);
+  }
+
+  function addMsg(text, role) {
+    const container = document.getElementById('chat-container');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    div.innerHTML = `
+      <div class="chat-av ${role}">${role === 'ai' ? '✦' : 'M'}</div>
+      <div class="chat-bubble ${role}">${text}</div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // ── INIT ──
+  document.addEventListener('DOMContentLoaded', () => {
+    renderChart();
+  });
+</script>
+</body>
+</html>

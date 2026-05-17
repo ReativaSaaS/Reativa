@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexo — Seu negócio, organizado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080c0a;
+    --surface: #0e1410;
+    --card: #131a15;
+    --card-hover: #182018;
+    --border: rgba(255,255,255,0.06);
+    --border-mid: rgba(255,255,255,0.11);
+    --border-focus: rgba(100,200,120,0.4);
+    --green: #4ade80;
+    --green-mid: #22c55e;
+    --green-dark: #16a34a;
+    --green-glow: rgba(74,222,128,0.15);
+    --green-subtle: rgba(74,222,128,0.08);
+    --amber: #fbbf24;
+    --red: #f87171;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --text: #f0f4f1;
+    --text-muted: rgba(240,244,241,0.5);
+    --text-subtle: rgba(240,244,241,0.28);
+    --grad-green: linear-gradient(135deg, #4ade80, #22c55e, #16a34a);
+    --grad-ai: linear-gradient(135deg, #a78bfa, #60a5fa);
+    --font: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --transition: 0.18s ease;
+    --radius-sm: 10px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    background: rgba(74,222,128,0.04);
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    animation: blobMove1 15s ease-in-out infinite alternate;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -80px; left: -80px;
+    width: 300px; height: 300px;
+    background: rgba(167,139,250,0.05);
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+    z-index: 0;
+    animation: blobMove2 15s ease-in-out infinite alternate;
+  }
+  @keyframes blobMove1 { from { transform: translate(0,0); } to { transform: translate(-40px,40px); } }
+  @keyframes blobMove2 { from { transform: translate(0,0); } to { transform: translate(30px,-30px); } }
+
+  .bg-grid {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0; opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h32v32H0z' fill='none'/%3E%3Cpath d='M0 0h1v32H0z' fill='rgba(255,255,255,0.02)'/%3E%3Cpath d='M0 0h32v1H0z' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E");
+  }
+
+  .bg-noise {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 1;
+    opacity: 0.025; mix-blend-mode: overlay;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 56px;
+    background: rgba(8,12,10,0.95);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px 0; z-index: 100;
+    transition: width 0.25s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar:hover { width: 220px; }
+
+  .sidebar-logo {
+    width: 32px; height: 32px;
+    background: var(--grad-green);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font); font-weight: 700; font-size: 15px; color: white;
+    flex-shrink: 0;
+    box-shadow: 0 0 16px rgba(74,222,128,0.35);
+    transition: var(--transition);
+  }
+  .sidebar-logo:hover { transform: scale(1.05); box-shadow: 0 0 24px rgba(74,222,128,0.5); }
+
+  .sidebar-logo-wrap {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; padding: 0 12px; margin-bottom: 28px; overflow: hidden;
+  }
+  .sidebar-logo-text {
+    font-family: var(--font); font-weight: 700; font-size: 17px; color: var(--text);
+    white-space: nowrap; opacity: 0; transition: opacity 0.2s;
+  }
+  .sidebar:hover .sidebar-logo-text { opacity: 1; }
+
+  .sidebar-nav {
+    display: flex; flex-direction: column; gap: 2px;
+    width: 100%; padding: 0 8px; flex: 1;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px; border-radius: 8px; cursor: pointer;
+    transition: var(--transition); overflow: hidden; white-space: nowrap;
+    position: relative; color: var(--text-subtle); text-decoration: none;
+    font-size: 13px; font-weight: 500;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-item.active { background: var(--green-subtle); color: var(--green); }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 6px; bottom: 6px;
+    width: 2px; background: var(--green); border-radius: 1px;
+  }
+  .nav-item i { font-size: 18px; flex-shrink: 0; }
+  .nav-label { opacity: 0; transition: opacity 0.2s; }
+  .sidebar:hover .nav-label { opacity: 1; }
+
+  .nav-badge {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: var(--green-subtle); color: var(--green);
+    font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 20px;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .sidebar:hover .nav-badge { opacity: 1; }
+
+  .sidebar-footer { padding: 0 8px; width: 100%; display: flex; flex-direction: column; gap: 4px; }
+  .avatar-wrap {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px; overflow: hidden; cursor: pointer;
+    border-radius: 8px; transition: var(--transition);
+  }
+  .avatar-wrap:hover { background: rgba(255,255,255,0.04); }
+  .avatar {
+    width: 32px; height: 32px; background: var(--grad-green); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .avatar-info { opacity: 0; transition: opacity 0.2s; overflow: hidden; }
+  .sidebar:hover .avatar-info { opacity: 1; }
+  .avatar-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; }
+  .avatar-plan { font-size: 11px; color: var(--green); }
+
+  /* MAIN */
+  .main {
+    margin-left: 56px; min-height: 100vh;
+    transition: margin-left 0.25s cubic-bezier(.4,0,.2,1);
+    position: relative; z-index: 2;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: rgba(8,12,10,0.9); backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-greeting { flex: 1; }
+  .topbar-greeting h1 { font-family: var(--font); font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .topbar-greeting p { font-size: 12px; font-weight: 300; color: var(--text-muted); margin-top: 1px; }
+
+  .search-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px; width: 240px;
+    transition: var(--transition); cursor: text;
+  }
+  .search-bar:hover { border-color: var(--border-mid); }
+  .search-bar:focus-within { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
+  .search-bar i { font-size: 16px; color: var(--text-subtle); }
+  .search-bar span { font-size: 13px; color: var(--text-subtle); }
+
+  .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 7px;
+    border: 1px solid var(--border); background: transparent;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: var(--transition);
+    color: var(--text-muted); position: relative;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.05); color: var(--text); border-color: var(--border-mid); }
+  .icon-btn i { font-size: 17px; }
+
+  .notif-dot {
+    position: absolute; top: 5px; right: 5px;
+    width: 7px; height: 7px; background: var(--green);
+    border-radius: 50%; border: 1.5px solid var(--bg);
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--grad-green); color: white; border: none;
+    border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 600;
+    font-family: var(--font-body); cursor: pointer; transition: var(--transition);
+    box-shadow: 0 0 20px rgba(74,222,128,0.25); position: relative; overflow: hidden;
+  }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 0 30px rgba(74,222,128,0.35); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-primary i { font-size: 15px; }
+  .btn-primary::after {
+    content: ''; position: absolute; top: 0; left: -100%;
+    width: 25%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-15deg); transition: left 0.5s ease;
+  }
+  .btn-primary:hover::after { left: 200%; }
+
+  /* PAGE */
+  .page { display: none; padding: 28px; }
+  .page.active { display: block; }
+
+  /* TABS */
+  .page-tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+  .tab-btn {
+    padding: 7px 16px; border-radius: 8px; border: 1px solid transparent;
+    font-size: 13px; font-weight: 500; font-family: var(--font-body);
+    cursor: pointer; transition: var(--transition); color: var(--text-muted); background: transparent;
+  }
+  .tab-btn:hover { background: rgba(255,255,255,0.04); border-color: var(--border); color: var(--text); }
+  .tab-btn.active { background: var(--green-subtle); border-color: transparent; color: var(--green); font-weight: 600; }
+
+  /* KPI */
+  .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; position: relative; overflow: hidden;
+    transition: var(--transition); animation: fadeUp 0.4s ease both;
+  }
+  .kpi-card:hover { border-color: var(--border-mid); background: var(--card-hover); }
+  .kpi-label { font-size: 12px; font-weight: 400; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .kpi-value { font-family: var(--font-mono); font-size: 26px; font-weight: 600; color: var(--text); line-height: 1; }
+  .kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .kpi-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-top: 6px; }
+  .kpi-badge.up { background: var(--green-subtle); color: var(--green); }
+  .kpi-badge.down { background: rgba(248,113,113,0.12); color: var(--red); }
+  .kpi-icon {
+    position: absolute; bottom: 16px; right: 16px;
+    width: 32px; height: 32px; background: var(--green-subtle); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--green);
+  }
+
+  /* CONTENT ROW */
+  .content-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; transition: var(--transition); animation: fadeUp 0.4s ease both;
+  }
+  .card:hover { border-color: var(--border-mid); }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-family: var(--font); font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+  .card-action { font-size: 12px; color: var(--green); cursor: pointer; font-weight: 500; transition: var(--transition); }
+  .card-action:hover { opacity: 0.7; }
+
+  /* TASKS */
+  .task-item {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    border-radius: 8px; transition: var(--transition); cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+  .task-item:hover { background: rgba(255,255,255,0.02); }
+  .task-item:last-child { border-bottom: none; }
+  .task-check {
+    width: 16px; height: 16px; border: 1px solid var(--border-mid); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; cursor: pointer; transition: var(--transition);
+  }
+  .task-check.done { background: var(--green); border-color: var(--green); animation: checkBounce 0.3s cubic-bezier(.2,1.5,.5,1); }
+  .task-check.done::after { content: ''; width: 4px; height: 7px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px,-1px); display: block; }
+  @keyframes checkBounce { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+  .task-text { font-size: 13.5px; flex: 1; color: var(--text); }
+  .task-text.done { text-decoration: line-through; color: var(--text-subtle); }
+  .task-tag { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 5px; }
+  .tag-green { background: var(--green-subtle); color: var(--green); }
+  .tag-peach { background: rgba(248,113,113,0.12); color: var(--red); }
+  .tag-sky { background: rgba(96,165,250,0.12); color: var(--blue); }
+  .tag-lav { background: rgba(167,139,250,0.12); color: var(--purple); }
+  .tag-lemon { background: rgba(251,191,36,0.12); color: var(--amber); }
+
+  /* PROGRESS */
+  .progress-bar { background: rgba(255,255,255,0.07); border-radius: 8px; height: 7px; overflow: hidden; margin: 6px 0 2px; }
+  .progress-fill { height: 100%; border-radius: 8px; background: var(--green); transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+  .goal-item { margin-bottom: 16px; }
+  .goal-header { display: flex; justify-content: space-between; align-items: center; }
+  .goal-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .goal-pct { font-size: 12px; color: var(--text-muted); font-weight: 600; font-family: var(--font-mono); }
+
+  /* AI CARD */
+  .ai-card {
+    background: linear-gradient(135deg, rgba(167,139,250,0.08) 0%, rgba(74,222,128,0.06) 50%, rgba(96,165,250,0.06) 100%);
+    border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+    margin-bottom: 20px; animation: fadeUp 0.5s ease both; position: relative; overflow: hidden;
+  }
+  .ai-card::before { content: '✦'; position: absolute; right: 20px; top: 16px; font-size: 28px; opacity: 0.15; color: var(--purple); }
+  .ai-label { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--purple); text-transform: uppercase; margin-bottom: 8px; }
+  .ai-label::before { content: ''; width: 6px; height: 6px; background: var(--purple); border-radius: 50%; animation: pulse 2s ease infinite; }
+  .ai-title { font-family: var(--font); font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .ai-text { font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+  .ai-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .ai-chip {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 20px;
+    padding: 5px 12px; font-size: 12px; font-weight: 500; cursor: pointer;
+    transition: var(--transition); color: var(--text-muted);
+  }
+  .ai-chip:hover { border-color: var(--purple); color: var(--purple); background: rgba(167,139,250,0.08); }
+
+  /* QUICK ACTIONS */
+  .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .qa-btn {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+    cursor: pointer; transition: var(--transition); text-align: left; animation: fadeUp 0.3s ease both;
+  }
+  .qa-btn:hover { transform: translateY(-2px); border-color: var(--border-mid); background: var(--card-hover); }
+  .qa-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .qa-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .qa-sub { font-size: 11.5px; color: var(--text-muted); }
+
+  /* KANBAN */
+  .board-wrap { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; }
+  .board-col { min-width: 280px; max-width: 280px; background: rgba(255,255,255,0.02); border-radius: 10px; padding: 12px; }
+  .col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .col-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  .col-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .col-count { background: rgba(255,255,255,0.07); color: var(--text-muted); font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 20px; }
+  .board-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+    margin-bottom: 10px; cursor: grab; transition: var(--transition); animation: fadeUp 0.3s ease both;
+  }
+  .board-card:hover { transform: translateY(-2px); border-color: var(--border-mid); }
+  .board-card:active { cursor: grabbing; }
+  .bc-tag { font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 5px; margin-bottom: 8px; display: inline-block; }
+  .bc-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .bc-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; }
+  .bc-footer { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--text-muted); }
+  .bc-avatars { display: flex; }
+  .bc-av { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--card); margin-left: -6px; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: white; }
+  .bc-av:first-child { margin-left: 0; }
+  .bc-date { display: flex; align-items: center; gap: 4px; }
+  .add-card-btn {
+    width: 100%; background: transparent; border: 1.5px dashed var(--border-mid); border-radius: 10px;
+    padding: 10px; font-size: 12.5px; color: var(--text-muted); cursor: pointer;
+    transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: var(--font-body);
+  }
+  .add-card-btn:hover { border-color: var(--green); color: var(--green); background: var(--green-subtle); }
+
+  /* FINANCEIRO */
+  .fin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .chart-bar-wrap { display: flex; align-items: flex-end; gap: 6px; height: 120px; margin: 16px 0 8px; }
+  .chart-bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+  .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.8s cubic-bezier(.4,0,.2,1); }
+  .bar-label { font-size: 11px; color: var(--text-subtle); text-align: center; font-family: var(--font-body); }
+
+  .fin-table { width: 100%; border-collapse: collapse; }
+  .fin-table th { text-align: left; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .fin-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-muted); }
+  .fin-table tr:last-child td { border-bottom: none; }
+  .fin-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .amount { font-weight: 600; font-family: var(--font-mono); }
+  .amount.pos { color: var(--green); }
+  .amount.neg { color: var(--red); }
+
+  /* IA */
+  .ia-chat { display: flex; flex-direction: column; gap: 14px; max-width: 700px; }
+  .chat-msg { display: flex; gap: 12px; animation: fadeUp 0.3s ease both; }
+  .chat-msg.user { flex-direction: row-reverse; }
+  .chat-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .chat-av.ai { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .chat-av.user { background: var(--grad-green); color: white; }
+  .chat-bubble { max-width: 75%; padding: 12px 16px; border-radius: 14px; font-size: 13.5px; line-height: 1.6; }
+  .chat-bubble.ai { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+  .chat-bubble.user { background: var(--green-dark); color: white; }
+  .chat-input-wrap { display: flex; gap: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-top: 20px; max-width: 700px; transition: var(--transition); }
+  .chat-input-wrap:focus-within { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
+  .chat-input { flex: 1; border: none; outline: none; font-size: 14px; font-family: var(--font-body); background: transparent; color: var(--text); }
+  .chat-input::placeholder { color: var(--text-subtle); }
+  .chat-send { background: var(--grad-green); color: white; border: none; border-radius: 8px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); font-size: 16px; }
+  .chat-send:hover { filter: brightness(1.1); }
+
+  /* CANVAS */
+  .canvas-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 12px; }
+  .canvas-grid-bottom { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .canvas-block { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; min-height: 130px; }
+  .canvas-block-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; }
+  .canvas-item { background: rgba(255,255,255,0.04); border-radius: 6px; padding: 6px 10px; font-size: 12px; margin-bottom: 6px; color: var(--text-muted); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* SECTION */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .section-title { font-family: var(--font); font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+  .section-sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+
+  /* TEAM */
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .member-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; transition: var(--transition); animation: fadeUp 0.4s ease both; }
+  .member-card:hover { transform: translateY(-2px); border-color: var(--border-mid); }
+  .member-av { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: white; }
+  .member-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .member-role { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .member-status { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; margin-top: 8px; color: var(--text-muted); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status-dot.online { background: var(--green); }
+  .status-dot.away { background: var(--amber); }
+  .status-dot.offline { background: var(--text-subtle); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    z-index: 200; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: #111710; border: 1px solid var(--border-mid); border-radius: 14px;
+    padding: 28px; width: 420px; max-width: 95vw;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
+    transform: scale(0.95); transition: transform 0.2s cubic-bezier(.2,1.2,.4,1);
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-title { font-family: var(--font); font-size: 17px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+  .modal-input {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px;
+    padding: 9px 12px; font-size: 13.5px; font-family: var(--font-body); color: var(--text);
+    background: rgba(255,255,255,0.03); margin-bottom: 12px; outline: none; transition: var(--transition);
+  }
+  .modal-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(74,222,128,0.1); }
+  .modal-input::placeholder { color: var(--text-subtle); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .btn-cancel {
+    padding: 9px 18px; border-radius: 8px; border: 1px solid var(--border); background: transparent;
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: var(--transition);
+    font-family: var(--font-body); color: var(--text-muted);
+  }
+  .btn-cancel:hover { background: rgba(255,255,255,0.04); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #1a2e1c; border: 1px solid rgba(74,222,128,0.25);
+    color: var(--text); padding: 12px 18px; border-radius: 9px;
+    font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px;
+    z-index: 300; transform: translateY(12px); opacity: 0;
+    transition: all 0.3s cubic-bezier(.4,0,.2,1); box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast i { font-size: 16px; color: var(--green); }
+
+  /* SWOT */
+  .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .swot-block { border-radius: 10px; padding: 16px; min-height: 120px; }
+  .swot-block.s { background: var(--green-subtle); border: 1px solid rgba(74,222,128,0.15); }
+  .swot-block.w { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.15); }
+  .swot-block.o { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.15); }
+  .swot-block.t { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.15); }
+  .swot-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .swot-block.s .swot-title { color: var(--green); }
+  .swot-block.w .swot-title { color: var(--red); }
+  .swot-block.o .swot-title { color: var(--blue); }
+  .swot-block.t .swot-title { color: var(--amber); }
+  .swot-item { font-size: 12.5px; line-height: 1.5; color: var(--text-muted); padding: 3px 0; }
+  .swot-item::before { content: '·  '; }
+
+  /* NOTIF PANEL */
+  .notif-panel {
+    position: fixed; right: 0; top: 0; bottom: 0; width: 320px;
+    background: var(--surface); backdrop-filter: blur(20px);
+    border-left: 1px solid var(--border-mid); z-index: 150;
+    transform: translateX(100%); transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    padding: 24px 20px; overflow-y: auto;
+  }
+  .notif-panel.open { transform: translateX(0); }
+  .notif-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); transition: var(--transition); }
+  .notif-item:hover { background: rgba(255,255,255,0.02); }
+  .notif-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .notif-text { font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+  .notif-time { font-size: 11px; color: var(--text-subtle); margin-top: 3px; font-family: var(--font-mono); }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<svg class="bg-noise" width="100%" height="100%">
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="4" stitchTiles="stitch" /><feColorMatrix type="saturate" values="0" /></filter>
+  <rect width="100%" height="100%" filter="url(#noise)" />
+</svg>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo-wrap">
+    <div class="sidebar-logo">N</div>
+    <span class="sidebar-logo-text">Nexo</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" onclick="showPage('dashboard')"><i class="ti ti-layout-dashboard"></i><span class="nav-label">Dashboard</span></a>
+    <a class="nav-item" onclick="showPage('quadros')"><i class="ti ti-columns"></i><span class="nav-label">Quadros</span><span class="nav-badge">3</span></a>
+    <a class="nav-item" onclick="showPage('financeiro')"><i class="ti ti-chart-bar"></i><span class="nav-label">Financeiro</span></a>
+    <a class="nav-item" onclick="showPage('planejamento')"><i class="ti ti-map"></i><span class="nav-label">Planejamento</span></a>
+    <a class="nav-item" onclick="showPage('ia')"><i class="ti ti-sparkles"></i><span class="nav-label">Assistente IA</span></a>
+    <a class="nav-item" onclick="showPage('equipe')"><i class="ti ti-users"></i><span class="nav-label">Equipe</span></a>
+    <a class="nav-item" style="margin-top:auto"><i class="ti ti-settings"></i><span class="nav-label">Configurações</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="avatar-wrap">
+      <div class="avatar">MR</div>
+      <div class="avatar-info"><div class="avatar-name">Marina Rezende</div><div class="avatar-plan">Plano Pro ✦</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-greeting"><h1>Bom dia, Marina ☀️</h1><p>Hoje é terça-feira, 13 de maio — 3 tarefas para concluir</p></div>
+    <div class="search-bar"><i class="ti ti-search"></i><span>Pesquisar...</span></div>
+    <div class="topbar-actions">
+      <div class="icon-btn" onclick="toggleNotif()"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+      <div class="icon-btn"><i class="ti ti-moon"></i></div>
+      <button class="btn-primary" onclick="openModal()"><i class="ti ti-plus"></i>Novo Projeto</button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="ai-card">
+      <div class="ai-label"><i class="ti ti-sparkles" style="font-size:13px"></i> Insight da IA</div>
+      <div class="ai-title">Sua receita cresceu 18% este mês! 🎉</div>
+      <div class="ai-text">Com base no seu histórico, o melhor canal de aquisição é o Instagram orgânico. Sugiro criar 2 posts por semana focados em depoimentos de clientes — isso pode aumentar conversões em até 24%.</div>
+      <div class="ai-suggestions">
+        <div class="ai-chip" onclick="showPage('ia')">✦ Ver análise completa</div>
+        <div class="ai-chip" onclick="showPage('planejamento')">Criar estratégia de conteúdo</div>
+        <div class="ai-chip" onclick="showToast('Relatório gerado!')">Gerar relatório</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="kpi-card" style="animation-delay:0.05s"><div class="kpi-label">Receita do Mês</div><div class="kpi-value">R$ 28.540</div><div class="kpi-badge up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +18%</div><div class="kpi-icon"><i class="ti ti-coin"></i></div></div>
+      <div class="kpi-card" style="animation-delay:0.1s"><div class="kpi-label">Clientes Ativos</div><div class="kpi-value">47</div><div class="kpi-badge up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +5 este mês</div><div class="kpi-icon"><i class="ti ti-users"></i></div></div>
+      <div class="kpi-card" style="animation-delay:0.15s"><div class="kpi-label">Tarefas Concluídas</div><div class="kpi-value">83%</div><div class="kpi-sub">24 de 29 na semana</div><div class="kpi-icon"><i class="ti ti-checks"></i></div></div>
+      <div class="kpi-card" style="animation-delay:0.2s"><div class="kpi-label">Projetos Ativos</div><div class="kpi-value">6</div><div class="kpi-badge down"><i class="ti ti-clock" style="font-size:11px"></i> 1 atrasado</div><div class="kpi-icon"><i class="ti ti-briefcase"></i></div></div>
+    </div>
+
+    <div class="quick-actions">
+      <div class="qa-btn" onclick="showPage('quadros')" style="animation-delay:0.1s"><div class="qa-icon" style="background:var(--green-subtle)"><i class="ti ti-plus" style="color:var(--green)"></i></div><div class="qa-label">Nova Tarefa</div><div class="qa-sub">Adicionar ao quadro</div></div>
+      <div class="qa-btn" onclick="showPage('financeiro')" style="animation-delay:0.15s"><div class="qa-icon" style="background:rgba(248,113,113,0.1)"><i class="ti ti-receipt" style="color:var(--red)"></i></div><div class="qa-label">Lançar Receita</div><div class="qa-sub">Fluxo de caixa</div></div>
+      <div class="qa-btn" onclick="showPage('ia')" style="animation-delay:0.2s"><div class="qa-icon" style="background:rgba(167,139,250,0.1)"><i class="ti ti-sparkles" style="color:var(--purple)"></i></div><div class="qa-label">Pedir à IA</div><div class="qa-sub">Sugestões rápidas</div></div>
+      <div class="qa-btn" onclick="showToast('Relatório sendo gerado...')" style="animation-delay:0.25s"><div class="qa-icon" style="background:rgba(96,165,250,0.1)"><i class="ti ti-file-report" style="color:var(--blue)"></i></div><div class="qa-label">Relatório Rápido</div><div class="qa-sub">Exportar PDF</div></div>
+    </div>
+
+    <div class="content-row">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Tarefas Prioritárias</div><span class="card-action" onclick="showPage('quadros')">Ver todas →</span></div>
+        <div id="task-list">
+          <div class="task-item" onclick="toggleTask(this)"><div class="task-check"></div><span class="task-text">Preparar proposta para Cliente XYZ</span><span class="task-tag tag-peach">🔥 Urgente</span></div>
+          <div class="task-item" onclick="toggleTask(this)"><div class="task-check done"></div><span class="task-text done">Reunião com equipe de design</span><span class="task-tag tag-green">✓ Feito</span></div>
+          <div class="task-item" onclick="toggleTask(this)"><div class="task-check"></div><span class="task-text">Atualizar planilha de custos</span><span class="task-tag tag-sky">Financeiro</span></div>
+          <div class="task-item" onclick="toggleTask(this)"><div class="task-check"></div><span class="task-text">Revisar campanha de e-mail marketing</span><span class="task-tag tag-lav">Marketing</span></div>
+          <div class="task-item" onclick="toggleTask(this)"><div class="task-check done"></div><span class="task-text done">Publicar post no Instagram</span><span class="task-tag tag-green">✓ Feito</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Metas da Semana</div><span class="card-action" onclick="showPage('planejamento')">Editar →</span></div>
+        <div class="goal-item"><div class="goal-header"><span class="goal-name">Receita</span><span class="goal-pct">72%</span></div><div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div><div style="font-size:11.5px;color:var(--text-muted)">R$ 18k de R$ 25k</div></div>
+        <div class="goal-item"><div class="goal-header"><span class="goal-name">Novos Clientes</span><span class="goal-pct">60%</span></div><div class="progress-bar"><div class="progress-fill" style="width:60%;background:var(--blue)"></div></div><div style="font-size:11.5px;color:var(--text-muted)">3 de 5 clientes</div></div>
+        <div class="goal-item"><div class="goal-header"><span class="goal-name">Tarefas</span><span class="goal-pct">83%</span></div><div class="progress-bar"><div class="progress-fill" style="width:83%;background:var(--purple)"></div></div><div style="font-size:11.5px;color:var(--text-muted)">24 de 29 tarefas</div></div>
+        <div class="goal-item"><div class="goal-header"><span class="goal-name">Satisfação Cliente</span><span class="goal-pct">91%</span></div><div class="progress-bar"><div class="progress-fill" style="width:91%;background:var(--amber)"></div></div><div style="font-size:11.5px;color:var(--text-muted)">NPS 91/100</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUADROS -->
+  <div class="page" id="page-quadros">
+    <div class="section-header"><div><div class="section-title">Quadros</div><div class="section-sub">Organize seus projetos visualmente</div></div><div style="display:flex;gap:10px"><div class="page-tabs" style="margin:0"><button class="tab-btn active">Lançamento do App</button><button class="tab-btn" onclick="this.parentNode.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Marketing Q2</button></div><button class="btn-primary" onclick="showToast('Novo quadro criado!')"><i class="ti ti-plus"></i> Quadro</button></div></div>
+    <div class="board-wrap">
+      <div class="board-col"><div class="col-header"><div class="col-title"><div class="col-dot" style="background:var(--purple)"></div>Ideias</div><span class="col-count">2</span></div><div class="board-card" style="animation-delay:0.05s"><div class="bc-tag tag-lav">Produto</div><div class="bc-title">Sistema de notificações push</div><div class="bc-desc">Alertas inteligentes para lembrar usuários de tarefas pendentes.</div><div class="bc-footer"><div class="bc-avatars"><div class="bc-av" style="background:var(--purple)">M</div><div class="bc-av" style="background:var(--blue)">A</div></div><div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 20 mai</div></div></div><div class="board-card" style="animation-delay:0.1s"><div class="bc-tag tag-peach">Design</div><div class="bc-title">Redesign da tela de onboarding</div><div class="bc-desc">Simplificar o fluxo de cadastro para aumentar conversão.</div><div class="bc-footer"><div class="bc-avatars"><div class="bc-av" style="background:var(--red)">L</div></div><div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 25 mai</div></div></div><button class="add-card-btn" onclick="showToast('Card adicionado!')"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar card</button></div>
+      <div class="board-col"><div class="col-header"><div class="col-title"><div class="col-dot" style="background:var(--blue)"></div>Em Progresso</div><span class="col-count">3</span></div><div class="board-card" style="animation-delay:0.1s"><div class="bc-tag tag-sky">Dev</div><div class="bc-title">Integração com API de pagamento</div><div class="bc-desc">Implementar Stripe e boleto bancário para checkout.</div><div class="bc-footer"><div class="bc-avatars"><div class="bc-av" style="background:var(--blue)">A</div><div class="bc-av" style="background:var(--purple)">R</div><div class="bc-av" style="background:var(--green-dark)">J</div></div><div class="bc-date" style="color:var(--red)"><i class="ti ti-alert-circle" style="font-size:11px"></i> Atrasado</div></div></div><div class="board-card" style="animation-delay:0.15s"><div class="bc-tag tag-green">Conteúdo</div><div class="bc-title">Série de e-mails de boas-vindas</div><div class="bc-desc">5 e-mails automatizados para novos usuários.</div><div class="bc-footer"><div class="bc-avatars"><div class="bc-av" style="background:var(--red)">M</div></div><div class="bc-date"><i class="ti ti-calendar" style="font-size:11px"></i> 18 mai</div></div></div><button class="add-card-btn" onclick="showToast('Card adicionado!')"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar card</button></div>
+      <div class="board-col"><div class="col-header"><div class="col-title"><div class="col-dot" style="background:var(--green)"></div>Concluído</div><span class="col-count">2</span></div><div class="board-card" style="animation-delay:0.2s;opacity:0.75"><div class="bc-tag tag-green">✓ Feito</div><div class="bc-title">Configurar servidor de produção</div><div class="bc-footer"><div class="bc-avatars"><div class="bc-av" style="background:var(--blue)">A</div></div><div class="bc-date" style="color:var(--green)"><i class="ti ti-check" style="font-size:11px"></i> Concluído</div></div></div><button class="add-card-btn" onclick="showToast('Card adicionado!')"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar card</button></div>
+    </div>
+  </div>
+
+  <!-- FINANCEIRO -->
+  <div class="page" id="page-financeiro">
+    <div class="section-header"><div><div class="section-title">Financeiro</div><div class="section-sub">Receitas, despesas e projeções</div></div><div style="display:flex;gap:10px"><div class="page-tabs" style="margin:0"><button class="tab-btn active">Maio 2025</button><button class="tab-btn">Abril</button></div><button class="btn-primary" onclick="showToast('Lançamento salvo!')"><i class="ti ti-plus"></i> Lançar</button></div></div>
+    <div class="fin-grid">
+      <div class="kpi-card"><div class="kpi-label">Receita Total</div><div class="kpi-value">R$ 28.540</div><div class="kpi-badge up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +18%</div><div class="kpi-icon"><i class="ti ti-trending-up"></i></div></div>
+      <div class="kpi-card"><div class="kpi-label">Despesas</div><div class="kpi-value">R$ 12.380</div><div class="kpi-badge down"><i class="ti ti-arrow-up" style="font-size:11px"></i> +4%</div><div class="kpi-icon"><i class="ti ti-receipt"></i></div></div>
+      <div class="kpi-card"><div class="kpi-label">Lucro Líquido</div><div class="kpi-value">R$ 16.160</div><div class="kpi-badge up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +29%</div><div class="kpi-icon"><i class="ti ti-coin"></i></div></div>
+    </div>
+    <div class="content-row">
+      <div class="card"><div class="card-header"><div class="card-title">Fluxo de Caixa — Últimos 6 meses</div></div><div class="chart-bar-wrap" id="bar-chart"></div><div style="display:flex;gap:16px;font-size:11.5px;color:var(--text-muted);margin-top:4px"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--green);display:inline-block"></span>Receita</span><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--red);display:inline-block"></span>Despesa</span></div></div>
+      <div class="card"><div class="card-header"><div class="card-title">Distribuição de Gastos</div></div><div><div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;color:var(--text-muted)"><span>Marketing</span><span style="font-weight:600;font-family:var(--font-mono)">R$ 3.800</span></div><div class="progress-bar"><div class="progress-fill" style="width:30%;background:var(--blue)"></div></div></div><div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;color:var(--text-muted)"><span>Salários</span><span style="font-weight:600;font-family:var(--font-mono)">R$ 5.200</span></div><div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--red)"></div></div></div><div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;color:var(--text-muted)"><span>Ferramentas</span><span style="font-weight:600;font-family:var(--font-mono)">R$ 1.400</span></div><div class="progress-bar"><div class="progress-fill" style="width:11%;background:var(--purple)"></div></div></div></div>
+    </div>
+    <div class="card"><div class="card-header"><div class="card-title">Lançamentos Recentes</div><button class="btn-primary" style="font-size:12px;padding:6px 12px" onclick="showToast('Exportado!')"><i class="ti ti-download"></i> Exportar</button></div><table class="fin-table"><thead><tr><th>Descrição</th><th>Categoria</th><th>Data</th><th style="text-align:right">Valor</th></tr></thead><tbody><tr><td>Mensalidade Cliente Alpha</td><td><span class="task-tag tag-green">Receita</span></td><td style="color:var(--text-muted)">12 mai</td><td class="amount pos" style="text-align:right">+ R$ 3.500</td></tr><tr><td>Hospedagem AWS</td><td><span class="task-tag tag-sky">Infra</span></td><td style="color:var(--text-muted)">11 mai</td><td class="amount neg" style="text-align:right">− R$ 480</td></tr><tr><td>Consultoria Beta Corp</td><td><span class="task-tag tag-green">Receita</span></td><td style="color:var(--text-muted)">10 mai</td><td class="amount pos" style="text-align:right">+ R$ 8.000</td></tr></tbody></table></div>
+  </div>
+
+  <!-- PLANEJAMENTO -->
+  <div class="page" id="page-planejamento">
+    <div class="section-header"><div><div class="section-title">Planejamento Empresarial</div><div class="section-sub">Modelos estratégicos e planos de negócio</div></div><div class="page-tabs" style="margin:0"><button class="tab-btn active" onclick="showSection('canvas')">Canvas</button><button class="tab-btn" onclick="showSection('swot')">SWOT</button></div></div>
+    <div id="section-canvas"><div class="canvas-grid"><div class="canvas-block"><div class="canvas-block-title">Parceiros-chave</div><div class="canvas-item">AWS / Google Cloud</div><div class="canvas-item">Parceiros de distribuição</div></div><div style="display:flex;flex-direction:column;gap:12px"><div class="canvas-block" style="min-height:55px"><div class="canvas-block-title">Atividades-chave</div><div class="canvas-item">Desenvolvimento do produto</div><div class="canvas-item">Suporte ao cliente</div></div><div class="canvas-block" style="min-height:55px"><div class="canvas-block-title">Recursos-chave</div><div class="canvas-item">Equipe de tecnologia</div></div></div><div class="canvas-block" style="background:var(--green-subtle);border-color:rgba(74,222,128,0.15)"><div class="canvas-block-title" style="color:var(--green)">Proposta de Valor</div><div class="canvas-item" style="background:rgba(74,222,128,0.1)">Gestão simples para MEIs</div><div class="canvas-item" style="background:rgba(74,222,128,0.1)">IA integrada no dia a dia</div></div><div style="display:flex;flex-direction:column;gap:12px"><div class="canvas-block" style="min-height:55px"><div class="canvas-block-title">Relacionamento</div><div class="canvas-item">Comunidade online</div></div><div class="canvas-block" style="min-height:55px"><div class="canvas-block-title">Canais</div><div class="canvas-item">App web e mobile</div></div></div><div class="canvas-block"><div class="canvas-block-title">Segmentos</div><div class="canvas-item">MEIs e autônomos</div><div class="canvas-item">Pequenas empresas</div></div></div></div>
+    <div id="section-swot" style="display:none"><div class="swot-grid"><div class="swot-block s"><div class="swot-title">✦ Forças</div><div class="swot-item">Interface intuitiva e acessível</div><div class="swot-item">IA integrada que guia o usuário</div><div class="swot-item">Tudo em uma só plataforma</div></div><div class="swot-block w"><div class="swot-title">⚠ Fraquezas</div><div class="swot-item">Produto ainda em fase inicial</div><div class="swot-item">Equipe pequena</div></div><div class="swot-block o"><div class="swot-title">↗ Oportunidades</div><div class="swot-item">Mercado de MEI crescendo 20% ao ano</div><div class="swot-item">Baixa digitalização das pequenas empresas</div></div><div class="swot-block t"><div class="swot-title">⚡ Ameaças</div><div class="swot-item">Grandes players como Notion e Monday</div><div class="swot-item">Concorrência acirrada no segmento SaaS</div></div></div></div>
+  </div>
+
+  <!-- IA -->
+  <div class="page" id="page-ia">
+    <div class="section-header"><div><div class="section-title">Assistente IA ✦</div><div class="section-sub">Sua parceira inteligente de negócios</div></div></div>
+    <div class="ia-chat" id="chat-container">
+      <div class="chat-msg"><div class="chat-av ai">✦</div><div class="chat-bubble ai">Olá, Marina! 👋 Sou sua assistente de negócios. O que você precisa hoje?</div></div>
+      <div class="chat-msg"><div class="chat-av user">M</div><div class="chat-bubble user">Como posso aumentar minha receita nos próximos 3 meses?</div></div>
+      <div class="chat-msg"><div class="chat-av ai">✦</div><div class="chat-bubble ai">Ótima pergunta! Vejo 3 oportunidades: <strong>1. Upsell</strong> nos clientes atuais. <strong>2. Reativar leads frios</strong>. <strong>3. Programa de referral</strong>.</div></div>
+    </div>
+    <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;max-width:700px">
+      <div class="ai-chip" onclick="sendQuickMsg('Crie um plano de metas para Q3')">📋 Plano de metas Q3</div>
+      <div class="ai-chip" onclick="sendQuickMsg('Analise meu fluxo de caixa')">💰 Analisar fluxo de caixa</div>
+      <div class="ai-chip" onclick="sendQuickMsg('Gere ideias de novos produtos')">💡 Ideias de produtos</div>
+    </div>
+    <div class="chat-input-wrap"><input class="chat-input" id="chat-input" placeholder="Pergunte qualquer coisa..." onkeydown="if(event.key==='Enter')sendMsg()"><button class="chat-send" onclick="sendMsg()"><i class="ti ti-send"></i></button></div>
+  </div>
+
+  <!-- EQUIPE -->
+  <div class="page" id="page-equipe">
+    <div class="section-header"><div><div class="section-title">Equipe</div><div class="section-sub">Gerencie colaboradores e permissões</div></div><button class="btn-primary" onclick="showToast('Convite enviado!')"><i class="ti ti-user-plus"></i> Convidar</button></div>
+    <div class="team-grid">
+      <div class="member-card"><div class="member-av" style="background:var(--grad-green)">MR</div><div class="member-name">Marina Rezende</div><div class="member-role">Fundadora & CEO</div><div class="member-status"><span class="status-dot online"></span>Online agora</div></div>
+      <div class="member-card" style="animation-delay:0.05s"><div class="member-av" style="background:var(--grad-ai)">AL</div><div class="member-name">André Lima</div><div class="member-role">CTO — Desenvolvedor</div><div class="member-status"><span class="status-dot online"></span>Online agora</div></div>
+      <div class="member-card" style="animation-delay:0.1s"><div class="member-av" style="background:linear-gradient(135deg,var(--purple),var(--blue))">LC</div><div class="member-name">Laura Costa</div><div class="member-role">Head de Design</div><div class="member-status"><span class="status-dot away"></span>Ausente</div></div>
+    </div>
+  </div>
+</main>
+
+<!-- NOTIF PANEL -->
+<div class="notif-panel" id="notif-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div style="font-family:var(--font);font-size:15px;font-weight:700;color:var(--text)">Notificações</div><div class="icon-btn" onclick="toggleNotif()"><i class="ti ti-x"></i></div></div>
+  <div class="notif-item"><div class="notif-icon" style="background:rgba(248,113,113,0.1)"><i class="ti ti-alert-circle" style="color:var(--red)"></i></div><div><div class="notif-text">Tarefa "Integração de pagamento" está atrasada</div><div class="notif-time">há 2 horas</div></div></div>
+  <div class="notif-item"><div class="notif-icon" style="background:var(--green-subtle)"><i class="ti ti-trending-up" style="color:var(--green)"></i></div><div><div class="notif-text">Meta de receita atingiu 72%</div><div class="notif-time">há 4 horas</div></div></div>
+  <div class="notif-item"><div class="notif-icon" style="background:rgba(167,139,250,0.1)"><i class="ti ti-sparkles" style="color:var(--purple)"></i></div><div><div class="notif-text">A IA gerou 3 novos insights</div><div class="notif-time">Ontem</div></div></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><div class="modal-title">Novo Projeto</div><input class="modal-input" placeholder="Nome do projeto" id="proj-name"><input class="modal-input" placeholder="Descrição (opcional)"><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-primary" onclick="createProject()">Criar Projeto</button></div></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toast-text">Ação realizada!</span></div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(id)) n.classList.add('active'); });
+  if (id === 'financeiro') renderChart();
+}
+
+function showSection(id) {
+  ['canvas','swot'].forEach(function(s) { document.getElementById('section-' + s).style.display = s === id ? 'block' : 'none'; });
+  document.querySelectorAll('#page-planejamento .tab-btn').forEach(function(btn, i) { btn.classList.toggle('active', ['canvas','swot'][i] === id); });
+}
+
+function toggleTask(el) {
+  var check = el.querySelector('.task-check');
+  var text = el.querySelector('.task-text');
+  var tag = el.querySelector('.task-tag');
+  if (check.classList.contains('done')) {
+    check.classList.remove('done'); text.classList.remove('done');
+    tag.textContent = '🔥 Pendente'; tag.className = 'task-tag tag-peach';
+  } else {
+    check.classList.add('done'); text.classList.add('done');
+    tag.textContent = '✓ Feito'; tag.className = 'task-tag tag-green';
+  }
+}
+
+function renderChart() {
+  var data = [{m:'Dez',r:19,d:12},{m:'Jan',r:21,d:13},{m:'Fev',r:18,d:11},{m:'Mar',r:24,d:14},{m:'Abr',r:23,d:13},{m:'Mai',r:28,d:12}];
+  var max = 32;
+  var wrap = document.getElementById('bar-chart');
+  var html = '';
+  for (var i = 0; i < data.length; i++) {
+    html += '<div class="chart-bar-col"><div style="display:flex;gap:3px;align-items:flex-end;flex:1;width:100%"><div class="bar" style="height:' + ((data[i].r/max)*100) + '%;background:var(--green);flex:1"></div><div class="bar" style="height:' + ((data[i].d/max)*100) + '%;background:rgba(248,113,113,0.5);flex:1"></div></div><div class="bar-label">' + data[i].m + '</div></div>';
+  }
+  wrap.textContent = '';
+  wrap.insertAdjacentHTML('beforeend', html);
+}
+
+function openModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function createProject() { var name = document.getElementById('proj-name').value || 'Novo Projeto'; closeModal(); showToast('Projeto "' + name + '" criado!'); }
+function toggleNotif() { document.getElementById('notif-panel').classList.toggle('open'); }
+
+var toastTimer;
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+var aiReplies = ["Ótima ideia! Sugiro começar com uma análise de cohort dos seus clientes mais rentáveis.","Analisando seu histórico, identifico uma oportunidade de aumentar a margem em 8%.","O melhor momento para lançar uma campanha é nos meses de março e setembro.","Com R$ 28.540 de receita e 47 clientes, seu LTV médio está em R$ 607."];
+var replyIdx = 0;
+
+function sendMsg() {
+  var input = document.getElementById('chat-input');
+  var msg = input.value.trim();
+  if (!msg) return;
+  addMsg(msg, 'user');
+  input.value = '';
+  setTimeout(function() { addMsg(aiReplies[replyIdx % aiReplies.length], 'ai'); replyIdx++; }, 900);
+}
+
+function sendQuickMsg(msg) {
+  showPage('ia');
+  setTimeout(function() { addMsg(msg, 'user'); setTimeout(function() { addMsg(aiReplies[replyIdx % aiReplies.length], 'ai'); replyIdx++; }, 900); }, 50);
+}
+
+function addMsg(text, role) {
+  var container = document.getElementById('chat-container');
+  var div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  var av = document.createElement('div');
+  av.className = 'chat-av ' + role;
+  av.textContent = role === 'ai' ? '✦' : 'M';
+  var bubble = document.createElement('div');
+  bubble.className = 'chat-bubble ' + role;
+  bubble.textContent = text;
+  div.appendChild(av);
+  div.appendChild(bubble);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+document.addEventListener('DOMContentLoaded', function() { renderChart(); });
+</script>
+</body>
+</html>

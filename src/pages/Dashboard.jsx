@@ -6,7 +6,8 @@ import {
   Search, Bell, LogOut, Download, Plus, ChevronDown, Send, TrendingUp, TrendingDown,
   CheckCircle, AlertCircle, X, Moon, Sun, Menu, Home, Bot, Megaphone, Key, Eye, EyeOff,
   ArrowRight, Sparkles, Target, UserPlus, FileText, RefreshCw, Phone, Mail, MapPin,
-  Tag, Heart, MoreVertical, Edit, Trash2, ExternalLink, Check, Filter
+  Tag, Heart, MoreVertical, Edit, Trash2, ExternalLink, Check, Filter,
+  Columns, Wallet, Route, Receipt, Calendar, GripVertical, Circle
 } from 'lucide-react'
 import { checkSession, logout, supabase } from '../lib/supabase'
 import { chatWithAI, OPENROUTER_MODELS } from '../lib/ai'
@@ -49,7 +50,12 @@ const sidebarSections = [
   { label: 'Menu', items: [
     { icon: LayoutGrid, label: 'Dashboard', page: 'dashboard' },
     { icon: Users, label: 'Clientes', page: 'clientes' },
+    { icon: Columns, label: 'Quadros', page: 'quadros', badge: 3 },
     { icon: Megaphone, label: 'Campanhas', page: 'campanhas' },
+  ]},
+  { label: 'Gestão', items: [
+    { icon: Wallet, label: 'Financeiro', page: 'financeiro' },
+    { icon: Route, label: 'Planejamento', page: 'planejamento' },
     { icon: MessageSquare, label: 'Mensagens', page: 'mensagens' },
   ]},
   { label: 'Automação', items: [
@@ -61,6 +67,7 @@ const sidebarSections = [
     { icon: BarChart3, label: 'Relatórios', page: 'relatorios' },
   ]},
   { label: 'Sistema', items: [
+    { icon: UserPlus, label: 'Equipe', page: 'equipe' },
     { icon: Settings, label: 'Configurações', page: 'config' },
   ]},
 ]
@@ -97,6 +104,46 @@ export default function Dashboard() {
   // Campaign form
   const [showCampaignForm, setShowCampaignForm] = useState(false)
   const [campaignForm, setCampaignForm] = useState({ name: '', type: 'reativacao', target_status: [], message_template: '', description: '' })
+
+  // Kanban state
+  const [kanbanColumns, setKanbanColumns] = useState([
+    { id: 'ideias', title: 'Ideias', color: '#a78bfa', cards: [
+      { id: 1, tag: 'Produto', tagColor: 'bg-purple-500/15 text-purple-400', title: 'Sistema de notificações push', desc: 'Alertas inteligentes para lembrar usuários de tarefas pendentes.', avatars: ['M', 'A'], date: '20 mai' },
+      { id: 2, tag: 'Design', tagColor: 'bg-red-500/15 text-red-400', title: 'Redesign da tela de onboarding', desc: 'Simplificar o fluxo de cadastro para aumentar conversão.', avatars: ['L'], date: '25 mai' },
+    ]},
+    { id: 'progresso', title: 'Em Progresso', color: '#60a5fa', cards: [
+      { id: 3, tag: 'Dev', tagColor: 'bg-blue-500/15 text-blue-400', title: 'Integração com API de pagamento', desc: 'Implementar Stripe e boleto bancário para checkout.', avatars: ['A', 'R', 'J'], date: 'Atrasado', urgent: true },
+      { id: 4, tag: 'Conteúdo', tagColor: 'bg-emerald-500/15 text-emerald-400', title: 'Série de e-mails de boas-vindas', desc: '5 e-mails automatizados para novos usuários.', avatars: ['M'], date: '18 mai' },
+    ]},
+    { id: 'revisao', title: 'Revisão', color: '#fbbf24', cards: [
+      { id: 5, tag: 'QA', tagColor: 'bg-amber-500/15 text-amber-400', title: 'Testes de usabilidade v2.1', desc: 'Validar fluxo completo com 10 usuários beta.', avatars: ['P', 'M'], date: '17 mai' },
+    ]},
+    { id: 'concluido', title: 'Concluído', color: '#4ade80', cards: [
+      { id: 6, tag: 'Feito', tagColor: 'bg-emerald-500/15 text-emerald-400', title: 'Configurar servidor de produção', avatars: ['A'], done: true },
+    ]},
+  ])
+
+  // Financial data
+  const [financialData] = useState([
+    { month: 'Dez', revenue: 19000, expense: 12000 },
+    { month: 'Jan', revenue: 21000, expense: 13000 },
+    { month: 'Fev', revenue: 18000, expense: 11000 },
+    { month: 'Mar', revenue: 24000, expense: 14000 },
+    { month: 'Abr', revenue: 23000, expense: 13000 },
+    { month: 'Mai', revenue: 28540, expense: 12380 },
+  ])
+
+  // Planning tabs
+  const [planningTab, setPlanningTab] = useState('canvas')
+
+  // Team members
+  const [teamMembers] = useState([
+    { name: 'Marina Rezende', role: 'Fundadora & CEO', initials: 'MR', gradient: 'from-emerald-500 to-teal-500', status: 'online', tag: 'Admin', tagColor: 'bg-emerald-500/15 text-emerald-400' },
+    { name: 'André Lima', role: 'CTO — Desenvolvedor', initials: 'AL', gradient: 'from-blue-500 to-cyan-500', status: 'online', tag: 'Dev', tagColor: 'bg-blue-500/15 text-blue-400' },
+    { name: 'Laura Costa', role: 'Head de Design', initials: 'LC', gradient: 'from-purple-500 to-violet-500', status: 'away', tag: 'Design', tagColor: 'bg-purple-500/15 text-purple-400' },
+    { name: 'João Matos', role: 'Desenvolvedor Full-Stack', initials: 'JM', gradient: 'from-emerald-600 to-emerald-400', status: 'online', tag: 'Dev', tagColor: 'bg-emerald-500/15 text-emerald-400' },
+    { name: 'Paula Ramos', role: 'Marketing & Growth', initials: 'PR', gradient: 'from-amber-500 to-yellow-500', status: 'offline', tag: 'Marketing', tagColor: 'bg-amber-500/15 text-amber-400' },
+  ])
 
   // Client detail
   const [selectedClient, setSelectedClient] = useState(null)
@@ -375,7 +422,11 @@ export default function Dashboard() {
               {page === 'campanhas' && 'Campanhas'}
               {page === 'ia' && 'Assistente IA ✦'}
               {page === 'config' && 'Configurações'}
-              {!['dashboard','clientes','campanhas','ia','config'].includes(page) && page.charAt(0).toUpperCase() + page.slice(1)}
+              {page === 'quadros' && 'Quadros'}
+              {page === 'financeiro' && 'Financeiro'}
+              {page === 'planejamento' && 'Planejamento'}
+              {page === 'equipe' && 'Equipe'}
+              {!['dashboard','clientes','campanhas','ia','config','quadros','financeiro','planejamento','equipe'].includes(page) && page.charAt(0).toUpperCase() + page.slice(1)}
             </h1>
             {page === 'dashboard' && <p className="text-xs text-gray-500 mt-0.5">{new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })} — {kpis.unreadAlerts || 0} alertas pendentes</p>}
           </div>
@@ -749,6 +800,336 @@ export default function Dashboard() {
                       <div><h3 className="text-sm font-semibold">Supabase</h3><p className="text-xs text-gray-500">Banco de dados</p></div>
                     </div>
                     <div className="flex items-center gap-2 text-xs"><span className="w-2 h-2 bg-emerald-500 rounded-full"></span><span className="text-emerald-400 font-medium">Conectado</span><span className="text-gray-500">— 7 tabelas</span></div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════ QUADROS (KANBAN) ═══════════════ */}
+            {page === 'quadros' && (
+              <motion.div key="quadros" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex gap-2">
+                    {['Lançamento do App', 'Marketing Q2', 'Clientes'].map((tab, i) => (
+                      <button key={i} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${i === 0 ? 'bg-accent-violet/15 text-accent-light border border-accent-violet/30' : 'bg-white/[0.03] border border-white/5 text-gray-500 hover:text-white'}`}>{tab}</button>
+                    ))}
+                  </div>
+                  <button className="btn-primary text-xs py-2 px-3"><Plus size={14} /> Quadro</button>
+                </div>
+
+                <div className="flex gap-4 overflow-x-auto pb-4">
+                  {kanbanColumns.map((col) => (
+                    <div key={col.id} className="min-w-[280px] max-w-[280px] bg-white/[0.02] rounded-xl p-3">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full" style={{ background: col.color }}></div>
+                          <span className="text-xs font-semibold text-gray-400">{col.title}</span>
+                        </div>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/[0.07] text-gray-400">{col.cards.length}</span>
+                      </div>
+
+                      {col.cards.map((card) => (
+                        <div key={card.id} className={`bg-white/[0.03] border border-white/5 rounded-lg p-3.5 mb-2.5 cursor-grab hover:border-white/10 hover:-translate-y-0.5 transition-all ${card.done ? 'opacity-60' : ''}`}>
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${card.tagColor} mb-2 inline-block`}>{card.tag}</span>
+                          <div className="text-xs font-semibold mb-1.5">{card.title}</div>
+                          {card.desc && <div className="text-[11px] text-gray-500 mb-2.5">{card.desc}</div>}
+                          <div className="flex items-center justify-between text-[11px] text-gray-500">
+                            <div className="flex">
+                              {card.avatars.map((av, j) => (
+                                <div key={j} className="w-5 h-5 rounded-full bg-gradient-to-br from-accent-violet to-accent-cyan flex items-center justify-center text-[8px] font-bold text-white -ml-1.5 first:ml-0">{av}</div>
+                              ))}
+                            </div>
+                            <span className={card.urgent ? 'text-red-400' : ''}>{card.date}</span>
+                          </div>
+                        </div>
+                      ))}
+
+                      <button className="w-full py-2 border border-dashed border-white/10 rounded-lg text-xs text-gray-500 hover:border-accent-violet/30 hover:text-accent-light transition-all">
+                        + Adicionar card
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════ FINANCEIRO ═══════════════ */}
+            {page === 'financeiro' && (
+              <motion.div key="financeiro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                {/* KPIs */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  {[
+                    { label: 'Receita Total', value: 'R$ 28.540', change: '+18%', up: true, icon: TrendingUp },
+                    { label: 'Despesas', value: 'R$ 12.380', change: '+4%', up: false, icon: Receipt },
+                    { label: 'Lucro Líquido', value: 'R$ 16.160', change: '+29%', up: true, icon: Wallet },
+                  ].map((m, i) => {
+                    const Icon = m.icon
+                    return (
+                      <div key={i} className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{m.label}</div>
+                          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><Icon size={16} /></div>
+                        </div>
+                        <div className="font-mono text-2xl font-bold mb-1">{m.value}</div>
+                        <div className={`text-xs font-semibold ${m.up ? 'text-emerald-400' : 'text-red-400'}`}>{m.change} vs mês anterior</div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="grid lg:grid-cols-3 gap-4 mb-6">
+                  {/* Chart */}
+                  <div className="lg:col-span-2 bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                    <h3 className="text-sm font-semibold mb-4">Fluxo de Caixa — Últimos 6 meses</h3>
+                    <div className="h-48 flex items-end gap-3 px-2">
+                      {financialData.map((d, i) => {
+                        const max = 32000
+                        return (
+                          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                            <div className="w-full flex gap-1 items-end" style={{ height: '160px' }}>
+                              <motion.div initial={{ height: 0 }} animate={{ height: `${(d.revenue / max) * 100}%` }} transition={{ duration: 0.8, delay: i * 0.1 }} className="flex-1 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t opacity-70 hover:opacity-100 transition-opacity"></motion.div>
+                              <motion.div initial={{ height: 0 }} animate={{ height: `${(d.expense / max) * 100}%` }} transition={{ duration: 0.8, delay: i * 0.1 + 0.05 }} className="flex-1 bg-red-500/50 rounded-t opacity-70 hover:opacity-100 transition-opacity"></motion.div>
+                            </div>
+                            <span className="text-[10px] text-gray-500">{d.month}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <div className="flex gap-4 mt-3 text-[11px] text-gray-500">
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-emerald-500"></span>Receita</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-red-500/50"></span>Despesa</span>
+                    </div>
+                  </div>
+
+                  {/* Distribution */}
+                  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                    <h3 className="text-sm font-semibold mb-4">Distribuição de Gastos</h3>
+                    <div className="space-y-4">
+                      {[
+                        { name: 'Marketing', value: 'R$ 3.800', pct: 30, color: 'bg-blue-500' },
+                        { name: 'Salários', value: 'R$ 5.200', pct: 42, color: 'bg-red-400' },
+                        { name: 'Ferramentas', value: 'R$ 1.400', pct: 11, color: 'bg-purple-500' },
+                        { name: 'Infraestrutura', value: 'R$ 980', pct: 8, color: 'bg-amber-500' },
+                        { name: 'Outros', value: 'R$ 1.000', pct: 9, color: 'bg-gray-500' },
+                      ].map((item, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between text-xs mb-1.5">
+                            <span className="text-gray-400">{item.name}</span>
+                            <span className="font-mono font-semibold">{item.value}</span>
+                          </div>
+                          <div className="h-1.5 bg-white/[0.07] rounded-full overflow-hidden">
+                            <motion.div initial={{ width: 0 }} animate={{ width: `${item.pct}%` }} transition={{ duration: 0.8, delay: 0.3 + i * 0.1 }} className={`h-full rounded-full ${item.color}`}></motion.div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="bg-white/[0.03] border border-white/5 rounded-xl overflow-hidden">
+                  <div className="flex items-center justify-between p-5 border-b border-white/5">
+                    <h3 className="text-sm font-semibold">Lançamentos Recentes</h3>
+                    <button className="btn-secondary text-xs py-2 px-3"><Download size={14} /> Exportar</button>
+                  </div>
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/5">
+                        <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Descrição</th>
+                        <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Categoria</th>
+                        <th className="text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Data</th>
+                        <th className="text-right px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-gray-500">Valor</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { desc: 'Mensalidade Cliente Alpha', cat: 'Receita', catColor: 'bg-emerald-500/15 text-emerald-400', date: '12 mai', value: '+ R$ 3.500', positive: true },
+                        { desc: 'Hospedagem AWS', cat: 'Infra', catColor: 'bg-blue-500/15 text-blue-400', date: '11 mai', value: '− R$ 480', positive: false },
+                        { desc: 'Consultoria Beta Corp', cat: 'Receita', catColor: 'bg-emerald-500/15 text-emerald-400', date: '10 mai', value: '+ R$ 8.000', positive: true },
+                        { desc: 'Google Ads — Campanha Maio', cat: 'Marketing', catColor: 'bg-amber-500/15 text-amber-400', date: '09 mai', value: '− R$ 1.200', positive: false },
+                        { desc: 'Venda de licença SaaS', cat: 'Receita', catColor: 'bg-emerald-500/15 text-emerald-400', date: '08 mai', value: '+ R$ 5.900', positive: true },
+                      ].map((row, i) => (
+                        <tr key={i} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
+                          <td className="px-5 py-3.5 text-sm">{row.desc}</td>
+                          <td className="px-5 py-3.5"><span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${row.catColor}`}>{row.cat}</span></td>
+                          <td className="px-5 py-3.5 text-xs text-gray-500">{row.date}</td>
+                          <td className={`px-5 py-3.5 text-right text-sm font-mono font-semibold ${row.positive ? 'text-emerald-400' : 'text-red-400'}`}>{row.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════ PLANEJAMENTO ═══════════════ */}
+            {page === 'planejamento' && (
+              <motion.div key="planejamento" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex gap-2">
+                    {[
+                      { key: 'canvas', label: 'Canvas' },
+                      { key: 'swot', label: 'SWOT' },
+                      { key: 'plano', label: 'Plano de Negócio' },
+                    ].map(tab => (
+                      <button key={tab.key} onClick={() => setPlanningTab(tab.key)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${planningTab === tab.key ? 'bg-accent-violet/15 text-accent-light border border-accent-violet/30' : 'bg-white/[0.03] border border-white/5 text-gray-500 hover:text-white'}`}>{tab.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Canvas */}
+                {planningTab === 'canvas' && (
+                  <div>
+                    <div className="grid grid-cols-5 gap-3 mb-3">
+                      {[
+                        { title: 'Parceiros-chave', items: ['AWS / Google Cloud', 'Parceiros de distribuição', 'Contadores e consultores'] },
+                        { title: 'Atividades-chave', items: ['Desenvolvimento do produto', 'Suporte ao cliente'], span: true },
+                        { title: 'Proposta de Valor', items: ['Gestão simples para MEIs', 'IA integrada no dia a dia', 'Tudo em um só lugar'], highlight: true },
+                        { title: 'Relacionamento', items: ['Comunidade online', 'Suporte por chat'], span: true },
+                        { title: 'Segmentos', items: ['MEIs e autônomos', 'Pequenas empresas', 'Startups em early stage'] },
+                      ].map((block, i) => (
+                        <div key={i} className={`${block.span ? 'flex flex-col gap-3' : ''} ${block.highlight ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-white/[0.03] border-white/5'} border rounded-lg p-3.5 ${block.span ? '' : 'min-h-[130px]'}`}>
+                          <div className={`text-[10px] font-bold uppercase tracking-wider mb-2.5 ${block.highlight ? 'text-emerald-400' : 'text-gray-500'}`}>{block.title}</div>
+                          {block.span ? (
+                            <>
+                              <div className="bg-white/[0.03] border border-white/5 rounded-md p-3 flex-1">
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2">{block.title}</div>
+                                {block.items.map((item, j) => <div key={j} className="text-xs text-gray-400 bg-white/[0.04] rounded px-2 py-1 mb-1">{item}</div>)}
+                              </div>
+                            </>
+                          ) : (
+                            block.items.map((item, j) => <div key={j} className={`text-xs rounded px-2 py-1 mb-1 ${block.highlight ? 'bg-emerald-500/10 text-emerald-300' : 'bg-white/[0.04] text-gray-400'}`}>{item}</div>)
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3.5">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2.5">Estrutura de Custos</div>
+                        {['Infraestrutura de TI — 18%', 'Equipe e desenvolvimento — 42%', 'Marketing e aquisição — 30%', 'Operacional — 10%'].map((item, j) => <div key={j} className="text-xs text-gray-400 bg-white/[0.04] rounded px-2 py-1 mb-1">{item}</div>)}
+                      </div>
+                      <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3.5">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2.5">Fontes de Receita</div>
+                        {['Assinatura mensal (SaaS)', 'Plano Pro — R$ 49/mês', 'Plano Equipe — R$ 99/mês', 'Consultoria Premium'].map((item, j) => <div key={j} className="text-xs text-gray-400 bg-white/[0.04] rounded px-2 py-1 mb-1">{item}</div>)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* SWOT */}
+                {planningTab === 'swot' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { title: 'Forças', color: 'bg-emerald-500/8 border-emerald-500/15', titleColor: 'text-emerald-400', items: ['Interface intuitiva e acessível', 'IA integrada que guia o usuário', 'Tudo em uma só plataforma', 'Baixo custo de aquisição'] },
+                      { title: 'Fraquezas', color: 'bg-red-500/8 border-red-500/15', titleColor: 'text-red-400', items: ['Produto ainda em fase inicial', 'Equipe pequena', 'Dependência de APIs externas', 'Reconhecimento de marca limitado'] },
+                      { title: 'Oportunidades', color: 'bg-blue-500/8 border-blue-500/15', titleColor: 'text-blue-400', items: ['Mercado de MEI crescendo 20% ao ano', 'Baixa digitalização das pequenas empresas', 'Demanda por IA acessível aumentando', 'Expansão para América Latina'] },
+                      { title: 'Ameaças', color: 'bg-amber-500/8 border-amber-500/15', titleColor: 'text-amber-400', items: ['Grandes players como Notion e Monday', 'Concorrência acirrada no segmento SaaS', 'Custo de APIs de IA em alta', 'Regulamentações de dados'] },
+                    ].map((block, i) => (
+                      <div key={i} className={`${block.color} border rounded-lg p-4`}>
+                        <div className={`text-[10px] font-bold uppercase tracking-wider mb-3 ${block.titleColor}`}>{block.title}</div>
+                        {block.items.map((item, j) => <div key={j} className="text-xs text-gray-400 py-0.5">· {item}</div>)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Plano */}
+                {planningTab === 'plano' && (
+                  <div className="grid lg:grid-cols-2 gap-4">
+                    <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                      <h3 className="text-sm font-semibold mb-3">Sumário Executivo</h3>
+                      <p className="text-xs text-gray-400 leading-relaxed mb-4">A <strong className="text-white">REATIVA</strong> é uma plataforma SaaS de reativação de clientes desenvolvida para pequenos e médios empreendedores. Nosso produto combina automação de WhatsApp, chatbot IA e campanhas promocionais em uma interface acessível.</p>
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          { label: 'TAM', value: 'R$ 4,2B' },
+                          { label: 'SAM', value: 'R$ 840M' },
+                          { label: 'SOM', value: 'R$ 42M', highlight: true },
+                        ].map((m, i) => (
+                          <div key={i} className={`${m.highlight ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-white/[0.04] border-white/5'} border rounded-lg p-3 text-center`}>
+                            <div className={`text-[10px] font-bold uppercase tracking-wider ${m.highlight ? 'text-emerald-400' : 'text-gray-500'}`}>{m.label}</div>
+                            <div className={`font-mono text-lg font-bold mt-1 ${m.highlight ? 'text-emerald-400' : ''}`}>{m.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                      <h3 className="text-sm font-semibold mb-3">Metas Anuais</h3>
+                      <div className="space-y-4">
+                        {[
+                          { name: 'Usuários pagantes', target: '1.000', pct: 47, color: 'bg-emerald-500' },
+                          { name: 'MRR (Receita Mensal)', target: 'R$ 49k', pct: 58, color: 'bg-blue-500' },
+                          { name: 'NPS', target: '85+', pct: 91, color: 'bg-purple-500' },
+                          { name: 'Churn Rate', target: '<3%', pct: 80, color: 'bg-amber-500' },
+                        ].map((g, i) => (
+                          <div key={i}>
+                            <div className="flex justify-between text-xs mb-1.5">
+                              <span className="text-gray-400">{g.name}</span>
+                              <span className="font-mono text-gray-500">{g.target}</span>
+                            </div>
+                            <div className="h-1.5 bg-white/[0.07] rounded-full overflow-hidden">
+                              <motion.div initial={{ width: 0 }} animate={{ width: `${g.pct}%` }} transition={{ duration: 0.8, delay: 0.3 + i * 0.1 }} className={`h-full rounded-full ${g.color}`}></motion.div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* ═══════════════ EQUIPE ═══════════════ */}
+            {page === 'equipe' && (
+              <motion.div key="equipe" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-lg font-semibold">Equipe</h2>
+                    <p className="text-xs text-gray-500">Gerencie colaboradores e permissões</p>
+                  </div>
+                  <button className="btn-primary text-xs py-2 px-3"><UserPlus size={14} /> Convidar</button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  {teamMembers.map((member, i) => (
+                    <div key={i} className="bg-white/[0.03] border border-white/5 rounded-xl p-5 text-center hover:border-white/10 hover:-translate-y-0.5 transition-all">
+                      <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white text-lg font-bold mx-auto mb-3`}>{member.initials}</div>
+                      <div className="text-sm font-semibold mb-0.5">{member.name}</div>
+                      <div className="text-xs text-gray-500 mb-2">{member.role}</div>
+                      <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 mb-3">
+                        <span className={`w-1.5 h-1.5 rounded-full ${member.status === 'online' ? 'bg-emerald-500' : member.status === 'away' ? 'bg-amber-500' : 'bg-gray-500'}`}></span>
+                        {member.status === 'online' ? 'Online agora' : member.status === 'away' ? 'Ausente' : 'Offline'}
+                      </div>
+                      <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${member.tagColor}`}>{member.tag}</span>
+                    </div>
+                  ))}
+                  <div className="bg-white/[0.03] border border-dashed border-white/10 rounded-xl p-5 text-center cursor-pointer hover:border-accent-violet/30 transition-all">
+                    <div className="w-14 h-14 rounded-full bg-white/[0.05] flex items-center justify-center text-gray-500 mx-auto mb-3"><Plus size={24} /></div>
+                    <div className="text-sm text-gray-500 font-semibold">Adicionar membro</div>
+                    <div className="text-xs text-gray-600">Convidar por e-mail</div>
+                  </div>
+                </div>
+
+                {/* Activity */}
+                <div className="bg-white/[0.03] border border-white/5 rounded-xl p-5">
+                  <h3 className="text-sm font-semibold mb-4">Atividade Recente da Equipe</h3>
+                  <div className="space-y-3">
+                    {[
+                      { icon: CheckCircle, color: 'bg-emerald-500/10 text-emerald-400', text: 'André concluiu "Configurar servidor de produção"', time: 'há 12 minutos' },
+                      { icon: Edit, color: 'bg-purple-500/10 text-purple-400', text: 'Laura atualizou o card "Redesign de onboarding"', time: 'há 45 minutos' },
+                      { icon: MessageSquare, color: 'bg-red-500/10 text-red-400', text: 'João comentou em "Integração com API de pagamento"', time: 'há 1 hora' },
+                      { icon: Plus, color: 'bg-amber-500/10 text-amber-400', text: 'Paula criou o card "Campanha de e-mail maio"', time: 'há 2 horas' },
+                    ].map((activity, i) => {
+                      const Icon = activity.icon
+                      return (
+                        <div key={i} className="flex items-center gap-3 py-2">
+                          <div className={`w-8 h-8 rounded-lg ${activity.color} flex items-center justify-center flex-shrink-0`}><Icon size={14} /></div>
+                          <div className="flex-1">
+                            <div className="text-xs text-gray-400">{activity.text}</div>
+                            <div className="text-[10px] text-gray-600 mt-0.5">{activity.time}</div>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               </motion.div>
