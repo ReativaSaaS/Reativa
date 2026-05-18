@@ -112,6 +112,8 @@ export default function Dashboard() {
   const { columns: kanbanColumns, cards: kanbanCards, loading: kanbanLoading, addColumn: addKanbanColumn, addCard: addKanbanCard, updateCard: updateKanbanCard, removeCard: removeKanbanCard, getColumnCards } = useKanban(userId)
   const [showKanbanForm, setShowKanbanForm] = useState(false)
   const [kanbanForm, setKanbanForm] = useState({ title: '', description: '', tag: '', tagColor: '', columnId: '' })
+  const [showColumnForm, setShowColumnForm] = useState(false)
+  const [columnForm, setColumnForm] = useState({ title: '', color: '#8b5cf6' })
 
   // Financial data
   const { entries: financialEntries, months: financialMonths, summary: financialSummary, loading: financialLoading, addEntry: addFinancialEntry, removeEntry: removeFinancialEntry } = useFinancial(userId)
@@ -120,6 +122,60 @@ export default function Dashboard() {
 
   // Planning tabs
   const [planningTab, setPlanningTab] = useState('canvas')
+  const [showPlanningForm, setShowPlanningForm] = useState(false)
+  const [planningForm, setPlanningForm] = useState({ title: '', date: '', responsible: '', status: 'pendente', description: '' })
+  const [planningItems, setPlanningItems] = useState([])
+
+  // Messages state
+  const [conversations] = useState([
+    { id: 1, name: 'Maria Clara', lastMsg: 'Obrigada pelo atendimento!', time: '10:32', unread: 0, avatar: 'MC' },
+    { id: 2, name: 'Rafael Santos', lastMsg: 'Quando vence o plano?', time: '09:15', unread: 2, avatar: 'RS' },
+    { id: 3, name: 'Ana Lima', lastMsg: 'Preciso de suporte técnico', time: 'Ontem', unread: 1, avatar: 'AL' },
+    { id: 4, name: 'Pedro Almeida', lastMsg: 'Vou renovar a assinatura', time: 'Ontem', unread: 0, avatar: 'PA' },
+  ])
+  const [activeConversation, setActiveConversation] = useState(null)
+  const [messageInput, setMessageInput] = useState('')
+  const [messageHistory, setMessageHistory] = useState({
+    1: [
+      { from: 'client', text: 'Bom dia! Preciso de ajuda com meu pedido.', time: '10:20' },
+      { from: 'me', text: 'Olá Maria! Claro, qual o número do pedido?', time: '10:22' },
+      { from: 'client', text: 'É o #4521. Não recebi a confirmação.', time: '10:28' },
+      { from: 'me', text: 'Verifico já! Seu pedido foi confirmado e enviado. Código de rastreio: BR123456', time: '10:30' },
+      { from: 'client', text: 'Obrigada pelo atendimento!', time: '10:32' },
+    ],
+    2: [
+      { from: 'client', text: 'Olá, quando vence meu plano atual?', time: '09:10' },
+      { from: 'me', text: 'Seu plano Pro vence em 15/06/2026. Quer renovar antecipadamente?', time: '09:12' },
+      { from: 'client', text: 'Quando vence o plano?', time: '09:15' },
+    ],
+    3: [
+      { from: 'client', text: 'Preciso de suporte técnico', time: '16:45' },
+    ],
+    4: [
+      { from: 'client', text: 'Vou renovar a assinatura', time: '14:20' },
+      { from: 'me', text: 'Ótimo Pedro! Vou gerar o link de pagamento.', time: '14:25' },
+    ],
+  })
+
+  // Fluxos state
+  const [workflows, setWorkflows] = useState([
+    { id: 1, name: 'Boas-vindas novos clientes', steps: ['Enviar mensagem de boas-vindas', 'Aguardar 24h', 'Enviar catálogo', 'Aguardar resposta'], active: true },
+    { id: 2, name: 'Reativação de inativos', steps: ['Identificar clientes inativos há 30d', 'Enviar cupom de desconto', 'Aguardar 3 dias', 'Follow-up'], active: true },
+    { id: 3, name: 'Pós-venda', steps: ['Confirmar recebimento', 'Aguardar 3 dias', 'Pedir feedback', 'Oferecer produto relacionado'], active: false },
+  ])
+  const [showWorkflowForm, setShowWorkflowForm] = useState(false)
+  const [workflowForm, setWorkflowForm] = useState({ name: '', steps: [''] })
+
+  // Agendamentos state
+  const [events, setEvents] = useState([
+    { id: 1, title: 'Reunião com cliente Alpha', date: '2026-05-20', time: '14:00', participants: 'Maria Clara', color: '#8b5cf6' },
+    { id: 2, title: 'Follow-up leads frios', date: '2026-05-21', time: '10:00', participants: 'Equipe comercial', color: '#10b981' },
+    { id: 3, title: 'Lançamento campanha Q2', date: '2026-05-22', time: '09:00', participants: 'Marketing', color: '#f59e0b' },
+    { id: 4, title: 'Review mensal', date: '2026-05-25', time: '16:00', participants: 'Todos', color: '#06b6d4' },
+  ])
+  const [showEventForm, setShowEventForm] = useState(false)
+  const [eventForm, setEventForm] = useState({ title: '', date: '', time: '', participants: '', color: '#8b5cf6' })
+  const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 4))
 
   // Team members
   const { members: teamMembers, loading: teamLoading, add: addTeamMember, update: updateTeamMember, remove: removeTeamMember } = useTeam(userId)
@@ -731,8 +787,72 @@ export default function Dashboard() {
             {/* ═══════════════ CONFIGURAÇÕES ═══════════════ */}
             {page === 'config' && (
               <motion.div key="config" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                <div className="max-w-2xl space-y-6">
-                  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
+                <div className="max-w-3xl space-y-6">
+                  {/* Profile */}
+                  <div className="dash-card">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-lg bg-accent-violet/10 flex items-center justify-center text-accent-violet"><Users size={20} /></div>
+                      <div><h3 className="text-sm font-semibold">Perfil</h3><p className="text-xs text-gray-500">Suas informações pessoais</p></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><label className="text-xs text-gray-500 mb-1.5 block">Nome</label><input defaultValue={userName} className="dash-input" /></div>
+                      <div><label className="text-xs text-gray-500 mb-1.5 block">Email</label><input defaultValue={user?.email} disabled className="dash-input opacity-50" /></div>
+                      <div><label className="text-xs text-gray-500 mb-1.5 block">Cargo</label><input placeholder="Ex: CEO" className="dash-input" /></div>
+                      <div><label className="text-xs text-gray-500 mb-1.5 block">Telefone</label><input placeholder="(11) 99999-9999" className="dash-input" /></div>
+                    </div>
+                    <button className="btn-dash-primary mt-4 text-sm">Salvar Perfil</button>
+                  </div>
+
+                  {/* Appearance */}
+                  <div className="dash-card">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400"><Moon size={20} /></div>
+                      <div><h3 className="text-sm font-semibold">Aparência</h3><p className="text-xs text-gray-500">Personalize a interface</p></div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div><div className="text-sm font-medium">Tema</div><div className="text-xs text-gray-500">Escolha entre escuro e claro</div></div>
+                        <div className="flex gap-2">
+                          <button className="px-4 py-2 rounded-lg text-xs font-medium bg-accent-violet/15 text-accent-light border border-accent-violet/30">Escuro</button>
+                          <button className="px-4 py-2 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/5 text-gray-500 hover:text-white transition-all">Claro</button>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div><div className="text-sm font-medium">Cor de Destaque</div><div className="text-xs text-gray-500">Cor principal da interface</div></div>
+                        <div className="flex gap-2">
+                          {['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'].map(c => (
+                            <button key={c} className="w-7 h-7 rounded-full border-2 border-transparent hover:border-white/30 transition-all" style={{ background: c }} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Notifications */}
+                  <div className="dash-card">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400"><Bell size={20} /></div>
+                      <div><h3 className="text-sm font-semibold">Notificações</h3><p className="text-xs text-gray-500">Configure alertas e avisos</p></div>
+                    </div>
+                    <div className="space-y-3">
+                      {[
+                        { label: 'Notificações por email', desc: 'Receber alertas por email' },
+                        { label: 'Notificações push', desc: 'Notificações no navegador' },
+                        { label: 'Menções', desc: 'Quando alguém te mencionar' },
+                        { label: 'Prazos', desc: 'Alertas de tarefas vencendo' },
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center justify-between py-2 border-b border-white/[0.03] last:border-0">
+                          <div><div className="text-sm">{item.label}</div><div className="text-xs text-gray-500">{item.desc}</div></div>
+                          <button className="w-10 h-6 rounded-full bg-accent-violet/30 relative transition-all hover:bg-accent-violet/50">
+                            <div className="absolute top-1 left-1 w-4 h-4 bg-accent-violet rounded-full transition-all"></div>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* API Key */}
+                  <div className="dash-card">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-lg bg-accent-violet/10 flex items-center justify-center text-accent-violet"><Key size={20} /></div>
                       <div><h3 className="text-sm font-semibold">API Key OpenRouter</h3><p className="text-xs text-gray-500">Chave para o assistente IA</p></div>
@@ -742,12 +862,13 @@ export default function Dashboard() {
                         <input type={showApiKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="sk-or-..." className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors font-mono" />
                         <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">{showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}</button>
                       </div>
-                      <button onClick={saveApiKey} className="btn-primary px-5">Salvar</button>
+                      <button onClick={saveApiKey} className="btn-dash-primary px-5">Salvar</button>
                     </div>
                     <p className="text-[11px] text-gray-600 mt-2">Obtenha em <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer" className="text-accent-violet hover:underline">openrouter.ai/keys</a></p>
                   </div>
 
-                  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
+                  {/* AI Model */}
+                  <div className="dash-card">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-10 h-10 rounded-lg bg-accent-cyan/10 flex items-center justify-center text-accent-cyan"><Bot size={20} /></div>
                       <div><h3 className="text-sm font-semibold">Modelo de IA</h3><p className="text-xs text-gray-500">Modelo para o assistente</p></div>
@@ -762,20 +883,50 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
+                  {/* Integrations */}
+                  <div className="dash-card">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><CreditCard size={20} /></div>
-                      <div><h3 className="text-sm font-semibold">Stripe</h3><p className="text-xs text-gray-500">Pagamentos</p></div>
+                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400"><ExternalLink size={20} /></div>
+                      <div><h3 className="text-sm font-semibold">Integrações</h3><p className="text-xs text-gray-500">Conecte outros serviços</p></div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs"><span className="w-2 h-2 bg-emerald-500 rounded-full"></span><span className="text-emerald-400 font-medium">Conectado</span><span className="text-gray-500">— 3 produtos</span></div>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { name: 'Google Calendar', icon: '📅', status: 'Conectar' },
+                        { name: 'Slack', icon: '💬', status: 'Conectar' },
+                        { name: 'GitHub', icon: '🐙', status: 'Conectar' },
+                        { name: 'Stripe', icon: '💳', status: 'Conectado', connected: true },
+                        { name: 'WhatsApp', icon: '📱', status: 'Em breve', disabled: true },
+                        { name: 'Zapier', icon: '⚡', status: 'Conectar' },
+                      ].map((app, i) => (
+                        <div key={i} className="p-4 bg-white/[0.02] border border-white/[0.03] rounded-lg text-center">
+                          <div className="text-2xl mb-2">{app.icon}</div>
+                          <div className="text-xs font-semibold mb-2">{app.name}</div>
+                          <button disabled={app.disabled} className={`text-[10px] font-semibold px-3 py-1 rounded-full transition-all ${app.connected ? 'bg-emerald-500/15 text-emerald-400' : app.disabled ? 'bg-gray-500/15 text-gray-500 cursor-not-allowed' : 'bg-accent-violet/15 text-accent-light hover:bg-accent-violet/25 cursor-pointer'}`}>{app.status}</button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-6">
+                  {/* Account */}
+                  <div className="dash-card">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-                      <div><h3 className="text-sm font-semibold">Supabase</h3><p className="text-xs text-gray-500">Banco de dados</p></div>
+                      <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400"><Settings size={20} /></div>
+                      <div><h3 className="text-sm font-semibold">Conta</h3><p className="text-xs text-gray-500">Gerencie sua conta</p></div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs"><span className="w-2 h-2 bg-emerald-500 rounded-full"></span><span className="text-emerald-400 font-medium">Conectado</span><span className="text-gray-500">— 7 tabelas</span></div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between py-2 border-b border-white/[0.03]">
+                        <div><div className="text-sm">Plano Atual</div><div className="text-xs text-gray-500">Pro — R$ 197/mês</div></div>
+                        <button className="btn-dash-secondary text-xs py-1.5 px-3">Gerenciar</button>
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-b border-white/[0.03]">
+                        <div><div className="text-sm">Exportar Dados</div><div className="text-xs text-gray-500">Baixe todos os seus dados</div></div>
+                        <button className="btn-dash-secondary text-xs py-1.5 px-3"><Download size={14} /> Exportar</button>
+                      </div>
+                      <div className="flex items-center justify-between py-2">
+                        <div><div className="text-sm text-red-400">Excluir Conta</div><div className="text-xs text-gray-500">Esta ação é irreversível</div></div>
+                        <button className="text-xs px-3 py-1.5 bg-red-500/15 text-red-400 rounded-lg hover:bg-red-500/25 transition-all">Excluir</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -789,7 +940,7 @@ export default function Dashboard() {
                     <button className="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-violet/15 text-accent-light border border-accent-violet/30">Quadro Principal</button>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: '' }); setShowKanbanForm(true) }} className="btn-dash-secondary text-xs py-2 px-3"><Plus size={14} /> Coluna</button>
+                    <button onClick={() => { setColumnForm({ title: '', color: '#8b5cf6' }); setShowColumnForm(true) }} className="btn-dash-secondary text-xs py-2 px-3"><Plus size={14} /> Coluna</button>
                     <button onClick={() => { setKanbanForm({ title: '', description: '', tag: '', tagColor: '', columnId: kanbanColumns[0]?.id || '' }); setShowKanbanForm(true) }} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Card</button>
                   </div>
                 </div>
@@ -966,11 +1117,39 @@ export default function Dashboard() {
                       { key: 'canvas', label: 'Canvas' },
                       { key: 'swot', label: 'SWOT' },
                       { key: 'plano', label: 'Plano de Negócio' },
+                      { key: 'itens', label: 'Itens' },
                     ].map(tab => (
                       <button key={tab.key} onClick={() => setPlanningTab(tab.key)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${planningTab === tab.key ? 'bg-accent-violet/15 text-accent-light border border-accent-violet/30' : 'bg-white/[0.03] border border-white/5 text-gray-500 hover:text-white'}`}>{tab.label}</button>
                     ))}
                   </div>
+                  <button onClick={() => { setPlanningForm({ title: '', date: '', responsible: '', status: 'pendente', description: '' }); setShowPlanningForm(true) }} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Novo Item</button>
                 </div>
+
+                {/* Planning Items Tab */}
+                {planningTab === 'itens' && (
+                  <div className="space-y-3">
+                    {planningItems.length === 0 ? (
+                      <div className="dash-card text-center py-12">
+                        <Calendar size={32} className="text-gray-600 mx-auto mb-3" />
+                        <p className="text-sm text-gray-500">Nenhum item criado ainda</p>
+                        <button onClick={() => { setPlanningForm({ title: '', date: '', responsible: '', status: 'pendente', description: '' }); setShowPlanningForm(true) }} className="btn-dash-primary text-xs py-2 px-3 mt-4"><Plus size={14} /> Criar Item</button>
+                      </div>
+                    ) : planningItems.map((item, i) => (
+                      <div key={i} className="dash-card flex items-center gap-4">
+                        <div className={`w-2 h-10 rounded-full flex-shrink-0 ${item.status === 'concluido' ? 'bg-emerald-500' : item.status === 'em_progresso' ? 'bg-blue-500' : 'bg-gray-500'}`}></div>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold">{item.title}</div>
+                          <div className="text-xs text-gray-500">{item.responsible} · {item.date}</div>
+                          {item.description && <div className="text-xs text-gray-400 mt-1">{item.description}</div>}
+                        </div>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.status === 'concluido' ? 'bg-emerald-500/15 text-emerald-400' : item.status === 'em_progresso' ? 'bg-blue-500/15 text-blue-400' : 'bg-gray-500/15 text-gray-400'}`}>
+                          {item.status === 'concluido' ? 'Concluído' : item.status === 'em_progresso' ? 'Em Progresso' : 'Pendente'}
+                        </span>
+                        <button onClick={() => setPlanningItems(prev => prev.filter((_, idx) => idx !== i))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all"><Trash2 size={14} /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Canvas */}
                 {planningTab === 'canvas' && (
@@ -1112,18 +1291,279 @@ export default function Dashboard() {
               </motion.div>
             )}
 
-            {/* ═══════════════ PLACEHOLDER PAGES ═══════════════ */}
-            {['mensagens', 'fluxos', 'agendamentos', 'relatorios'].includes(page) && (
-              <motion.div key={page} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-4">
-                    {page === 'mensagens' && <MessageSquare size={28} className="text-gray-600" />}
-                    {page === 'fluxos' && <Zap size={28} className="text-gray-600" />}
-                    {page === 'agendamentos' && <Clock size={28} className="text-gray-600" />}
-                    {page === 'relatorios' && <BarChart3 size={28} className="text-gray-600" />}
+            {/* ═══════════════ MENSAGENS ═══════════════ */}
+            {page === 'mensagens' && (
+              <motion.div key="mensagens" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="flex gap-4 h-[calc(100vh-180px)]">
+                {/* Conversations List */}
+                <div className="w-80 flex-shrink-0 dash-card overflow-hidden flex flex-col">
+                  <div className="p-4 border-b border-white/5">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-white/[0.04] border border-white/5 rounded-lg">
+                      <Search size={14} className="text-gray-500" />
+                      <input type="text" placeholder="Buscar conversa..." className="bg-transparent text-sm w-full outline-none placeholder-gray-600" />
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{page.charAt(0).toUpperCase() + page.slice(1)}</h3>
-                  <p className="text-sm text-gray-500 max-w-md">Em desenvolvimento. Explore o Dashboard e Clientes enquanto isso.</p>
+                  <div className="flex-1 overflow-y-auto">
+                    {conversations.map(conv => (
+                      <button key={conv.id} onClick={() => setActiveConversation(conv.id)} className={`w-full flex items-center gap-3 p-4 text-left transition-all border-b border-white/[0.03] ${activeConversation === conv.id ? 'bg-accent-violet/10' : 'hover:bg-white/[0.03]'}`}>
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent-violet to-accent-cyan flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{conv.avatar}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-semibold truncate">{conv.name}</span>
+                            <span className="text-[10px] text-gray-500">{conv.time}</span>
+                          </div>
+                          <p className="text-xs text-gray-500 truncate">{conv.lastMsg}</p>
+                        </div>
+                        {conv.unread > 0 && <span className="w-5 h-5 bg-accent-violet rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">{conv.unread}</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Chat Area */}
+                <div className="flex-1 dash-card overflow-hidden flex flex-col">
+                  {activeConversation ? (
+                    <>
+                      <div className="p-4 border-b border-white/5 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-violet to-accent-cyan flex items-center justify-center text-white text-xs font-bold">{conversations.find(c => c.id === activeConversation)?.avatar}</div>
+                        <div>
+                          <div className="text-sm font-semibold">{conversations.find(c => c.id === activeConversation)?.name}</div>
+                          <div className="text-[10px] text-emerald-400">Online</div>
+                        </div>
+                      </div>
+                      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        {(messageHistory[activeConversation] || []).map((msg, i) => (
+                          <div key={i} className={`flex ${msg.from === 'me' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[70%] px-4 py-2.5 rounded-xl text-sm ${msg.from === 'me' ? 'bg-accent-violet text-white' : 'bg-white/[0.05] border border-white/5'}`}>
+                              <p>{msg.text}</p>
+                              <span className={`text-[10px] mt-1 block ${msg.from === 'me' ? 'text-white/60' : 'text-gray-500'}`}>{msg.time}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="p-4 border-t border-white/5">
+                        <div className="flex gap-2">
+                          <input value={messageInput} onChange={e => setMessageInput(e.target.value)} onKeyDown={e => {
+                            if (e.key === 'Enter' && messageInput.trim()) {
+                              setMessageHistory(prev => ({
+                                ...prev,
+                                [activeConversation]: [...(prev[activeConversation] || []), { from: 'me', text: messageInput, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }]
+                              }))
+                              setMessageInput('')
+                            }
+                          }} placeholder="Digite sua mensagem..." className="flex-1 dash-input" />
+                          <button onClick={() => {
+                            if (!messageInput.trim()) return
+                            setMessageHistory(prev => ({
+                              ...prev,
+                              [activeConversation]: [...(prev[activeConversation] || []), { from: 'me', text: messageInput, time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }]
+                            }))
+                            setMessageInput('')
+                          }} className="btn-dash-primary px-4"><Send size={16} /></button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">Selecione uma conversa</div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════ FLUXOS ═══════════════ */}
+            {page === 'fluxos' && (
+              <motion.div key="fluxos" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-xs text-gray-500">Automatize processos com fluxos de trabalho</p>
+                  </div>
+                  <button onClick={() => { setWorkflowForm({ name: '', steps: [''] }); setShowWorkflowForm(true) }} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Novo Fluxo</button>
+                </div>
+
+                <div className="grid gap-4">
+                  {workflows.map(wf => (
+                    <div key={wf.id} className="dash-card">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${wf.active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}`}><Zap size={18} /></div>
+                          <div>
+                            <h3 className="text-sm font-semibold">{wf.name}</h3>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${wf.active ? 'bg-emerald-500/15 text-emerald-400' : 'bg-gray-500/15 text-gray-400'}`}>{wf.active ? 'Ativo' : 'Inativo'}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => setWorkflows(prev => prev.map(w => w.id === wf.id ? { ...w, active: !w.active } : w))} className="btn-dash-secondary text-xs py-1.5 px-3">{wf.active ? 'Pausar' : 'Ativar'}</button>
+                          <button onClick={() => setWorkflows(prev => prev.filter(w => w.id !== wf.id))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all"><Trash2 size={14} /></button>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                        {wf.steps.map((step, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <div className="px-3 py-2 bg-white/[0.04] border border-white/5 rounded-lg text-xs whitespace-nowrap">{step}</div>
+                            {i < wf.steps.length - 1 && <ArrowRight size={14} className="text-gray-600 flex-shrink-0" />}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════ AGENDAMENTOS ═══════════════ */}
+            {page === 'agendamentos' && (
+              <motion.div key="agendamentos" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1))} className="btn-dash-secondary p-2"><ChevronDown size={16} className="rotate-90" /></button>
+                    <span className="text-sm font-semibold">{calendarMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</span>
+                    <button onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1))} className="btn-dash-secondary p-2"><ChevronDown size={16} className="-rotate-90" /></button>
+                  </div>
+                  <button onClick={() => { setEventForm({ title: '', date: '', time: '', participants: '', color: '#8b5cf6' }); setShowEventForm(true) }} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Novo Evento</button>
+                </div>
+
+                <div className="dash-card">
+                  <div className="grid grid-cols-7 gap-px mb-2">
+                    {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(d => (
+                      <div key={d} className="text-center text-[10px] font-semibold text-gray-500 uppercase py-2">{d}</div>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-7 gap-px">
+                    {(() => {
+                      const year = calendarMonth.getFullYear()
+                      const month = calendarMonth.getMonth()
+                      const firstDay = new Date(year, month, 1).getDay()
+                      const daysInMonth = new Date(year, month + 1, 0).getDate()
+                      const cells = []
+                      for (let i = 0; i < firstDay; i++) cells.push(<div key={`e${i}`} className="p-2 min-h-[80px]" />)
+                      for (let d = 1; d <= daysInMonth; d++) {
+                        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+                        const dayEvents = events.filter(e => e.date === dateStr)
+                        cells.push(
+                          <div key={d} className="p-2 min-h-[80px] border border-white/[0.03] rounded-lg hover:bg-white/[0.02] transition-colors">
+                            <div className="text-xs text-gray-500 mb-1">{d}</div>
+                            {dayEvents.map(ev => (
+                              <div key={ev.id} className="text-[10px] px-1.5 py-0.5 rounded mb-0.5 truncate" style={{ background: ev.color + '20', color: ev.color }}>{ev.title}</div>
+                            ))}
+                          </div>
+                        )
+                      }
+                      return cells
+                    })()}
+                  </div>
+                </div>
+
+                {/* Upcoming Events */}
+                <div className="dash-card mt-4">
+                  <h3 className="text-sm font-semibold mb-4">Próximos Eventos</h3>
+                  <div className="space-y-3">
+                    {events.sort((a, b) => a.date.localeCompare(b.date)).map(ev => (
+                      <div key={ev.id} className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.03]">
+                        <div className="w-2 h-10 rounded-full flex-shrink-0" style={{ background: ev.color }}></div>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold">{ev.title}</div>
+                          <div className="text-xs text-gray-500">{new Date(ev.date).toLocaleDateString('pt-BR')} às {ev.time} · {ev.participants}</div>
+                        </div>
+                        <button onClick={() => setEvents(prev => prev.filter(e => e.id !== ev.id))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all"><Trash2 size={14} /></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════ RELATÓRIOS ═══════════════ */}
+            {page === 'relatorios' && (
+              <motion.div key="relatorios" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex gap-2">
+                    {['Semana', 'Mês', 'Trimestre'].map((f, i) => (
+                      <button key={f} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${i === 1 ? 'bg-accent-violet/15 text-accent-light border border-accent-violet/30' : 'bg-white/[0.03] border border-white/5 text-gray-500 hover:text-white'}`}>{f}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Report KPIs */}
+                <div className="kpi-grid mb-6">
+                  {[
+                    { label: 'Tarefas Concluídas', value: 47, change: '+12%', up: true, icon: CheckCircle },
+                    { label: 'Em Andamento', value: 23, change: '+5%', up: true, icon: Clock },
+                    { label: 'Atrasadas', value: 8, change: '-3%', up: false, icon: AlertCircle },
+                    { label: 'Produtividade', value: '89%', change: '+7%', up: true, icon: TrendingUp },
+                  ].map((m, i) => {
+                    const Icon = m.icon
+                    return (
+                      <div key={i} className="kpi-card">
+                        <div className="kpi-label">{m.label}</div>
+                        <div className="kpi-value">{m.value}</div>
+                        <div className={`kpi-change ${m.up ? 'up' : 'down'}`}>{m.up ? <TrendingUp size={11} /> : <TrendingDown size={11} />} {m.change}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="grid lg:grid-cols-2 gap-4 mb-6">
+                  {/* Bar Chart - Progress by project */}
+                  <div className="dash-card">
+                    <h3 className="text-sm font-semibold mb-4">Progresso por Projeto</h3>
+                    <div className="space-y-4">
+                      {[
+                        { name: 'Lançamento App', pct: 75, color: 'bg-accent-violet' },
+                        { name: 'Marketing Q2', pct: 60, color: 'bg-emerald-500' },
+                        { name: 'Integração API', pct: 90, color: 'bg-blue-500' },
+                        { name: 'Redesign UI', pct: 45, color: 'bg-amber-500' },
+                        { name: 'Campanha Email', pct: 100, color: 'bg-cyan-500' },
+                      ].map((p, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between text-xs mb-1.5">
+                            <span className="text-gray-400">{p.name}</span>
+                            <span className="font-mono text-gray-500">{p.pct}%</span>
+                          </div>
+                          <div className="h-2 bg-white/[0.07] rounded-full overflow-hidden">
+                            <motion.div initial={{ width: 0 }} animate={{ width: `${p.pct}%` }} transition={{ duration: 0.8, delay: i * 0.1 }} className={`h-full rounded-full ${p.color}`}></motion.div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Line Chart - Activity */}
+                  <div className="dash-card">
+                    <h3 className="text-sm font-semibold mb-4">Atividade Semanal</h3>
+                    <div className="h-48 flex items-end gap-2 px-2">
+                      {[12, 19, 15, 22, 18, 25, 20].map((v, i) => (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                          <motion.div initial={{ height: 0 }} animate={{ height: `${(v / 25) * 100}%` }} transition={{ duration: 0.6, delay: i * 0.1 }} className="w-full bg-gradient-to-t from-accent-violet to-accent-cyan rounded-t opacity-70 hover:opacity-100 transition-opacity"></motion.div>
+                          <span className="text-[10px] text-gray-500">{['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'][i]}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Team Performance */}
+                <div className="dash-card">
+                  <h3 className="text-sm font-semibold mb-4">Desempenho por Membro</h3>
+                  <div className="space-y-4">
+                    {[
+                      { name: 'Marina Rezende', tasks: 18, completed: 15, pct: 83 },
+                      { name: 'André Lima', tasks: 12, completed: 11, pct: 92 },
+                      { name: 'Laura Costa', tasks: 8, completed: 6, pct: 75 },
+                    ].map((m, i) => (
+                      <div key={i} className="flex items-center gap-4">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-violet to-accent-cyan flex items-center justify-center text-white text-xs font-bold">{m.name.split(' ').map(n => n[0]).join('')}</div>
+                        <div className="flex-1">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="font-semibold">{m.name}</span>
+                            <span className="text-gray-500">{m.completed}/{m.tasks} tarefas</span>
+                          </div>
+                          <div className="h-1.5 bg-white/[0.07] rounded-full overflow-hidden">
+                            <motion.div initial={{ width: 0 }} animate={{ width: `${m.pct}%` }} transition={{ duration: 0.8, delay: i * 0.15 }} className="h-full rounded-full bg-gradient-to-r from-accent-violet to-accent-cyan"></motion.div>
+                          </div>
+                        </div>
+                        <span className="font-mono text-xs font-semibold">{m.pct}%</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -1322,6 +1762,43 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* ═══════════════ KANBAN COLUMN MODAL ═══════════════ */}
+      {showColumnForm && (
+        <div className="dash-modal-overlay" onClick={e => e.target === e.currentTarget && setShowColumnForm(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="dash-modal-title">Nova Coluna</h2>
+              <button onClick={() => setShowColumnForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block">Título *</label>
+                <input value={columnForm.title} onChange={e => setColumnForm({ ...columnForm, title: e.target.value })} className="dash-input" placeholder="Ex: Em Progresso" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block">Cor</label>
+                <div className="flex gap-2">
+                  {['#8b5cf6', '#60a5fa', '#10b981', '#f59e0b', '#ef4444', '#ec4899'].map(c => (
+                    <button key={c} onClick={() => setColumnForm({ ...columnForm, color: c })} className={`w-8 h-8 rounded-full border-2 transition-all ${columnForm.color === c ? 'border-white scale-110' : 'border-transparent'}`} style={{ background: c }} />
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end pt-2">
+                <button onClick={() => setShowColumnForm(false)} className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors">Cancelar</button>
+                <button onClick={async () => {
+                  if (!columnForm.title.trim()) return showToast('Título é obrigatório', 'error')
+                  try {
+                    await addKanbanColumn({ title: columnForm.title, color: columnForm.color, position: kanbanColumns.length })
+                    showToast('Coluna criada!', 'success')
+                    setShowColumnForm(false)
+                  } catch (e) { showToast('Erro ao criar coluna', 'error') }
+                }} className="btn-dash-primary px-6 py-2.5 text-sm">Criar Coluna</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* ═══════════════ KANBAN CARD MODAL ═══════════════ */}
       {showKanbanForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setShowKanbanForm(false)}>
@@ -1408,6 +1885,114 @@ export default function Dashboard() {
                     setFinancialForm({ description: '', category: '', categoryColor: 'bg-emerald-500/15 text-emerald-400', amount: '', type: 'revenue' })
                   } catch (e) { showToast('Erro ao criar lançamento', 'error') }
                 }} className="btn-primary px-6 py-2.5 text-sm">Criar Lançamento</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ═══════════════ PLANNING ITEM MODAL ═══════════════ */}
+      {showPlanningForm && (
+        <div className="dash-modal-overlay" onClick={e => e.target === e.currentTarget && setShowPlanningForm(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="dash-modal-title">Novo Item</h2>
+              <button onClick={() => setShowPlanningForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+            </div>
+            <div className="space-y-4">
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Título *</label><input value={planningForm.title} onChange={e => setPlanningForm({ ...planningForm, title: e.target.value })} className="dash-input" placeholder="Título do item" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-xs text-gray-500 mb-1.5 block">Data</label><input type="date" value={planningForm.date} onChange={e => setPlanningForm({ ...planningForm, date: e.target.value })} className="dash-input" /></div>
+                <div><label className="text-xs text-gray-500 mb-1.5 block">Responsável</label><input value={planningForm.responsible} onChange={e => setPlanningForm({ ...planningForm, responsible: e.target.value })} className="dash-input" placeholder="Nome" /></div>
+              </div>
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Status</label>
+                <div className="flex gap-2">
+                  {[{ key: 'pendente', label: 'Pendente' }, { key: 'em_progresso', label: 'Em Progresso' }, { key: 'concluido', label: 'Concluído' }].map(s => (
+                    <button key={s.key} onClick={() => setPlanningForm({ ...planningForm, status: s.key })} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${planningForm.status === s.key ? 'bg-accent-violet/15 text-accent-light border border-accent-violet/30' : 'bg-white/[0.03] border border-white/5 text-gray-500'}`}>{s.label}</button>
+                  ))}
+                </div>
+              </div>
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Descrição</label><textarea value={planningForm.description} onChange={e => setPlanningForm({ ...planningForm, description: e.target.value })} rows="3" className="dash-input" placeholder="Descrição opcional" /></div>
+              <div className="flex gap-3 justify-end pt-2">
+                <button onClick={() => setShowPlanningForm(false)} className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors">Cancelar</button>
+                <button onClick={() => {
+                  if (!planningForm.title.trim()) return showToast('Título é obrigatório', 'error')
+                  setPlanningItems(prev => [...prev, { ...planningForm }])
+                  showToast('Item criado!', 'success')
+                  setShowPlanningForm(false)
+                }} className="btn-dash-primary px-6 py-2.5 text-sm">Criar Item</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ═══════════════ WORKFLOW MODAL ═══════════════ */}
+      {showWorkflowForm && (
+        <div className="dash-modal-overlay" onClick={e => e.target === e.currentTarget && setShowWorkflowForm(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="dash-modal-title">Novo Fluxo</h2>
+              <button onClick={() => setShowWorkflowForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+            </div>
+            <div className="space-y-4">
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Nome *</label><input value={workflowForm.name} onChange={e => setWorkflowForm({ ...workflowForm, name: e.target.value })} className="dash-input" placeholder="Nome do fluxo" /></div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block">Etapas</label>
+                {workflowForm.steps.map((step, i) => (
+                  <div key={i} className="flex gap-2 mb-2">
+                    <input value={step} onChange={e => { const s = [...workflowForm.steps]; s[i] = e.target.value; setWorkflowForm({ ...workflowForm, steps: s }) }} className="dash-input flex-1" placeholder={`Etapa ${i + 1}`} />
+                    {workflowForm.steps.length > 1 && <button onClick={() => setWorkflowForm({ ...workflowForm, steps: workflowForm.steps.filter((_, idx) => idx !== i) })} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg"><X size={14} /></button>}
+                  </div>
+                ))}
+                <button onClick={() => setWorkflowForm({ ...workflowForm, steps: [...workflowForm.steps, ''] })} className="text-xs text-accent-violet hover:underline mt-1">+ Adicionar etapa</button>
+              </div>
+              <div className="flex gap-3 justify-end pt-2">
+                <button onClick={() => setShowWorkflowForm(false)} className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors">Cancelar</button>
+                <button onClick={() => {
+                  if (!workflowForm.name.trim()) return showToast('Nome é obrigatório', 'error')
+                  const validSteps = workflowForm.steps.filter(s => s.trim())
+                  if (validSteps.length === 0) return showToast('Adicione pelo menos uma etapa', 'error')
+                  setWorkflows(prev => [...prev, { id: Date.now(), name: workflowForm.name, steps: validSteps, active: true }])
+                  showToast('Fluxo criado!', 'success')
+                  setShowWorkflowForm(false)
+                }} className="btn-dash-primary px-6 py-2.5 text-sm">Criar Fluxo</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ═══════════════ EVENT MODAL ═══════════════ */}
+      {showEventForm && (
+        <div className="dash-modal-overlay" onClick={e => e.target === e.currentTarget && setShowEventForm(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="dash-modal-title">Novo Evento</h2>
+              <button onClick={() => setShowEventForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+            </div>
+            <div className="space-y-4">
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Título *</label><input value={eventForm.title} onChange={e => setEventForm({ ...eventForm, title: e.target.value })} className="dash-input" placeholder="Título do evento" /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="text-xs text-gray-500 mb-1.5 block">Data</label><input type="date" value={eventForm.date} onChange={e => setEventForm({ ...eventForm, date: e.target.value })} className="dash-input" /></div>
+                <div><label className="text-xs text-gray-500 mb-1.5 block">Horário</label><input type="time" value={eventForm.time} onChange={e => setEventForm({ ...eventForm, time: e.target.value })} className="dash-input" /></div>
+              </div>
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Participantes</label><input value={eventForm.participants} onChange={e => setEventForm({ ...eventForm, participants: e.target.value })} className="dash-input" placeholder="Nomes" /></div>
+              <div><label className="text-xs text-gray-500 mb-1.5 block">Cor</label>
+                <div className="flex gap-2">
+                  {['#8b5cf6', '#10b981', '#f59e0b', '#06b6d4', '#ef4444', '#ec4899'].map(c => (
+                    <button key={c} onClick={() => setEventForm({ ...eventForm, color: c })} className={`w-7 h-7 rounded-full border-2 transition-all ${eventForm.color === c ? 'border-white scale-110' : 'border-transparent'}`} style={{ background: c }} />
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end pt-2">
+                <button onClick={() => setShowEventForm(false)} className="px-4 py-2.5 text-sm text-gray-400 hover:text-white transition-colors">Cancelar</button>
+                <button onClick={() => {
+                  if (!eventForm.title.trim() || !eventForm.date) return showToast('Preencha título e data', 'error')
+                  setEvents(prev => [...prev, { ...eventForm, id: Date.now() }])
+                  showToast('Evento criado!', 'success')
+                  setShowEventForm(false)
+                }} className="btn-dash-primary px-6 py-2.5 text-sm">Criar Evento</button>
               </div>
             </div>
           </motion.div>
