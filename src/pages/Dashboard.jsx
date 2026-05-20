@@ -193,12 +193,29 @@ export default function Dashboard() {
   const [clientMessages, setClientMessages] = useState([])
   const [clientSuggestions, setClientSuggestions] = useState([])
 
-  // Auth
+  // Auth — listen for OAuth redirect tokens AND check existing session
   useEffect(() => {
-    checkSession().then(session => {
-      if (!session) { navigate('/login'); return }
-      setUser(session.user)
+    let initialSessionChecked = false
+
+    // Listen for auth state changes (catches OAuth redirect tokens)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUser(session.user)
+      } else if (initialSessionChecked) {
+        navigate('/login')
+      }
+      initialSessionChecked = true
     })
+
+    // Also check existing session immediately
+    checkSession().then(session => {
+      if (session) {
+        setUser(session.user)
+      }
+      initialSessionChecked = true
+    })
+
+    return () => subscription.unsubscribe()
   }, [navigate])
 
   // Data hooks
