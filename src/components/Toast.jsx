@@ -21,7 +21,7 @@ export default function Toast() {
 
   useEffect(() => {
     if (toast) {
-      const timer = setTimeout(() => setToast(null), 3000)
+      const timer = setTimeout(() => setToast(null), 4000)
       return () => clearTimeout(timer)
     }
   }, [toast])
@@ -29,7 +29,7 @@ export default function Toast() {
   if (!toast) return null
 
   return (
-    <div className={`fixed bottom-6 right-6 z-[10000] flex items-center gap-3 px-5 py-3.5 bg-elevated border rounded-lg backdrop-blur-xl shadow-xl transition-transform duration-300 ${
+    <div role="alert" aria-live="polite" className={`fixed bottom-6 right-6 z-[10000] flex items-center gap-3 px-5 py-3.5 bg-elevated border rounded-lg backdrop-blur-xl shadow-xl transition-transform duration-300 ${
       toast.type === 'success' ? 'border-emerald-500/30' : 'border-red-500/30'
     } ${toast ? 'translate-x-0' : 'translate-x-[120%]'}`}>
       <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${

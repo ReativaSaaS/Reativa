@@ -14,6 +14,17 @@ export default {
         'accent-cyan': '#06b6d4',
         'accent-light': '#a78bfa',
         'accent-neon': '#b47aff',
+        // Dashboard tokens
+        'dash-bg': '#06060f',
+        'dash-surface': '#0d0d1a',
+        'dash-card': '#111122',
+        'dash-card-hover': '#161630',
+        'dash-border': 'rgba(255,255,255,0.06)',
+        'dash-border-mid': 'rgba(255,255,255,0.12)',
+        'dash-border-focus': 'rgba(139,92,246,0.5)',
+        'dash-text': '#f0f0f5',
+        'dash-text-muted': 'rgba(240,240,245,0.5)',
+        'dash-text-subtle': 'rgba(240,240,245,0.25)',
       },
       fontFamily: {
         display: ['Outfit', 'sans-serif'],

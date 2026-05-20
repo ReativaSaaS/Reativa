@@ -445,7 +445,7 @@ export default function Dashboard() {
             <div className="sidebar-user-name">{userName}</div>
             <div className="sidebar-user-plan">Plano Pro</div>
           </div>
-          <button onClick={logout} className="sidebar-logout-btn"><LogOut size={16} /></button>
+          <button onClick={logout} className="sidebar-logout-btn" aria-label="Sair"><LogOut size={16} /></button>
         </div>
       </aside>
 
@@ -455,7 +455,7 @@ export default function Dashboard() {
       <main className="dashboard-main">
         {/* Top Bar */}
         <header className="dashboard-topbar">
-          <button className="lg:hidden p-1" onClick={() => setMobileOpen(!mobileOpen)}><Menu size={22} /></button>
+          <button className="lg:hidden p-1" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Abrir menu"><Menu size={22} /></button>
           <div className="topbar-greeting">
             <h1>
               {page === 'dashboard' && `Bom dia, ${userName} ☀️`}
@@ -475,7 +475,7 @@ export default function Dashboard() {
             <Search size={16} />
             <input type="text" placeholder="Buscar..." />
           </div>
-          <button onClick={() => setNotifOpen(!notifOpen)} className="topbar-icon-btn">
+          <button onClick={() => setNotifOpen(!notifOpen)} className="topbar-icon-btn" aria-label="Notificações">
             <Bell size={17} />
             {alertCount > 0 && <span className="notification-dot"></span>}
           </button>
@@ -581,7 +581,7 @@ export default function Dashboard() {
                               <div className={`text-xs font-semibold ${colors.text}`}>{alert.title}</div>
                               <div className="text-[11px] text-gray-500 mt-0.5 truncate">{alert.suggestion}</div>
                             </div>
-                            <button onClick={(e) => { e.stopPropagation(); handleDismissAlert(alert.id) }} className="text-gray-600 hover:text-white p-0.5"><X size={12} /></button>
+                            <button onClick={(e) => { e.stopPropagation(); handleDismissAlert(alert.id) }} className="text-gray-600 hover:text-white p-0.5" aria-label="Dispensar alerta"><X size={12} /></button>
                           </motion.div>
                         )
                       })}
@@ -611,7 +611,7 @@ export default function Dashboard() {
                 <div className="flex flex-wrap items-center gap-3 mb-6">
                   <div className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/10 rounded-lg flex-1 max-w-xs">
                     <Search size={15} className="text-gray-500" />
-                    <input value={clientSearch} onChange={e => setClientSearch(e.target.value)} type="text" placeholder="Buscar clientes..." className="bg-transparent text-sm w-full outline-none placeholder-gray-600" />
+                    <input value={clientSearch} onChange={e => setClientSearch(e.target.value)} type="text" placeholder="Buscar clientes..." aria-label="Buscar clientes" className="bg-transparent text-sm w-full outline-none placeholder-gray-600" />
                   </div>
                   <div className="flex gap-1.5 flex-wrap">
                     {[
@@ -676,9 +676,9 @@ export default function Dashboard() {
                             </td>
                             <td>
                               <div className="flex gap-1.5">
-                                <button onClick={() => openClientDetail(c)} className="p-1.5 rounded-md hover:bg-white/5 text-gray-500 hover:text-white transition-all"><Eye size={14} /></button>
-                                <button onClick={() => openEditClient(c)} className="p-1.5 rounded-md hover:bg-white/5 text-gray-500 hover:text-white transition-all"><Edit size={14} /></button>
-                                <button onClick={() => handleDeleteClient(c.id)} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all"><Trash2 size={14} /></button>
+                                <button onClick={() => openClientDetail(c)} className="p-1.5 rounded-md hover:bg-white/5 text-gray-500 hover:text-white transition-all" aria-label="Ver detalhes"><Eye size={14} /></button>
+                                <button onClick={() => openEditClient(c)} className="p-1.5 rounded-md hover:bg-white/5 text-gray-500 hover:text-white transition-all" aria-label="Editar cliente"><Edit size={14} /></button>
+                                <button onClick={() => handleDeleteClient(c.id)} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all" aria-label="Remover cliente"><Trash2 size={14} /></button>
                               </div>
                             </td>
                           </motion.tr>
@@ -776,8 +776,8 @@ export default function Dashboard() {
                     ))}
                   </div>
                   <div className="flex gap-3 bg-white/[0.03] border border-white/5 rounded-xl p-3 focus-within:border-accent-violet/30 transition-colors">
-                    <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendChat()} placeholder={apiKey ? 'Pergunte sobre seus clientes...' : 'Configure sua API Key em Configurações...'} className="flex-1 bg-transparent text-sm outline-none placeholder-gray-600" disabled={!apiKey} />
-                    <button onClick={sendChat} disabled={!apiKey || chatLoading} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${apiKey && !chatLoading ? 'bg-gradient-to-br from-accent-violet to-accent-cyan hover:opacity-90' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}><Send size={16} /></button>
+                    <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendChat()} placeholder={apiKey ? 'Pergunte sobre seus clientes...' : 'Configure sua API Key em Configurações...'} aria-label="Mensagem para IA" className="flex-1 bg-transparent text-sm outline-none placeholder-gray-600" disabled={!apiKey} />
+                    <button onClick={sendChat} disabled={!apiKey || chatLoading} aria-label="Enviar mensagem" className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${apiKey && !chatLoading ? 'bg-gradient-to-br from-accent-violet to-accent-cyan hover:opacity-90' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}><Send size={16} /></button>
                   </div>
                   {!apiKey && <p className="text-xs text-amber-400/80 mt-2 flex items-center gap-1.5"><AlertCircle size={12} /> Configure sua API Key do OpenRouter em Configurações.</p>}
                 </div>
@@ -860,7 +860,7 @@ export default function Dashboard() {
                     <div className="flex gap-2">
                       <div className="flex-1 relative">
                         <input type={showApiKey ? 'text' : 'password'} value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="sk-or-..." className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-lg text-sm outline-none focus:border-accent-violet transition-colors font-mono" />
-                        <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">{showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+                        <button onClick={() => setShowApiKey(!showApiKey)} aria-label={showApiKey ? 'Ocultar API Key' : 'Mostrar API Key'} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">{showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}</button>
                       </div>
                       <button onClick={saveApiKey} className="btn-dash-primary px-5">Salvar</button>
                     </div>
@@ -1145,7 +1145,7 @@ export default function Dashboard() {
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.status === 'concluido' ? 'bg-emerald-500/15 text-emerald-400' : item.status === 'em_progresso' ? 'bg-blue-500/15 text-blue-400' : 'bg-gray-500/15 text-gray-400'}`}>
                           {item.status === 'concluido' ? 'Concluído' : item.status === 'em_progresso' ? 'Em Progresso' : 'Pendente'}
                         </span>
-                        <button onClick={() => setPlanningItems(prev => prev.filter((_, idx) => idx !== i))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all"><Trash2 size={14} /></button>
+                        <button onClick={() => setPlanningItems(prev => prev.filter((_, idx) => idx !== i))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all" aria-label="Remover item"><Trash2 size={14} /></button>
                       </div>
                     ))}
                   </div>
@@ -1350,7 +1350,7 @@ export default function Dashboard() {
                               }))
                               setMessageInput('')
                             }
-                          }} placeholder="Digite sua mensagem..." className="flex-1 dash-input" />
+                          }} placeholder="Digite sua mensagem..." aria-label="Digite sua mensagem" className="flex-1 dash-input" />
                           <button onClick={() => {
                             if (!messageInput.trim()) return
                             setMessageHistory(prev => ({
@@ -1392,7 +1392,7 @@ export default function Dashboard() {
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => setWorkflows(prev => prev.map(w => w.id === wf.id ? { ...w, active: !w.active } : w))} className="btn-dash-secondary text-xs py-1.5 px-3">{wf.active ? 'Pausar' : 'Ativar'}</button>
-                          <button onClick={() => setWorkflows(prev => prev.filter(w => w.id !== wf.id))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all"><Trash2 size={14} /></button>
+                          <button onClick={() => setWorkflows(prev => prev.filter(w => w.id !== wf.id))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all" aria-label="Remover fluxo"><Trash2 size={14} /></button>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 overflow-x-auto pb-2">
@@ -1414,9 +1414,9 @@ export default function Dashboard() {
               <motion.div key="agendamentos" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1))} className="btn-dash-secondary p-2"><ChevronDown size={16} className="rotate-90" /></button>
+                    <button onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1))} className="btn-dash-secondary p-2" aria-label="Mês anterior"><ChevronDown size={16} className="rotate-90" /></button>
                     <span className="text-sm font-semibold">{calendarMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</span>
-                    <button onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1))} className="btn-dash-secondary p-2"><ChevronDown size={16} className="-rotate-90" /></button>
+                    <button onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1))} className="btn-dash-secondary p-2" aria-label="Próximo mês"><ChevronDown size={16} className="-rotate-90" /></button>
                   </div>
                   <button onClick={() => { setEventForm({ title: '', date: '', time: '', participants: '', color: '#8b5cf6' }); setShowEventForm(true) }} className="btn-dash-primary text-xs py-2 px-3"><Plus size={14} /> Novo Evento</button>
                 </div>
@@ -1463,7 +1463,7 @@ export default function Dashboard() {
                           <div className="text-sm font-semibold">{ev.title}</div>
                           <div className="text-xs text-gray-500">{new Date(ev.date).toLocaleDateString('pt-BR')} às {ev.time} · {ev.participants}</div>
                         </div>
-                        <button onClick={() => setEvents(prev => prev.filter(e => e.id !== ev.id))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all"><Trash2 size={14} /></button>
+                        <button onClick={() => setEvents(prev => prev.filter(e => e.id !== ev.id))} className="p-1.5 rounded-md hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all" aria-label="Remover evento"><Trash2 size={14} /></button>
                       </div>
                     ))}
                   </div>
@@ -1578,7 +1578,7 @@ export default function Dashboard() {
             <h3 className="font-display font-semibold">Notificações ({alertCount})</h3>
             <div className="flex gap-2">
               <button onClick={handleMarkAllRead} className="text-xs text-accent-light hover:underline">Marcar lidas</button>
-              <button onClick={() => setNotifOpen(false)} className="p-1 hover:bg-white/5 rounded-lg transition-colors"><X size={18} /></button>
+              <button onClick={() => setNotifOpen(false)} className="p-1 hover:bg-white/5 rounded-lg transition-colors" aria-label="Fechar notificações"><X size={18} /></button>
             </div>
           </div>
           <div className="space-y-2">
@@ -1592,7 +1592,7 @@ export default function Dashboard() {
                     <div className="text-[11px] text-gray-500 mt-0.5">{alert.suggestion}</div>
                     <div className="text-[10px] text-gray-600 mt-1">{new Date(alert.created_at).toLocaleDateString('pt-BR')}</div>
                   </div>
-                  <button onClick={() => handleDismissAlert(alert.id)} className="text-gray-600 hover:text-white p-0.5 self-start"><X size={12} /></button>
+                  <button onClick={() => handleDismissAlert(alert.id)} className="text-gray-600 hover:text-white p-0.5 self-start" aria-label="Dispensar notificação"><X size={12} /></button>
                 </div>
               )
             })}
@@ -1607,7 +1607,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
             <div className="flex items-center justify-between mb-6">
               <h2 className="dash-modal-title">{editingClient ? 'Editar Cliente' : 'Novo Cliente'}</h2>
-              <button onClick={() => setShowClientForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowClientForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div><label className="text-xs text-gray-500 mb-1.5 block">Nome *</label><input value={clientForm.name} onChange={e => setClientForm({ ...clientForm, name: e.target.value })} className="dash-input" placeholder="Nome do cliente" /></div>
@@ -1646,7 +1646,7 @@ export default function Dashboard() {
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-display text-lg font-semibold">Detalhes do Cliente</h3>
-              <button onClick={() => setSelectedClient(null)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setSelectedClient(null)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
 
             <div className="flex items-center gap-4 mb-6">
@@ -1713,7 +1713,7 @@ export default function Dashboard() {
 
             <div className="flex gap-2 mt-6">
               <button onClick={() => { openEditClient(selectedClient); setSelectedClient(null) }} className="btn-secondary flex-1 text-xs py-2.5 justify-center"><Edit size={14} /> Editar</button>
-              <button onClick={() => handleDeleteClient(selectedClient.id)} className="px-4 py-2.5 bg-red-500/15 text-red-400 rounded-lg text-xs font-medium hover:bg-red-500/25 transition-all"><Trash2 size={14} /></button>
+              <button onClick={() => handleDeleteClient(selectedClient.id)} className="px-4 py-2.5 bg-red-500/15 text-red-400 rounded-lg text-xs font-medium hover:bg-red-500/25 transition-all" aria-label="Excluir cliente"><Trash2 size={14} /></button>
             </div>
           </div>
         </div>
@@ -1725,7 +1725,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-lg">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-lg font-semibold">Nova Campanha</h2>
-              <button onClick={() => setShowCampaignForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowCampaignForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div><label className="text-xs text-gray-500 mb-1.5 block">Nome *</label><input value={campaignForm.name} onChange={e => setCampaignForm({ ...campaignForm, name: e.target.value })} className="dash-input" placeholder="Nome da campanha" /></div>
@@ -1755,7 +1755,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-lg">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-lg font-semibold">Importar Clientes</h2>
-              <button onClick={() => setShowCsvImport(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowCsvImport(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <CsvImport userId={userId} onComplete={() => { setShowCsvImport(false); refreshClients(); refreshMetrics() }} />
           </motion.div>
@@ -1768,7 +1768,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
             <div className="flex items-center justify-between mb-6">
               <h2 className="dash-modal-title">Nova Coluna</h2>
-              <button onClick={() => setShowColumnForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowColumnForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -1805,7 +1805,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-lg font-semibold">Novo Card</h2>
-              <button onClick={() => setShowKanbanForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowKanbanForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -1850,7 +1850,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-lg font-semibold">Novo Lançamento</h2>
-              <button onClick={() => setShowFinancialForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowFinancialForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -1897,7 +1897,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
             <div className="flex items-center justify-between mb-6">
               <h2 className="dash-modal-title">Novo Item</h2>
-              <button onClick={() => setShowPlanningForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowPlanningForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div><label className="text-xs text-gray-500 mb-1.5 block">Título *</label><input value={planningForm.title} onChange={e => setPlanningForm({ ...planningForm, title: e.target.value })} className="dash-input" placeholder="Título do item" /></div>
@@ -1933,7 +1933,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
             <div className="flex items-center justify-between mb-6">
               <h2 className="dash-modal-title">Novo Fluxo</h2>
-              <button onClick={() => setShowWorkflowForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowWorkflowForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div><label className="text-xs text-gray-500 mb-1.5 block">Nome *</label><input value={workflowForm.name} onChange={e => setWorkflowForm({ ...workflowForm, name: e.target.value })} className="dash-input" placeholder="Nome do fluxo" /></div>
@@ -1942,7 +1942,7 @@ export default function Dashboard() {
                 {workflowForm.steps.map((step, i) => (
                   <div key={i} className="flex gap-2 mb-2">
                     <input value={step} onChange={e => { const s = [...workflowForm.steps]; s[i] = e.target.value; setWorkflowForm({ ...workflowForm, steps: s }) }} className="dash-input flex-1" placeholder={`Etapa ${i + 1}`} />
-                    {workflowForm.steps.length > 1 && <button onClick={() => setWorkflowForm({ ...workflowForm, steps: workflowForm.steps.filter((_, idx) => idx !== i) })} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg"><X size={14} /></button>}
+                    {workflowForm.steps.length > 1 && <button onClick={() => setWorkflowForm({ ...workflowForm, steps: workflowForm.steps.filter((_, idx) => idx !== i) })} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg" aria-label="Remover etapa"><X size={14} /></button>}
                   </div>
                 ))}
                 <button onClick={() => setWorkflowForm({ ...workflowForm, steps: [...workflowForm.steps, ''] })} className="text-xs text-accent-violet hover:underline mt-1">+ Adicionar etapa</button>
@@ -1969,7 +1969,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="dash-modal">
             <div className="flex items-center justify-between mb-6">
               <h2 className="dash-modal-title">Novo Evento</h2>
-              <button onClick={() => setShowEventForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowEventForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div><label className="text-xs text-gray-500 mb-1.5 block">Título *</label><input value={eventForm.title} onChange={e => setEventForm({ ...eventForm, title: e.target.value })} className="dash-input" placeholder="Título do evento" /></div>
@@ -2005,7 +2005,7 @@ export default function Dashboard() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-surface border border-white/10 rounded-xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-lg font-semibold">Adicionar Membro</h2>
-              <button onClick={() => setShowTeamForm(false)} className="p-1 hover:bg-white/5 rounded-lg"><X size={18} /></button>
+              <button onClick={() => setShowTeamForm(false)} className="p-1 hover:bg-white/5 rounded-lg" aria-label="Fechar"><X size={18} /></button>
             </div>
             <div className="space-y-4">
               <div>
